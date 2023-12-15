@@ -2,8 +2,7 @@
 
 InferenceThreadPool::InferenceThreadPool()  {
     for (int i = 0; i < std::thread::hardware_concurrency(); ++i) {
-        singleThreadPool.push_back(std::make_unique<ThreadClass>());
-        singleThreadPool[i]->startThread(juce::Thread::Priority::highest);
+        singleThreadPool.push_back(std::make_unique<MyThread>());
     }
 }
 
@@ -27,10 +26,6 @@ void InferenceThreadPool::newDataSubmitted(int sessionID) {
     auto session = sessions.at(sessionID).get();
 
     while (session->sendBuffer.getAvailableSamples(0) >= (BATCH_SIZE * MODEL_INPUT_SIZE)) {
-        std::future<bool> my_future = pool.submit([session] {
-            process(*session);
-            return true;
-        });
     }
 }
 

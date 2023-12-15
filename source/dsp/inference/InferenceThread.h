@@ -114,9 +114,8 @@ private:
     inline static std::atomic<int> activeSessions = 0;
     inline static bool threadPoolShouldExit = false;
 
-    std::counting_semaphore<0> test;
 
-    inline static std::vector<std::unique_ptr<ThreadClass>> singleThreadPool;
+    inline static std::vector<std::unique_ptr<MyThread>> singleThreadPool;
 };
 
 #endif //NN_INFERENCE_TEMPLATE_INFERENCETHREAD_H

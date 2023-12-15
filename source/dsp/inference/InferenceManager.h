@@ -4,7 +4,6 @@
 #include <JuceHeader.h>
 
 #include "InferenceThread.h"
-#include "Test.h"
 #include "../utils/ThreadSafeBuffer.h"
 #include "../utils/HostConfig.h"
 
@@ -23,7 +22,7 @@ public:
     // Required for unit test
     int getNumReceivedSamples();
     bool isInitializing() const;
-    InferenceThread& getInferenceThread();
+    InferenceThreadPool& getInferenceThread();
 
     int getMissingBlocks() {
         return inferenceCounter.load();;
