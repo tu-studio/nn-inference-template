@@ -97,10 +97,16 @@ void AudioPluginAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
                                  static_cast<juce::uint32>(samplesPerBlock),
                                  static_cast<juce::uint32>(1)};
 
+    HostConfig monoConfig {
+        1,
+        samplesPerBlock,
+        sampleRate
+    };
+
     dryWetMixer.prepare(monoSpec);
 
     monoBuffer.setSize(1, samplesPerBlock);
-    inferenceManager.prepareToPlay(monoSpec);
+    inferenceManager.prepareToPlay(monoConfig);
 
     auto newLatency = inferenceManager.getLatency();
     dryWetMixer.setWetLatency(newLatency);
@@ -187,15 +193,12 @@ void AudioPluginAudioProcessor::setStateInformation (const void* data, int sizeI
 }
 
 void AudioPluginAudioProcessor::parameterChanged(const juce::String &parameterID, float newValue) {
-    if (parameterID == PluginParameters::BACKEND_TYPE_ID.getParamID()) {
-        InferenceBackend newInferenceBackend = (newValue == 0.0f) ? TFLITE :
-        (newValue == 1.f) ? LIBTORCH : ONNX;
-        inferenceManager.getInferenceThread().setBackend(newInferenceBackend);
-    } else if (parameterID == PluginParameters::DRY_WET_ID.getParamID()) {
+    if (parameterID == PluginParameters::DRY_WET_ID.getParamID()) {
         dryWetMixer.setDryWetProportion(newValue);
+    } else {
+        inferenceManager.parameterChanged(parameterID, newValue);
     }
 }
-
 //==============================================================================
 // This creates new instances of the plugin..
 juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
