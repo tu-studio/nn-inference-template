@@ -94,7 +94,9 @@ juce_add_plugin(${TARGET_NAME}
 		PLUGIN_CODE Nnit                            # A unique four-character plugin id with exactly one upper-case character
 		# GarageBand 10.3 requires the first letter to be upper-case, and the remaining letters to be lower-case
 
-		if(APPLE)
+        VST3_AUTO_MANIFEST FALSE
+
+        if(APPLE)
             HARDENED_RUNTIME_ENABLED TRUE
             HARDENED_RUNTIME_OPTIONS "com.apple.security.device.audio-input"
             MICROPHONE_PERMISSION_ENABLED TRUE
@@ -130,8 +132,11 @@ foreach (DIR ${SOURCE_DIRS})
     endif ()
 endforeach ()
 
+target_include_directories(${TARGET_NAME} PRIVATE modules/thread-pool/include)
+
+
 # Make the folder structure visible in IDEs like Xcode
-source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/source PREFIX "source" FILES ${SOURCES})
+#source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/source PREFIX "source" FILES ${SOURCES})
 
 target_compile_definitions(${TARGET_NAME}
     PRIVATE
@@ -140,7 +145,8 @@ target_compile_definitions(${TARGET_NAME}
     JUCE_USE_CURL=0     # If you remove this, add `NEEDS_CURL TRUE` to the `juce_add_plugin` call
     JUCE_VST3_CAN_REPLACE_VST2=0
     JUCE_DISPLAY_SPLASH_SCREEN=0
-    DONT_SET_USING_JUCE_NAMESPACE=1)
+    DONT_SET_USING_JUCE_NAMESPACE=1
+)
 
 target_link_libraries(${TARGET_NAME}
     PRIVATE
@@ -156,6 +162,19 @@ target_link_libraries(${TARGET_NAME}
         juce::juce_recommended_config_flags
         juce::juce_recommended_lto_flags
         juce::juce_recommended_warning_flags)
+
+if (MSVC)
+    file(GLOB_RECURSE INFERENCE_ENGINE_DLLS "modules/*.dll")
+    foreach(FORMAT IN LISTS FORMATS_TO_BUILD)
+        string(CONCAT CONCATENATED_TARGET ${TARGET_NAME}_${FORMAT})
+        add_custom_command(TARGET ${CONCATENATED_TARGET}
+                POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                ${INFERENCE_ENGINE_DLLS}
+                $<TARGET_FILE_DIR:${TARGET_NAME}>/${FORMAT})
+    endforeach()
+endif (MSVC)
+
 
 # ==============================================================================
 
