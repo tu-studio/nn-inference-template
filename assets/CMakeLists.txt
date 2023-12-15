@@ -18,4 +18,7 @@
          graphics/onnx_font.svg
 
          graphics/highlight.png
+
+         graphics/detailButtonOff.svg
+         graphics/detailButtonOn.svg
  )
