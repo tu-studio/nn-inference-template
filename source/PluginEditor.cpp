@@ -6,7 +6,12 @@
 
 //==============================================================================
 AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAudioProcessor& p)
-    : AudioProcessorEditor (&p), processorRef (p), backendSelector(p.getValueTreeState()), dryWetSlider(p.getValueTreeState()), apvts(p.getValueTreeState())
+    : AudioProcessorEditor (&p),
+      processorRef (p),
+      backendSelector(p.getValueTreeState()),
+      dryWetSlider(p.getValueTreeState()),
+      apvts(p.getValueTreeState()),
+      detailViewComponent(p)
 {
     juce::ignoreUnused (processorRef);
 
@@ -23,6 +28,7 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
 
     addAndMakeVisible(backendSelector);
     addAndMakeVisible(dryWetSlider);
+    addAndMakeVisible(detailViewComponent);
 }
 
 AudioPluginAudioProcessorEditor::~AudioPluginAudioProcessorEditor()
@@ -70,6 +76,7 @@ void AudioPluginAudioProcessorEditor::resized()
     auto sliderComponentBound = getBounds().removeFromTop(scaledHeight(710)).removeFromBottom(scaledHeight(60));
     dryWetSlider.setBounds(sliderComponentBound);
 
+    detailViewComponent.setBounds(455, 35, 25, 14);
 }
 
 void AudioPluginAudioProcessorEditor::parameterChanged(const juce::String &parameterID, float newValue) {

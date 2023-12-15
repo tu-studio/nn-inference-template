@@ -3,6 +3,7 @@
 #include "PluginProcessor.h"
 #include "ui/BackendSelector.h"
 #include "ui/DryWetSlider.h"
+#include "ui/DetailView/DetailViewButton.h"
 #include "PluginParameters.h"
 
 //==============================================================================
@@ -31,10 +32,12 @@ private:
     std::unique_ptr<juce::Drawable> tfliteFont = juce::Drawable::createFromImageData (BinaryData::tflite_font_svg, BinaryData::tflite_font_svgSize);
     std::unique_ptr<juce::Drawable> onnxFont = juce::Drawable::createFromImageData (BinaryData::onnx_font_svg, BinaryData::onnx_font_svgSize);
     std::unique_ptr<juce::Drawable> libtorchFont = juce::Drawable::createFromImageData (BinaryData::libtorch_font_svg, BinaryData::libtorch_font_svgSize);
+
     juce::Rectangle<int> fontBounds;
 
     BackendSelector backendSelector;
     DryWetSlider dryWetSlider;
+    DetailViewButton detailViewComponent;
 
     juce::AudioProcessorValueTreeState& apvts;
 
