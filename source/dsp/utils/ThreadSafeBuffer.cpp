@@ -2,6 +2,10 @@
 
 ThreadSafeBuffer::ThreadSafeBuffer() = default;
 
+ThreadSafeBuffer::ThreadSafeBuffer(int numChannels, int numSamples) {
+    initialise(numChannels, numSamples);
+}
+
 void ThreadSafeBuffer::initialise(int numChannels, int numSamples) {
     buffer.clear();
     for (int i = 0; i < numChannels; ++i) {

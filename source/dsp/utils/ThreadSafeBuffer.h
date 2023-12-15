@@ -8,6 +8,7 @@ class ThreadSafeBuffer
 {
 public:
     ThreadSafeBuffer();
+    ThreadSafeBuffer(int numChannels, int numSamples);
 
     void initialise(int numChannels, int numSamples);
     void reset();
