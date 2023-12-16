@@ -30,7 +30,7 @@ public:
     }
 
     int getSessionID() const {
-        return sessio.sessionID;
+        return session.sessionID;
     }
 
 private:

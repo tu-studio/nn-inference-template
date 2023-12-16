@@ -12,14 +12,15 @@ void InferenceManager::parameterChanged(const juce::String &parameterID, float n
     if (parameterID == PluginParameters::BACKEND_TYPE_ID.getParamID()) {
         InferenceBackend newInferenceBackend = (newValue == 0.0f) ? TFLITE :
                                                (newValue == 1.f) ? LIBTORCH : ONNX;
-        inferenceThreadPool->setBackend(newInferenceBackend, sessionID);
+        session.currentBackend = newInferenceBackend;
     }
 }
 
 void InferenceManager::prepareToPlay(HostConfig newConfig) {
     spec = newConfig;
 
-    inferenceThreadPool->prepareToPlay(spec, sessionID);
+    session.sendBuffer.initialise(1, (int) spec.hostSampleRate * 6);
+    session.receiveBuffer.initialise(1, (int) spec.hostSampleRate * 6);
     inferenceCounter = 0;
 
     init = true;
@@ -47,19 +48,17 @@ void InferenceManager::processBlock(juce::AudioBuffer<float> &buffer) {
 }
 
 void InferenceManager::processInput(juce::AudioBuffer<float> &buffer) {
-    auto& sendBuffer = inferenceThreadPool->getSendBuffer(sessionID);
     for (int sample = 0; sample < buffer.getNumSamples(); ++sample) {
-        sendBuffer.pushSample(buffer.getSample(0, sample), 0);
+        session.sendBuffer.pushSample(buffer.getSample(0, sample), 0);
     }
-    inferenceThreadPool->newDataSubmitted(sessionID);
+    inferenceThreadPool->newDataSubmitted(session);
 }
 
 void InferenceManager::processOutput(juce::AudioBuffer<float> &buffer) {
-    auto& receiveBuffer = inferenceThreadPool->getReceiveBuffer(sessionID);
     while (inferenceCounter > 0) {
-        if (receiveBuffer.getAvailableSamples(0) >= 2 * buffer.getNumSamples()) {
+        if (session.receiveBuffer.getAvailableSamples(0) >= 2 * buffer.getNumSamples()) {
             for (int i = 0; i < buffer.getNumSamples(); ++i) {
-                receiveBuffer.popSample(0);
+                session.receiveBuffer.popSample(0);
             }
             inferenceCounter--;
         }
@@ -67,9 +66,9 @@ void InferenceManager::processOutput(juce::AudioBuffer<float> &buffer) {
             break;
         }
     }
-    if (receiveBuffer.getAvailableSamples(0) >= buffer.getNumSamples()) {
+    if (session.receiveBuffer.getAvailableSamples(0) >= buffer.getNumSamples()) {
         for (int sample = 0; sample < buffer.getNumSamples(); ++sample) {
-            buffer.setSample(0, sample, receiveBuffer.popSample(0));
+            buffer.setSample(0, sample, session.receiveBuffer.popSample(0));
         }
     }
     else {
@@ -89,7 +88,7 @@ InferenceThreadPool &InferenceManager::getInferenceThread() {
 }
 
 int InferenceManager::getNumReceivedSamples() {
-    return inferenceThreadPool->getReceiveBuffer(sessionID).getAvailableSamples(0);
+    return session.receiveBuffer.getAvailableSamples(0);
 }
 
 bool InferenceManager::isInitializing() const {

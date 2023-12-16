@@ -4,6 +4,7 @@
 #include <JuceHeader.h>
 #include <semaphore>
 
+#include "SessionElement.h"
 #include "../utils/ThreadSafeBuffer.h"
 #include "../utils/HostConfig.h"
 #include "InferenceThread.h"
@@ -11,17 +12,6 @@
 #include "backends/OnnxRuntimeProcessor.h"
 #include "backends/LibtorchProcessor.h"
 #include "backends/TFLiteProcessor.h"
-
-struct SessionElement {
-    ThreadSafeBuffer sendBuffer {1, 48000};
-    ThreadSafeBuffer receiveBuffer {1, 48000};
-
-    NNInferenceTemplate::OutputArray rawModelOutputBuffer{};
-    NNInferenceTemplate::InputArray processedModelInput{};
-
-    std::atomic<InferenceBackend> currentBackend {ONNX};
-    std::counting_semaphore<1000> semaphore{0};
-};
 
 class InferenceThreadPool{
 public:
@@ -33,14 +23,8 @@ public:
         return activeSessions.load();
     }
 
-    static void prepareToPlay(HostConfig spec, int sessionID);
-    static void setBackend(InferenceBackend backend, int sessionID);
-
-    static ThreadSafeBuffer& getSendBuffer(int sessionID);
-    static ThreadSafeBuffer& getReceiveBuffer(int sessionID);
-
-    inline static std::counting_semaphore<1000> semaphore{0};
-    void newDataSubmitted(int sessionID);
+    inline static std::counting_semaphore<1000> globalSemaphore{0};
+    void newDataSubmitted(SessionElement& session);
 
 private:
     InferenceThreadPool();
@@ -58,7 +42,7 @@ private:
     inline static std::atomic<int> activeSessions = 0;
     inline static bool threadPoolShouldExit = false;
 
-    // inline static std::vector<std::unique_ptr<InferenceThread>> singleThreadPool;
+    inline static std::vector<std::unique_ptr<InferenceThread>> threadPool;
 };
 
 #endif //NN_INFERENCE_TEMPLATE_INFERENCETHREADPOOL_H

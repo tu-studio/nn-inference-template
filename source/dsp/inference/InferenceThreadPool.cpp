@@ -2,7 +2,7 @@
 
 InferenceThreadPool::InferenceThreadPool()  {
     for (size_t i = 0; i < (size_t) std::thread::hardware_concurrency(); ++i) {
-    singleThreadPool.push_back(std::make_unique<InferenceThread>(semaphore, sessions));
+        threadPool.emplace_back(std::make_unique<InferenceThread>(globalSemaphore, sessions));
     }
 }
 
@@ -34,45 +34,12 @@ void InferenceThreadPool::releaseSession(SessionElement& session) {
     }   
 }
 
-void InferenceThreadPool::prepareToPlay(HostConfig config, int sessionID) {
-    auto session = sessions.at(sessionID).get();
-
-    session->sendBuffer.initialise(1, (int) config.hostSampleRate * 6);
-    session->receiveBuffer.initialise(1, (int) config.hostSampleRate * 6);
-}
-
-void InferenceThreadPool::newDataSubmitted(int sessionID) {
-    // auto session = sessions.at(sessionID).get();
-
-    // if (session->sendBuffer.getAvailableSamples(0) >= (BATCH_SIZE * MODEL_INPUT_SIZE)) {
-    //     session->semaphore.release();
-    //     semaphore.release();
-    // }
-}
-
-/*void InferenceThreadPool::run() {
-    while (!threadShouldExit()) {
-        bool processIdle = true;
-        for (const auto& ses : sessions) {
-            auto& session = ses.second;
-
-//            if (session->processed) {
-//                session->processed = false;
-//                postProcess(*session);
-//            }
-
-            if (session->sendBuffer.getAvailableSamples(0) >= (BATCH_SIZE * MODEL_INPUT_SIZE)) {
-                processIdle = false;
-//                session->processing = true;
-//                process(*session);
-                process(*session);
-            }
-        }
-        if (processIdle) {
-            std::this_thread::sleep_for(std::chrono::microseconds(10));
-        }
+void InferenceThreadPool::newDataSubmitted(SessionElement& session) {
+    if (session.sendBuffer.getAvailableSamples(0) >= (BATCH_SIZE * MODEL_INPUT_SIZE)) {
+        session.sendSemaphore.release();
+        globalSemaphore.release();
     }
-}*/
+}
 
 void InferenceThreadPool::process(SessionElement& session) {
     preProcess(session);
@@ -118,17 +85,3 @@ void InferenceThreadPool::postProcess(SessionElement& session) {
     }
     //session.processing = false;
 }
-
-void InferenceThreadPool::setBackend(InferenceBackend backend, int sessionID) {
-    sessions.at(sessionID)->currentBackend.store(backend);
-}
-
-ThreadSafeBuffer& InferenceThreadPool::getSendBuffer(int sessionID) {
-    return sessions.at(sessionID)->sendBuffer;
-}
-
-ThreadSafeBuffer& InferenceThreadPool::getReceiveBuffer(int sessionID) {
-    return sessions.at(sessionID)->receiveBuffer;
-}
-
-
