@@ -45,8 +45,8 @@ void InferenceThreadPool::newDataSubmitted(SessionElement& session) {
     }
 }
 
-void InferenceThreadPool::newDataRequest(SessionElement& session) {
-    auto timeToProcess = std::chrono::milliseconds(1);
+void InferenceThreadPool::newDataRequest(SessionElement& session, double bufferSizeInSec) {
+    auto timeToProcess = std::chrono::milliseconds(static_cast<int>(bufferSizeInSec / 1000 * 0.5));
     auto currentTime = std::chrono::system_clock::now();
     auto waitUntil = currentTime + timeToProcess;
 

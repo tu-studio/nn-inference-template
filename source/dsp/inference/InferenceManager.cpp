@@ -55,7 +55,8 @@ void InferenceManager::processInput(juce::AudioBuffer<float> &buffer) {
 }
 
 void InferenceManager::processOutput(juce::AudioBuffer<float> &buffer) {
-    inferenceThreadPool->newDataRequest(session);
+    double timeInSec = static_cast<double>(buffer.getNumSamples()) / spec.hostSampleRate;
+    inferenceThreadPool->newDataRequest(session, timeInSec);
     
     while (inferenceCounter > 0) {
         if (session.receiveBuffer.getAvailableSamples(0) >= 2 * buffer.getNumSamples()) {

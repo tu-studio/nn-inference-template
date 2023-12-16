@@ -19,7 +19,7 @@ void LibtorchProcessor::prepareToPlay() {
     // first run takes longest, so we do it here
     NNInferenceTemplate::InputArray input;
     NNInferenceTemplate::OutputArray output;
-    //processBlock(input, output);
+    processBlock(input, output);
 }
 
 void LibtorchProcessor::processBlock(NNInferenceTemplate::InputArray& input, NNInferenceTemplate::OutputArray& output) {
