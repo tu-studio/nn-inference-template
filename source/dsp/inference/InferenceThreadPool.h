@@ -27,7 +27,7 @@ class InferenceThreadPool{
 public:
     static InferenceThreadPool& getInstance();
     static int createSession();
-    static void releaseSession(int sessionID);
+    static void releaseSession(SessionElement& session);
 
     static int getNumberOfSessions() {
         return activeSessions.load();
@@ -53,7 +53,7 @@ private:
     static void postProcess(SessionElement& session);
 
 private:
-    inline static std::unordered_map<int, std::unique_ptr<SessionElement>> sessions;
+    inline static std::vector<int, std::unique_ptr<SessionElement>> sessions;
     inline static std::atomic<int> nextId = 0;
     inline static std::atomic<int> activeSessions = 0;
     inline static bool threadPoolShouldExit = false;
