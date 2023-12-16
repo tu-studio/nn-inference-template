@@ -1,26 +1,25 @@
 #include "InferenceManager.h"
 #include "../PluginParameters.h"
 
-InferenceManager::InferenceManager() : sessionID(InferenceThreadPool::getAvailableSessionID()) {
-    inferenceThread = std::make_shared<InferenceThreadPool>(InferenceThreadPool::getInstance(sessionID));
+InferenceManager::InferenceManager() : inferenceThreadPool(std::make_unique<InferenceThreadPool>(InferenceThreadPool::getInstance())), sessionID(inferenceThreadPool->createSession()) {
 }
 
 InferenceManager::~InferenceManager() {
-    inferenceThread->releaseInstance(sessionID);
+    inferenceThreadPool->releaseSession(sessionID);
 }
 
 void InferenceManager::parameterChanged(const juce::String &parameterID, float newValue) {
     if (parameterID == PluginParameters::BACKEND_TYPE_ID.getParamID()) {
         InferenceBackend newInferenceBackend = (newValue == 0.0f) ? TFLITE :
                                                (newValue == 1.f) ? LIBTORCH : ONNX;
-        inferenceThread->setBackend(newInferenceBackend, sessionID);
+        inferenceThreadPool->setBackend(newInferenceBackend, sessionID);
     }
 }
 
 void InferenceManager::prepareToPlay(HostConfig newConfig) {
     spec = newConfig;
 
-    inferenceThread->prepareToPlay(spec, sessionID);
+    inferenceThreadPool->prepareToPlay(spec, sessionID);
     inferenceCounter = 0;
 
     init = true;
@@ -48,15 +47,15 @@ void InferenceManager::processBlock(juce::AudioBuffer<float> &buffer) {
 }
 
 void InferenceManager::processInput(juce::AudioBuffer<float> &buffer) {
-    auto& sendBuffer = inferenceThread->getSendBuffer(sessionID);
+    auto& sendBuffer = inferenceThreadPool->getSendBuffer(sessionID);
     for (int sample = 0; sample < buffer.getNumSamples(); ++sample) {
         sendBuffer.pushSample(buffer.getSample(0, sample), 0);
     }
-    inferenceThread->newDataSubmitted(sessionID);
+    inferenceThreadPool->newDataSubmitted(sessionID);
 }
 
 void InferenceManager::processOutput(juce::AudioBuffer<float> &buffer) {
-    auto& receiveBuffer = inferenceThread->getReceiveBuffer(sessionID);
+    auto& receiveBuffer = inferenceThreadPool->getReceiveBuffer(sessionID);
     while (inferenceCounter > 0) {
         if (receiveBuffer.getAvailableSamples(0) >= 2 * buffer.getNumSamples()) {
             for (int i = 0; i < buffer.getNumSamples(); ++i) {
@@ -86,11 +85,11 @@ int InferenceManager::getLatency() const {
 }
 
 InferenceThreadPool &InferenceManager::getInferenceThread() {
-    return *inferenceThread;
+    return *inferenceThreadPool;
 }
 
 int InferenceManager::getNumReceivedSamples() {
-    return inferenceThread->getReceiveBuffer(sessionID).getAvailableSamples(0);
+    return inferenceThreadPool->getReceiveBuffer(sessionID).getAvailableSamples(0);
 }
 
 bool InferenceManager::isInitializing() const {

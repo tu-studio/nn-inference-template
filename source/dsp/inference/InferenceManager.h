@@ -4,6 +4,7 @@
 #include <JuceHeader.h>
 
 #include "InferenceThread.h"
+#include "InferenceThreadPool.h"
 #include "../utils/ThreadSafeBuffer.h"
 #include "../utils/HostConfig.h"
 
@@ -37,7 +38,7 @@ private:
     void processOutput(juce::AudioBuffer<float>& buffer);
 
 private:
-    std::shared_ptr<InferenceThreadPool> inferenceThread;
+    std::unique_ptr<InferenceThreadPool> inferenceThreadPool;
 
     const int sessionID;
     HostConfig spec;
