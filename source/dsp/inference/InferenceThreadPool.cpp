@@ -25,13 +25,16 @@ SessionElement& InferenceThreadPool::createSession() {
 }
 
 void InferenceThreadPool::releaseSession(SessionElement& session) {
-    activeSessions--;
+    for (int i = 0; i < session.inferenceQueue.size(); ++i) {
+        session.inferenceQueue[i].free.acquire();
+    }
     for (int i = 0; i < sessions.size(); ++i) {
         if (sessions[i].get() == &session) {
             sessions.erase(sessions.begin() + i);
             break;
         }
-    }   
+    }
+    activeSessions--;
 }
 
 void InferenceThreadPool::newDataSubmitted(SessionElement& session) {
