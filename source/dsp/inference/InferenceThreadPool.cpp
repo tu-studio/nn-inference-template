@@ -56,11 +56,13 @@ void InferenceThreadPool::preProcess(SessionElement& session) {
                 size_t baseIdx = batch * MODEL_INPUT_SIZE_BACKEND;
                 size_t prevBaseIdx = (batch == 0 ? BATCH_SIZE - 1 : batch - 1) * MODEL_INPUT_SIZE_BACKEND;
 
-                for (size_t j = 1; j < MODEL_INPUT_SIZE_BACKEND; j++) {
-                    session.inferenceQueue[i].processedModelInput = session.inferenceQueue[i].processedModelInput[prevBaseIdx + j];
+                for (size_t j = MODEL_INPUT_SIZE_BACKEND - 1; j >= 0; j--) {                                        
+                    if (j = MODEL_INPUT_SIZE_BACKEND - 1) {
+                        session.inferenceQueue[i].processedModelInput[baseIdx + j] = session.sendBuffer.popSample(0);
+                    } else  {
+                        session.inferenceQueue[i].processedModelInput[baseIdx + j] = session.sendBuffer.getSample(0, MODEL_INPUT_SIZE_BACKEND - j);
+                    }
                 }
-
-                session.inferenceQueue[i].processedModelInput[baseIdx + MODEL_INPUT_SIZE_BACKEND - 1] = session.sendBuffer.popSample(0);
             }
             session.inferenceQueue[i].time = std::chrono::system_clock::now();
             break;
@@ -74,9 +76,9 @@ void InferenceThreadPool::inference(SessionElement& session) {
 //    });
 
 
-    for (int i = 0; i < session.processedModelInput.size(); ++i) {
-        session.rawModelOutputBuffer[i] = session.processedModelInput[i];
-    }
+    // for (int i = 0; i < session.processedModelInput.size(); ++i) {
+    //     session.rawModelOutputBuffer[i] = session.processedModelInput[i];
+    // }
 
 /*    if (session.currentBackend == ONNX) {
         onnxProcessor.processBlock(session.processedModelInput, session.rawModelOutputBuffer);
@@ -88,8 +90,8 @@ void InferenceThreadPool::inference(SessionElement& session) {
 }
 
 void InferenceThreadPool::postProcess(SessionElement& session) {
-    for (size_t j = 0; j < BATCH_SIZE * MODEL_OUTPUT_SIZE_BACKEND; j++) {
-        session.receiveBuffer.pushSample(session.rawModelOutputBuffer[j], 0);
-    }
+    // for (size_t j = 0; j < BATCH_SIZE * MODEL_OUTPUT_SIZE_BACKEND; j++) {
+    //     session.receiveBuffer.pushSample(session.rawModelOutputBuffer[j], 0);
+    // }
     //session.processing = false;
 }

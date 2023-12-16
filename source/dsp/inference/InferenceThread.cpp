@@ -22,9 +22,9 @@ void InferenceThread::run() {
         for (const auto& session : sessions) {
             if (session->sendSemaphore.try_acquire()) {
                 for (int i = 0; i < session->inferenceQueue.size(); ++i) {
-                    if (session->inferenceQueue[i].waitingForInference.try_acquire()) {
-                        inference(session->currentBackend, session->inferenceQueue[i].processedModelInput, session->inferenceQueue[i].rawModelOutputBuffer);
-                    }
+                    // if (session->inferenceQueue[i].waitingForInference.try_acquire()) {
+                    //     inference(session->currentBackend, session->inferenceQueue[i].processedModelInput, session->inferenceQueue[i].rawModelOutputBuffer);
+                    // }
                     break;
                 }
             }
