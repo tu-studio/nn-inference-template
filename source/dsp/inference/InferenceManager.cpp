@@ -51,7 +51,6 @@ void InferenceManager::processInput(juce::AudioBuffer<float> &buffer) {
     for (int sample = 0; sample < buffer.getNumSamples(); ++sample) {
         session.sendBuffer.pushSample(buffer.getSample(0, sample), 0);
     }
-    std::cout << "##### available samples: " << session.sendBuffer.getAvailableSamples(0) << std::endl;
     inferenceThreadPool->newDataSubmitted(session);
 }
 
@@ -64,6 +63,7 @@ void InferenceManager::processOutput(juce::AudioBuffer<float> &buffer) {
                 session.receiveBuffer.popSample(0);
             }
             inferenceCounter--;
+            std::cout << "##### catch up samples" << std::endl;
         }
         else {
             break;

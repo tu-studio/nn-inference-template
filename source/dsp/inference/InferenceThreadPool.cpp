@@ -51,7 +51,6 @@ void InferenceThreadPool::newDataRequest(SessionElement& session) {
 void InferenceThreadPool::preProcess(SessionElement& session) {
     for (int i = 0; i < session.inferenceQueue.size(); ++i) {
         if (session.inferenceQueue[i].free.try_acquire()) {
-            std::cout << "##### available samples ITP: " << session.sendBuffer.getAvailableSamples(0) << std::endl;
             // TODO if getAvSamples != 0 check
             for (size_t batch = 0; batch < BATCH_SIZE; batch++) {
                 size_t baseIdx = batch * MODEL_INPUT_SIZE_BACKEND;
@@ -65,9 +64,9 @@ void InferenceThreadPool::preProcess(SessionElement& session) {
                     }
                 }
             }
-
-            std::cout << "##### available samples ITP: " << session.sendBuffer.getAvailableSamples(0) << std::endl;
-            session.inferenceQueue[i].time = std::chrono::system_clock::now();
+            const std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
+            session.timeStamps.push(now);
+            session.inferenceQueue[i].time = now;
             session.inferenceQueue[i].ready.release();
             break;
         }
@@ -76,13 +75,14 @@ void InferenceThreadPool::preProcess(SessionElement& session) {
 
 void InferenceThreadPool::postProcess(SessionElement& session) {
     for (int i = 0; i < session.inferenceQueue.size(); ++i) {
-        if (session.inferenceQueue[i].done.try_acquire()) {
-            std::cout << "##### available receive samples ITP: " << session.receiveBuffer.getAvailableSamples(0) << std::endl;  
-            for (size_t j = 0; j < BATCH_SIZE * MODEL_OUTPUT_SIZE_BACKEND; j++) {
-                session.receiveBuffer.pushSample(session.inferenceQueue[i].rawModelOutputBuffer[j], 0);
+        if (session.inferenceQueue[i].time == session.timeStamps.front()) {
+            if (session.inferenceQueue[i].done.try_acquire()) {
+                session.timeStamps.pop();
+                for (size_t j = 0; j < BATCH_SIZE * MODEL_OUTPUT_SIZE_BACKEND; j++) {
+                    session.receiveBuffer.pushSample(session.inferenceQueue[i].rawModelOutputBuffer[j], 0);
+                }
+                session.inferenceQueue[i].free.release();
             }
-            session.inferenceQueue[i].free.release();
-            std::cout << "##### available receive samples ITP: " << session.receiveBuffer.getAvailableSamples(0) << std::endl;
-        }
+        }    
     }
 }

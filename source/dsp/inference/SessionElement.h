@@ -27,8 +27,8 @@ struct SessionElement {
     };
     std::array<ThreadSafeStruct, 5000> inferenceQueue;
 
-
     std::atomic<InferenceBackend> currentBackend {ONNX};
+    std::queue<std::chrono::time_point<std::chrono::system_clock>> timeStamps; // TODO remove
 
     std::counting_semaphore<1000> sendSemaphore{0};
     std::counting_semaphore<1000> returnSemaphore{0};

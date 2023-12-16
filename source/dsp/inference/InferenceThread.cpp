@@ -35,11 +35,7 @@ void InferenceThread::run() {
 
 void InferenceThread::inference(InferenceBackend backend, NNInferenceTemplate::InputArray &input, NNInferenceTemplate::OutputArray &output) {
     if (backend == ONNX) {
-        // onnxProcessor.processBlock(input, output);
-        for (size_t batch = 0; batch < BATCH_SIZE; batch++) {
-            size_t baseIdx = batch * MODEL_INPUT_SIZE_BACKEND;
-            output[batch] = input[baseIdx + MODEL_INPUT_SIZE_BACKEND - 1 ];
-        }
+        onnxProcessor.processBlock(input, output);
     } else if (backend == LIBTORCH) {
         torchProcessor.processBlock(input, output);
     } else if (backend == TFLITE) {
