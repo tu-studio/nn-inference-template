@@ -18,7 +18,6 @@ void InferenceThread::start() {
 void InferenceThread::run() {
     while (!shouldExit) {
         globalSemaphore.acquire();
-        std::cout << "InferenceThread::run() acquired semaphore" << std::endl;
         for (const auto& session : sessions) {
             if (session->sendSemaphore.try_acquire()) {
                 for (int i = 0; i < session->inferenceQueue.size(); ++i) {
@@ -37,7 +36,7 @@ void InferenceThread::run() {
 void InferenceThread::inference(InferenceBackend backend, NNInferenceTemplate::InputArray &input, NNInferenceTemplate::OutputArray &output) {
     if (backend == ONNX) {
         // onnxProcessor.processBlock(input, output);
-        std::cout << "processing data darling" << std::endl;
+        output[0] = input[input.size() - 1];
     } else if (backend == LIBTORCH) {
         torchProcessor.processBlock(input, output);
     } else if (backend == TFLITE) {

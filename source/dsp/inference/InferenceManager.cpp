@@ -56,6 +56,8 @@ void InferenceManager::processInput(juce::AudioBuffer<float> &buffer) {
 }
 
 void InferenceManager::processOutput(juce::AudioBuffer<float> &buffer) {
+    inferenceThreadPool->newDataRequest(session);
+    
     while (inferenceCounter > 0) {
         if (session.receiveBuffer.getAvailableSamples(0) >= 2 * buffer.getNumSamples()) {
             for (int i = 0; i < buffer.getNumSamples(); ++i) {

@@ -43,10 +43,10 @@ void InferenceThreadPool::newDataSubmitted(SessionElement& session) {
     }
 }
 
-void InferenceThreadPool::process(SessionElement& session) {
-    preProcess(session);
-    inference(session);
-    postProcess(session);
+void InferenceThreadPool::newDataRequest(SessionElement& session) {
+    if (session.returnSemaphore.try_acquire_for(std::chrono::milliseconds(1))) {
+        postProcess(session);
+    }
 }
 
 void InferenceThreadPool::preProcess(SessionElement& session) {
@@ -65,6 +65,7 @@ void InferenceThreadPool::preProcess(SessionElement& session) {
                     }
                 }
             }
+
             session.inferenceQueue[i].time = std::chrono::system_clock::now();
             session.inferenceQueue[i].ready.release();
             break;
@@ -72,28 +73,14 @@ void InferenceThreadPool::preProcess(SessionElement& session) {
     }
 }
 
-void InferenceThreadPool::inference(SessionElement& session) {
-//    pool.submit([&session] {
-//        session.processed = true;
-//    });
-
-
-    // for (int i = 0; i < session.processedModelInput.size(); ++i) {
-    //     session.rawModelOutputBuffer[i] = session.processedModelInput[i];
-    // }
-
-/*    if (session.currentBackend == ONNX) {
-        onnxProcessor.processBlock(session.processedModelInput, session.rawModelOutputBuffer);
-    } else if (session.currentBackend == LIBTORCH) {
-        torchProcessor.processBlock(session.processedModelInput, session.rawModelOutputBuffer);
-    } else if (session.currentBackend == TFLITE) {
-        tfliteProcessor.processBlock(session.processedModelInput, session.rawModelOutputBuffer);
-    }*/
-}
-
 void InferenceThreadPool::postProcess(SessionElement& session) {
-    // for (size_t j = 0; j < BATCH_SIZE * MODEL_OUTPUT_SIZE_BACKEND; j++) {
-    //     session.receiveBuffer.pushSample(session.rawModelOutputBuffer[j], 0);
-    // }
-    //session.processing = false;
+    for (int i = 0; i < session.inferenceQueue.size(); ++i) {
+        if (session.inferenceQueue[i].done.try_acquire()) {
+            for (size_t j = 0; j < BATCH_SIZE * MODEL_OUTPUT_SIZE_BACKEND; j++) {
+                session.receiveBuffer.pushSample(session.inferenceQueue[i].rawModelOutputBuffer[j], 0);
+            }
+            session.inferenceQueue[i].free.release();
+            break;
+        }
+    }
 }

@@ -25,15 +25,13 @@ public:
 
     inline static std::counting_semaphore<1000> globalSemaphore{0};
     void newDataSubmitted(SessionElement& session);
+    void newDataRequest(SessionElement& session);
 
 private:
     InferenceThreadPool();
     static int getAvailableSessionID();
 
-    static void process(SessionElement& session);
-
     static void preProcess(SessionElement& session);
-    static void inference(SessionElement& session);
     static void postProcess(SessionElement& session);
 
 private:
