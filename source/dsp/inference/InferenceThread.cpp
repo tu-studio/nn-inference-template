@@ -24,7 +24,6 @@ void InferenceThread::run() {
                     if (session->inferenceQueue[i].ready.try_acquire()) {
                         inference(session->currentBackend, session->inferenceQueue[i].processedModelInput, session->inferenceQueue[i].rawModelOutputBuffer);
                         session->inferenceQueue[i].done.release();
-                        session->returnSemaphore.release();
                         break;
                     }
                 }

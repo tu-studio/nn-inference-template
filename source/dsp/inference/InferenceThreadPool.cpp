@@ -46,8 +46,17 @@ void InferenceThreadPool::newDataSubmitted(SessionElement& session) {
 }
 
 void InferenceThreadPool::newDataRequest(SessionElement& session) {
-    if (session.returnSemaphore.try_acquire_for(std::chrono::milliseconds(1))) {
-        postProcess(session);
+    auto timeToProcess = std::chrono::milliseconds(1);
+    auto currentTime = std::chrono::system_clock::now();
+    auto waitUntil = currentTime + timeToProcess;
+
+    for (int i = 0; i < session.inferenceQueue.size(); ++i) {
+        if (session.inferenceQueue[i].time == session.timeStamps.front()) {
+            if (session.inferenceQueue[i].done.try_acquire_until(waitUntil)) {
+                session.timeStamps.pop();
+                postProcess(session, session.inferenceQueue[i]);
+            }
+        }
     }
 }
 
@@ -76,16 +85,9 @@ void InferenceThreadPool::preProcess(SessionElement& session) {
     }
 }
 
-void InferenceThreadPool::postProcess(SessionElement& session) {
-    for (int i = 0; i < session.inferenceQueue.size(); ++i) {
-        if (session.inferenceQueue[i].time == session.timeStamps.front()) {
-            if (session.inferenceQueue[i].done.try_acquire()) {
-                session.timeStamps.pop();
-                for (size_t j = 0; j < BATCH_SIZE * MODEL_OUTPUT_SIZE_BACKEND; j++) {
-                    session.receiveBuffer.pushSample(session.inferenceQueue[i].rawModelOutputBuffer[j], 0);
-                }
-                session.inferenceQueue[i].free.release();
-            }
-        }    
+void InferenceThreadPool::postProcess(SessionElement& session, SessionElement::ThreadSafeStruct& nextBuffer) {
+    for (size_t j = 0; j < BATCH_SIZE * MODEL_OUTPUT_SIZE_BACKEND; j++) {
+        session.receiveBuffer.pushSample(nextBuffer.rawModelOutputBuffer[j], 0);
     }
+    nextBuffer.free.release();
 }

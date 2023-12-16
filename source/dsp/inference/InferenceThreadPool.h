@@ -32,7 +32,7 @@ private:
     static int getAvailableSessionID();
 
     static void preProcess(SessionElement& session);
-    static void postProcess(SessionElement& session);
+    static void postProcess(SessionElement& session, SessionElement::ThreadSafeStruct& nextBuffer);
 
 private:
     inline static std::vector<std::unique_ptr<SessionElement>> sessions;
