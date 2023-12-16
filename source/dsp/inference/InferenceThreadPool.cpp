@@ -2,7 +2,7 @@
 
 InferenceThreadPool::InferenceThreadPool()  {
     for (size_t i = 0; i < (size_t) std::thread::hardware_concurrency(); ++i) {
-         singleThreadPool.push_back(std::make_unique<InferenceThread>(semaphore, sessions));
+    singleThreadPool.push_back(std::make_unique<InferenceThread>(semaphore, sessions));
     }
 }
 
@@ -17,16 +17,21 @@ InferenceThreadPool& InferenceThreadPool::getInstance() {
     return instance;
 }
 
-int InferenceThreadPool::createSession() {
+SessionElement& InferenceThreadPool::createSession() {
     int sessionID = getAvailableSessionID();
-    sessions.insert({sessionID, std::make_unique<SessionElement>(sessionID)});
+    sessions.emplace_back(std::make_unique<SessionElement>(sessionID));
 
-    return sessionID;
+    return *sessions.back();
 }
 
-void InferenceThreadPool::releaseSession(int sessionID) {
+void InferenceThreadPool::releaseSession(SessionElement& session) {
     activeSessions--;
-    sessions.erase(sessionID);
+    for (int i = 0; i < sessions.size(); ++i) {
+        if (sessions[i].get() == &session) {
+            sessions.erase(sessions.begin() + i);
+            break;
+        }
+    }   
 }
 
 void InferenceThreadPool::prepareToPlay(HostConfig config, int sessionID) {
