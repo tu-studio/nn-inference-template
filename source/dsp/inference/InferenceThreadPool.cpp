@@ -35,6 +35,7 @@ void InferenceThreadPool::releaseSession(SessionElement& session) {
 }
 
 void InferenceThreadPool::newDataSubmitted(SessionElement& session) {
+    std::cout << "SendBuffer available samples: " << session.sendBuffer.getAvailableSamples(0) << std::endl;
     while (session.sendBuffer.getAvailableSamples(0) >= (BATCH_SIZE * MODEL_INPUT_SIZE)) {
         preProcess(session);
         session.sendSemaphore.release();
@@ -65,6 +66,7 @@ void InferenceThreadPool::preProcess(SessionElement& session) {
                 }
             }
             session.inferenceQueue[i].time = std::chrono::system_clock::now();
+            session.inferenceQueue[i].ready.release();
             break;
         }
     }

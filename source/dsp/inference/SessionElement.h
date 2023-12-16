@@ -19,6 +19,8 @@ struct SessionElement {
 
     struct ThreadSafeStruct {
         std::binary_semaphore free{true};
+        std::binary_semaphore ready{false};
+        std::binary_semaphore done{false};
         std::chrono::time_point<std::chrono::system_clock> time;
         NNInferenceTemplate::InputArray processedModelInput;
         NNInferenceTemplate::OutputArray rawModelOutputBuffer;

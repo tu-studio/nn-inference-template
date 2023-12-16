@@ -48,6 +48,7 @@ void InferenceManager::processBlock(juce::AudioBuffer<float> &buffer) {
 }
 
 void InferenceManager::processInput(juce::AudioBuffer<float> &buffer) {
+    std::cout << "##### " << buffer.getNumSamples() << std::endl;
     for (int sample = 0; sample < buffer.getNumSamples(); ++sample) {
         session.sendBuffer.pushSample(buffer.getSample(0, sample), 0);
     }
