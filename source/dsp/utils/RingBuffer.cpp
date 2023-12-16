@@ -52,7 +52,7 @@ float RingBuffer::popSample(int channel) {
 }
 
 float RingBuffer::getSample (int channel, unsigned int offset) {
-    if (readPos[channel] - offset < 0) {
+    if (readPos[channel] - (int) offset < 0) {
         return buffer.getSample(channel, buffer.getNumSamples() + readPos[channel] - offset);
     } else {
         return buffer.getSample(channel, readPos[channel] - offset);
