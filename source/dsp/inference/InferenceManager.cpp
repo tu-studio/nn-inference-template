@@ -1,11 +1,11 @@
 #include "InferenceManager.h"
 #include "../PluginParameters.h"
 
-InferenceManager::InferenceManager() : inferenceThreadPool(std::make_unique<InferenceThreadPool>(InferenceThreadPool::getInstance())), sessionID(inferenceThreadPool->createSession()) {
+InferenceManager::InferenceManager() : inferenceThreadPool(std::make_unique<InferenceThreadPool>(InferenceThreadPool::getInstance())), session(inferenceThreadPool->createSession()) {
 }
 
 InferenceManager::~InferenceManager() {
-    inferenceThreadPool->releaseSession(sessionID);
+    inferenceThreadPool->releaseSession(session);
 }
 
 void InferenceManager::parameterChanged(const juce::String &parameterID, float newValue) {

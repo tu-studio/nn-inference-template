@@ -30,7 +30,7 @@ public:
     }
 
     int getSessionID() const {
-        return sessionID;
+        return sessio.sessionID;
     }
 
 private:
@@ -40,7 +40,7 @@ private:
 private:
     std::unique_ptr<InferenceThreadPool> inferenceThreadPool;
 
-    const int sessionID;
+    SessionElement& session;
     HostConfig spec;
 
     bool init = true;

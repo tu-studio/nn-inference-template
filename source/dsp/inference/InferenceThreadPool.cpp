@@ -1,9 +1,9 @@
 #include "InferenceThreadPool.h"
 
 InferenceThreadPool::InferenceThreadPool()  {
-    // for (int i = 0; i < std::thread::hardware_concurrency(); ++i) {
-    //     singleThreadPool.push_back(std::make_unique<InferenceThread>(&semaphore));
-    // }
+    for (size_t i = 0; i < (size_t) std::thread::hardware_concurrency(); ++i) {
+         singleThreadPool.push_back(std::make_unique<InferenceThread>(semaphore, sessions));
+    }
 }
 
 int InferenceThreadPool::getAvailableSessionID() {
@@ -19,7 +19,7 @@ InferenceThreadPool& InferenceThreadPool::getInstance() {
 
 int InferenceThreadPool::createSession() {
     int sessionID = getAvailableSessionID();
-    sessions.insert({sessionID, std::make_unique<SessionElement>()});
+    sessions.insert({sessionID, std::make_unique<SessionElement>(sessionID)});
 
     return sessionID;
 }
