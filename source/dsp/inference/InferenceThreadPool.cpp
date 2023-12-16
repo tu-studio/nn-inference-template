@@ -35,7 +35,8 @@ void InferenceThreadPool::releaseSession(SessionElement& session) {
 }
 
 void InferenceThreadPool::newDataSubmitted(SessionElement& session) {
-    if (session.sendBuffer.getAvailableSamples(0) >= (BATCH_SIZE * MODEL_INPUT_SIZE)) {
+    while (session.sendBuffer.getAvailableSamples(0) >= (BATCH_SIZE * MODEL_INPUT_SIZE)) {
+        preProcess(session);
         session.sendSemaphore.release();
         globalSemaphore.release();
     }
@@ -48,15 +49,22 @@ void InferenceThreadPool::process(SessionElement& session) {
 }
 
 void InferenceThreadPool::preProcess(SessionElement& session) {
-    for (size_t batch = 0; batch < BATCH_SIZE; batch++) {
-        size_t baseIdx = batch * MODEL_INPUT_SIZE_BACKEND;
-        size_t prevBaseIdx = (batch == 0 ? BATCH_SIZE - 1 : batch - 1) * MODEL_INPUT_SIZE_BACKEND;
+    for (int i = 0; i < session.inferenceQueue.size(); ++i) {
+        if (session.inferenceQueue[i].free.try_acquire()) {
+            // TODO if getAvSamples != 0 check
+            for (size_t batch = 0; batch < BATCH_SIZE; batch++) {
+                size_t baseIdx = batch * MODEL_INPUT_SIZE_BACKEND;
+                size_t prevBaseIdx = (batch == 0 ? BATCH_SIZE - 1 : batch - 1) * MODEL_INPUT_SIZE_BACKEND;
 
-        for (size_t j = 1; j < MODEL_INPUT_SIZE_BACKEND; j++) {
-            session.processedModelInput[baseIdx + j - 1] = session.processedModelInput[prevBaseIdx + j];
+                for (size_t j = 1; j < MODEL_INPUT_SIZE_BACKEND; j++) {
+                    session.inferenceQueue[i].processedModelInput = session.inferenceQueue[i].processedModelInput[prevBaseIdx + j];
+                }
+
+                session.inferenceQueue[i].processedModelInput[baseIdx + MODEL_INPUT_SIZE_BACKEND - 1] = session.sendBuffer.popSample(0);
+            }
+            session.inferenceQueue[i].time = std::chrono::system_clock::now();
+            break;
         }
-
-        session.processedModelInput[baseIdx + MODEL_INPUT_SIZE_BACKEND - 1] = session.sendBuffer.popSample(0);
     }
 }
 

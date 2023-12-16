@@ -19,20 +19,30 @@ void InferenceThread::run() {
     while (!shouldExit) {
         globalSemaphore.acquire();
         std::cout << "InferenceThread::run() acquired semaphore" << std::endl;
-        for (const auto& ses : sessions) {
-            if (ses->sendSemaphore.try_acquire()) {
-                if (ses->currentBackend == ONNX) {
-                    // onnxProcessor.processBlock(ses->processedModelInput, ses->rawModelOutputBuffer);
-                    std::cout << "processing data darling" << std::endl;
-                } else if (ses->currentBackend == LIBTORCH) {
-                    torchProcessor.processBlock(ses->processedModelInput, ses->rawModelOutputBuffer);
-                } else if (ses->currentBackend == TFLITE) {
-                    tfliteProcessor.processBlock(ses->processedModelInput, ses->rawModelOutputBuffer);
+        for (const auto& session : sessions) {
+            if (session->sendSemaphore.try_acquire()) {
+                for (int i = 0; i < session->inferenceQueue.size(); ++i) {
+                    if (session->inferenceQueue[i].waitingForInference.try_acquire()) {
+                        inference(session->currentBackend, session->inferenceQueue[i].processedModelInput, session->inferenceQueue[i].rawModelOutputBuffer);
+                    }
+                    break;
                 }
             }
         }
     }
 }
+
+void InferenceThread::inference(InferenceBackend backend, NNInferenceTemplate::InputArray &input, NNInferenceTemplate::OutputArray &output) {
+    if (backend == ONNX) {
+        // onnxProcessor.processBlock(input, output);
+        std::cout << "processing data darling" << std::endl;
+    } else if (backend == LIBTORCH) {
+        torchProcessor.processBlock(input, output);
+    } else if (backend == TFLITE) {
+        tfliteProcessor.processBlock(input, output);
+    }
+}
+
 
 void InferenceThread::stop() {
     shouldExit = true;
@@ -41,3 +51,4 @@ void InferenceThread::stop() {
         thread.join();
     }
 }
+

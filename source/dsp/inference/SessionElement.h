@@ -15,8 +15,14 @@ struct SessionElement {
     ThreadSafeBuffer sendBuffer {1, 48000};
     ThreadSafeBuffer receiveBuffer {1, 48000};
 
-    NNInferenceTemplate::OutputArray rawModelOutputBuffer{};
-    NNInferenceTemplate::InputArray processedModelInput{};
+    struct ThreadSafeStruct {
+        std::binary_semaphore free{true};
+        std::chrono::time_point<std::chrono::system_clock> time;
+        ThreadSafeBuffer processedModelInput {1, BATCH_SIZE * MODEL_OUTPUT_SIZE_BACKEND};
+        ThreadSafeBuffer rawModelOutputBuffer {1, BATCH_SIZE * MODEL_INPUT_SIZE_BACKEND};
+    };
+    std::array<ThreadSafeStruct, 5000> inferenceQueue;
+
 
     std::atomic<InferenceBackend> currentBackend {ONNX};
 

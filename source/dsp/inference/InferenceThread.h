@@ -22,6 +22,9 @@ public:
      void stop();
 
 private:
+    void inference(InferenceBackend backend, NNInferenceTemplate::InputArray& input, NNInferenceTemplate::OutputArray& output);
+
+private:
      std::thread thread;
      std::atomic<bool> shouldExit;
      std::counting_semaphore<1000>& globalSemaphore;
