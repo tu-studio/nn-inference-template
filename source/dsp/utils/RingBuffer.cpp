@@ -2,11 +2,11 @@
 
 RingBuffer::RingBuffer() = default;
 
-void RingBuffer::initialise(int numChannels, int numSamples) {
+void RingBuffer::initialise(size_t numChannels, size_t numSamples) {
     readPos.resize(numChannels);
     writePos.resize(numChannels);
 
-    for (int i = 0; i < readPos.size(); i++) {
+    for (size_t i = 0; i < readPos.size(); i++) {
         readPos[i] = 0;
         writePos[i] = 0;
     }
@@ -16,13 +16,13 @@ void RingBuffer::initialise(int numChannels, int numSamples) {
 
 void RingBuffer::reset() {
     buffer.clear();
-    for (int i = 0; i < readPos.size(); i++) {
+    for (size_t i = 0; i < readPos.size(); i++) {
         readPos[i] = 0;
         writePos[i] = 0;
     }
 }
 
-void RingBuffer::pushSample(float sample, int channel) {
+void RingBuffer::pushSample(float sample, size_t channel) {
     if (std::isnan(sample)){
         sample = 0.f;
 //        std::cout << "Sample is nan! push" << std::endl; //DBG
@@ -31,17 +31,17 @@ void RingBuffer::pushSample(float sample, int channel) {
 
     ++writePos[channel];
 
-    if (writePos[channel] >= buffer.getNumSamples()) {
+    if (writePos[channel] >= (size_t) buffer.getNumSamples()) {
         writePos[channel] = 0;
     }
 }
 
-float RingBuffer::popSample(int channel) {
+float RingBuffer::popSample(size_t channel) {
     auto sample = buffer.getSample(channel, readPos[channel]);
 
     ++readPos[channel];
 
-    if (readPos[channel] >= buffer.getNumSamples()) {
+    if (readPos[channel] >= (size_t) buffer.getNumSamples()) {
         readPos[channel] = 0;
     }
     if (std::isnan(sample)){
@@ -51,21 +51,21 @@ float RingBuffer::popSample(int channel) {
     else return sample;
 }
 
-float RingBuffer::getSample (int channel, unsigned int offset) {
-    if (readPos[channel] - (int) offset < 0) {
-        return buffer.getSample(channel, buffer.getNumSamples() + readPos[channel] - offset);
+float RingBuffer::getSample (size_t channel, size_t offset) {
+    if ((int) readPos[channel] - (int) offset < 0) {
+        return buffer.getSample(channel, (size_t) buffer.getNumSamples() + readPos[channel] - offset);
     } else {
         return buffer.getSample(channel, readPos[channel] - offset);
     }
 }
 
-int RingBuffer::getAvailableSamples(int channel) {
-    int returnValue;
+size_t RingBuffer::getAvailableSamples(size_t channel) {
+    size_t returnValue;
 
     if (readPos[channel] <= writePos[channel]) {
         returnValue = writePos[channel] - readPos[channel];
     } else {
-        returnValue = writePos[channel] + buffer.getNumSamples() - readPos[channel];
+        returnValue = writePos[channel] + (size_t) buffer.getNumSamples() - readPos[channel];
     }
 
     return returnValue;

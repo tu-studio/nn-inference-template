@@ -10,8 +10,8 @@ InferenceManager::~InferenceManager() {
 
 void InferenceManager::parameterChanged(const juce::String &parameterID, float newValue) {
     if (parameterID == PluginParameters::BACKEND_TYPE_ID.getParamID()) {
-        InferenceBackend newInferenceBackend = (newValue == 0.0f) ? TFLITE :
-                                               (newValue == 1.f) ? LIBTORCH : ONNX;
+        InferenceBackend newInferenceBackend = ((int) newValue == 0) ? TFLITE :
+                                               ((int) newValue == 1) ? LIBTORCH : ONNX;
         session.currentBackend = newInferenceBackend;
     }
 }
@@ -19,8 +19,8 @@ void InferenceManager::parameterChanged(const juce::String &parameterID, float n
 void InferenceManager::prepareToPlay(HostConfig newConfig) {
     spec = newConfig;
 
-    session.sendBuffer.initialise(1, (int) spec.hostSampleRate * 6);
-    session.receiveBuffer.initialise(1, (int) spec.hostSampleRate * 6);
+    session.sendBuffer.initialise(1, (size_t) spec.hostSampleRate * 6);
+    session.receiveBuffer.initialise(1, (size_t) spec.hostSampleRate * 6);
     inferenceCounter = 0;
 
     init = true;
@@ -59,7 +59,7 @@ void InferenceManager::processOutput(juce::AudioBuffer<float> &buffer) {
     inferenceThreadPool->newDataRequest(session, timeInSec);
     
     while (inferenceCounter > 0) {
-        if (session.receiveBuffer.getAvailableSamples(0) >= 2 * buffer.getNumSamples()) {
+        if (session.receiveBuffer.getAvailableSamples(0) >= 2 * (size_t) buffer.getNumSamples()) {
             for (int i = 0; i < buffer.getNumSamples(); ++i) {
                 session.receiveBuffer.popSample(0);
             }
@@ -70,7 +70,7 @@ void InferenceManager::processOutput(juce::AudioBuffer<float> &buffer) {
             break;
         }
     }
-    if (session.receiveBuffer.getAvailableSamples(0) >= buffer.getNumSamples()) {
+    if (session.receiveBuffer.getAvailableSamples(0) >= (size_t) buffer.getNumSamples()) {
         for (int sample = 0; sample < buffer.getNumSamples(); ++sample) {
             buffer.setSample(0, sample, session.receiveBuffer.popSample(0));
         }

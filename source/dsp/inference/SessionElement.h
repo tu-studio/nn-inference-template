@@ -1,7 +1,3 @@
-//
-// Created by Valentin Ackva on 16/12/2023.
-//
-
 #ifndef NN_INFERENCE_TEMPLATE_SESSIONELEMENT_H
 #define NN_INFERENCE_TEMPLATE_SESSIONELEMENT_H
 

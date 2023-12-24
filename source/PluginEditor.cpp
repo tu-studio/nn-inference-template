@@ -10,8 +10,8 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
       processorRef (p),
       backendSelector(p.getValueTreeState()),
       dryWetSlider(p.getValueTreeState()),
-      apvts(p.getValueTreeState()),
-      detailViewComponent(p)
+      detailViewComponent(p),
+      apvts(p.getValueTreeState())
 {
     juce::ignoreUnused (processorRef);
 

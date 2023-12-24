@@ -1,9 +1,10 @@
 #include "InferenceThreadPool.h"
 
 InferenceThreadPool::InferenceThreadPool()  {
-    for (size_t i = 0; i < (size_t) std::thread::hardware_concurrency(); ++i) {
+    for (size_t i = 0; i < (size_t) std::thread::hardware_concurrency() - 1; ++i) {
         threadPool.emplace_back(std::make_unique<InferenceThread>(globalSemaphore, sessions));
     }
+    std::cout << "std::thread::hardware_concurrency() - 1 " << std::thread::hardware_concurrency() - 1 << std::endl;
 }
 
 int InferenceThreadPool::getAvailableSessionID() {
@@ -25,12 +26,16 @@ SessionElement& InferenceThreadPool::createSession() {
 }
 
 void InferenceThreadPool::releaseSession(SessionElement& session) {
-    for (int i = 0; i < session.inferenceQueue.size(); ++i) {
-        session.inferenceQueue[i].free.acquire();
-    }
-    for (int i = 0; i < sessions.size(); ++i) {
+    for (size_t i = 0; i < session.inferenceQueue.size(); ++i) {
+        if (! session.inferenceQueue[i].free.try_acquire()) {
+            if (! session.inferenceQueue[i].ready.try_acquire()) {
+                session.inferenceQueue[i].done.acquire();
+            }
+        }
+    } 
+    for (size_t i = 0; i < sessions.size(); ++i) {
         if (sessions[i].get() == &session) {
-            sessions.erase(sessions.begin() + i);
+            sessions.erase(sessions.begin() + (ptrdiff_t) i);
             break;
         }
     }
@@ -50,7 +55,7 @@ void InferenceThreadPool::newDataRequest(SessionElement& session, double bufferS
     auto currentTime = std::chrono::system_clock::now();
     auto waitUntil = currentTime + timeToProcess;
 
-    for (int i = 0; i < session.inferenceQueue.size(); ++i) {
+    for (size_t i = 0; i < session.inferenceQueue.size(); ++i) {
         if (session.inferenceQueue[i].time == session.timeStamps.front()) {
             if (session.inferenceQueue[i].done.try_acquire_until(waitUntil)) {
                 session.timeStamps.pop();
@@ -61,18 +66,17 @@ void InferenceThreadPool::newDataRequest(SessionElement& session, double bufferS
 }
 
 void InferenceThreadPool::preProcess(SessionElement& session) {
-    for (int i = 0; i < session.inferenceQueue.size(); ++i) {
+    for (size_t i = 0; i < session.inferenceQueue.size(); ++i) {
         if (session.inferenceQueue[i].free.try_acquire()) {
             // TODO if getAvSamples != 0 check
             for (size_t batch = 0; batch < BATCH_SIZE; batch++) {
                 size_t baseIdx = batch * MODEL_INPUT_SIZE_BACKEND;
-                size_t prevBaseIdx = (batch == 0 ? BATCH_SIZE - 1 : batch - 1) * MODEL_INPUT_SIZE_BACKEND;
 
                 for (int j = MODEL_INPUT_SIZE_BACKEND - 1; j >= 0; j--) {
                     if (j == MODEL_INPUT_SIZE_BACKEND - 1) {
-                        session.inferenceQueue[i].processedModelInput[baseIdx + j] = session.sendBuffer.popSample(0);
+                        session.inferenceQueue[i].processedModelInput[baseIdx + (size_t) j] = session.sendBuffer.popSample(0);
                     } else  {
-                        session.inferenceQueue[i].processedModelInput[baseIdx + j] = session.sendBuffer.getSample(0, MODEL_INPUT_SIZE_BACKEND - j);
+                        session.inferenceQueue[i].processedModelInput[baseIdx + (size_t) j] = session.sendBuffer.getSample(0, MODEL_INPUT_SIZE_BACKEND - (size_t) j);
                     }
                 }
             }

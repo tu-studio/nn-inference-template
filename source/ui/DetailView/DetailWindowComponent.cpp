@@ -65,13 +65,13 @@ void DetailWindowComponent::resized() {
     auto titleBounds = getBounds().removeFromLeft(getWidth() / 3);
     auto valueBounds = getBounds().removeFromRight(getWidth() - gab - titleBounds.getWidth());
 
-    auto heightPerElement = getHeight() / titleLabels.size();
+    auto heightPerElement = getHeight() / (int) titleLabels.size();
 
-    for (int i = 0; i < titleLabels.size(); ++i) {
+    for (int i = 0; i < (int) titleLabels.size(); ++i) {
         auto titleBound = titleBounds.removeFromTop(heightPerElement);
         auto valueBound = valueBounds.removeFromTop(heightPerElement);
 
-        titleLabels[i]->setBounds(titleBound);
-        valueLabels[i]->setBounds(valueBound);
+        titleLabels[(size_t) i]->setBounds(titleBound);
+        valueLabels[(size_t) i]->setBounds(valueBound);
     }
 }
