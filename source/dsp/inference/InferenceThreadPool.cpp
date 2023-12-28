@@ -56,7 +56,8 @@ void InferenceThreadPool::newDataRequest(SessionElement& session, double bufferS
     auto waitUntil = currentTime + timeToProcess;
 
     for (size_t i = 0; i < session.inferenceQueue.size(); ++i) {
-        if (session.inferenceQueue[i].time == session.timeStamps.front()) {
+        // TODO: find better way to do this fix of SEGFAULT when comparing with empty TimeStampQueue
+        if (session.timeStamps.size() > 0 && session.inferenceQueue[i].time == session.timeStamps.front()) {
             if (session.inferenceQueue[i].done.try_acquire_until(waitUntil)) {
                 session.timeStamps.pop();
                 postProcess(session, session.inferenceQueue[i]);
