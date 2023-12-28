@@ -27,7 +27,7 @@ public:
     void newDataSubmitted(SessionElement& session);
     void newDataRequest(SessionElement& session, double bufferSizeInSec);
 
-    static std::vector<std::unique_ptr<SessionElement>>& getSessions();
+    static std::vector<std::shared_ptr<SessionElement>>& getSessions();
 
 private:
     InferenceThreadPool();
@@ -37,7 +37,7 @@ private:
     static void postProcess(SessionElement& session, SessionElement::ThreadSafeStruct& nextBuffer);
 
 private:
-    inline static std::vector<std::unique_ptr<SessionElement>> sessions;
+    inline static std::vector<std::shared_ptr<SessionElement>> sessions;
     inline static std::atomic<int> nextId = 0;
     inline static std::atomic<int> activeSessions = 0;
     inline static bool threadPoolShouldExit = false;

@@ -14,7 +14,7 @@
 
 class InferenceThread {
 public:
-    InferenceThread(std::counting_semaphore<1000>& globalSemaphore, std::vector<std::unique_ptr<SessionElement>>& sessions);
+    InferenceThread(std::counting_semaphore<1000>& globalSemaphore, std::vector<std::shared_ptr<SessionElement>>& sessions);
     ~InferenceThread();
 
      void start();
@@ -28,7 +28,7 @@ private:
      std::thread thread;
      std::atomic<bool> shouldExit;
      std::counting_semaphore<1000>& globalSemaphore;
-     std::vector<std::unique_ptr<SessionElement>>& sessions;
+     std::vector<std::shared_ptr<SessionElement>>& sessions;
 
      OnnxRuntimeProcessor onnxProcessor;
      LibtorchProcessor torchProcessor;

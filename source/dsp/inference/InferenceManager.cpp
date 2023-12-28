@@ -92,6 +92,7 @@ InferenceThreadPool& InferenceManager::getInferenceThreadPool() {
 }
 
 int InferenceManager::getNumReceivedSamples() {
+    inferenceThreadPool->newDataRequest(session, 0);
     return session.receiveBuffer.getAvailableSamples(0);
 }
 

@@ -1,6 +1,6 @@
 #include "InferenceThread.h"
 
-InferenceThread::InferenceThread(std::counting_semaphore<1000>& s, std::vector<std::unique_ptr<SessionElement>>& ses) : shouldExit(false), globalSemaphore(s), sessions(ses) {
+InferenceThread::InferenceThread(std::counting_semaphore<1000>& s, std::vector<std::shared_ptr<SessionElement>>& ses) : shouldExit(false), globalSemaphore(s), sessions(ses) {
     onnxProcessor.prepareToPlay();
     torchProcessor.prepareToPlay();
     tfliteProcessor.prepareToPlay();

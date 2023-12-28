@@ -65,7 +65,7 @@ void InferenceThreadPool::newDataRequest(SessionElement& session, double bufferS
     }
 }
 
-std::vector<std::unique_ptr<SessionElement>>& InferenceThreadPool::getSessions() {
+std::vector<std::shared_ptr<SessionElement>>& InferenceThreadPool::getSessions() {
     return sessions;
 }
 
