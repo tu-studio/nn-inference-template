@@ -58,22 +58,22 @@ const auto calculateMax = [](const std::vector<double>& v) -> double {
  * =================== PROCESSOR AND EDITOR =================== *
  * ============================================================ */
 
-static void BM_PROCESSOR(benchmark::State& state) {
-    auto gui = juce::ScopedJuceInitialiser_GUI {};
-    for (auto _ : state) {
-        AudioPluginAudioProcessor processor;
-    }
-}
+// static void BM_PROCESSOR(benchmark::State& state) {
+//     auto gui = juce::ScopedJuceInitialiser_GUI {};
+//     for (auto _ : state) {
+//         AudioPluginAudioProcessor processor;
+//     }
+// }
 
-static void BM_EDITOR(benchmark::State& state) {
-    auto gui = juce::ScopedJuceInitialiser_GUI {};
-    AudioPluginAudioProcessor plugin;
-    for (auto _ : state) {
-        auto editor = plugin.createEditor();
-        plugin.editorBeingDeleted (editor);
-        delete editor;
-    }
-}
+// static void BM_EDITOR(benchmark::State& state) {
+//     auto gui = juce::ScopedJuceInitialiser_GUI {};
+//     AudioPluginAudioProcessor plugin;
+//     for (auto _ : state) {
+//         auto editor = plugin.createEditor();
+//         plugin.editorBeingDeleted (editor);
+//         delete editor;
+//     }
+// }
 
 /* ============================================================ *
  * ==================== INFERENCE ENGINES ===================== *
@@ -145,6 +145,8 @@ public:
         std::cout << "TearDown" << std::endl;
         setup.reset();
         std::cout << "Plugin destructed" << std::endl;
+        // std::ignore(fixture);
+        // std::ignore(state);
     }
 };
 
@@ -154,6 +156,88 @@ void ProcessBlockFixture::SetUp(const ::benchmark::State& state) {
 
 void ProcessBlockFixture::TearDown(const ::benchmark::State& state) {
     SingletonSetup::PerformTearDown(*this, state);
+}
+
+BENCHMARK_DEFINE_F(ProcessBlockFixture, BM_LIBTORCH_BACKEND)(benchmark::State& state) {
+    auto sessions = plugin->getInferenceManager().getInferenceThreadPool().getSessions();
+    for (size_t i = 0; i < sessions.size(); i++) {
+        sessions[i]->currentBackend = LIBTORCH;
+    }
+
+    int iteration = 0;
+
+    for (auto _ : state) {
+        pushSamplesInBuffer();
+
+        bool init = plugin->getInferenceManager().isInitializing();
+        int prevNumReceivedSamples = plugin->getInferenceManager().getNumReceivedSamples();
+
+        auto start = std::chrono::high_resolution_clock::now();
+        
+        plugin->processBlock(*buffer, *midiBuffer);
+
+        if (init) {
+            while (plugin->getInferenceManager().getNumReceivedSamples() < prevNumReceivedSamples + plugin->getBlockSize()){
+                std::this_thread::sleep_for(std::chrono::nanoseconds (10));
+            }
+        }
+        else {
+            while (plugin->getInferenceManager().getNumReceivedSamples() < prevNumReceivedSamples){
+                std::this_thread::sleep_for(std::chrono::nanoseconds (10));
+            }
+        }
+
+        auto end = std::chrono::high_resolution_clock::now();
+        auto elapsed_seconds = std::chrono::duration_cast<std::chrono::duration<double>>(end - start);
+
+        state.SetIterationTime(elapsed_seconds.count());
+
+        auto elapsedTimeMS = std::chrono::duration_cast<std::chrono::duration<double, std::milli>>(end - start);
+
+        std::cout << state.name() << "/" << state.range(0) << "/iteration:" << iteration << "\t\t\t" << elapsedTimeMS.count() << std::endl;
+        iteration++;
+    }
+}
+
+BENCHMARK_DEFINE_F(ProcessBlockFixture, BM_TFLITE_BACKEND)(benchmark::State& state) {
+    auto sessions = plugin->getInferenceManager().getInferenceThreadPool().getSessions();
+    for (size_t i = 0; i < sessions.size(); i++) {
+        sessions[i]->currentBackend = TFLITE;
+    }
+
+    int iteration = 0;
+
+    for (auto _ : state) {
+        pushSamplesInBuffer();
+
+        bool init = plugin->getInferenceManager().isInitializing();
+        int prevNumReceivedSamples = plugin->getInferenceManager().getNumReceivedSamples();
+
+        auto start = std::chrono::high_resolution_clock::now();
+        
+        plugin->processBlock(*buffer, *midiBuffer);
+
+        if (init) {
+            while (plugin->getInferenceManager().getNumReceivedSamples() < prevNumReceivedSamples + plugin->getBlockSize()){
+                std::this_thread::sleep_for(std::chrono::nanoseconds (10));
+            }
+        }
+        else {
+            while (plugin->getInferenceManager().getNumReceivedSamples() < prevNumReceivedSamples){
+                std::this_thread::sleep_for(std::chrono::nanoseconds (10));
+            }
+        }
+
+        auto end = std::chrono::high_resolution_clock::now();
+        auto elapsed_seconds = std::chrono::duration_cast<std::chrono::duration<double>>(end - start);
+
+        state.SetIterationTime(elapsed_seconds.count());
+
+        auto elapsedTimeMS = std::chrono::duration_cast<std::chrono::duration<double, std::milli>>(end - start);
+
+        std::cout << state.name() << "/" << state.range(0) << "/iteration:" << iteration << "\t\t\t" << elapsedTimeMS.count() << std::endl;
+        iteration++;
+    }
 }
 
 BENCHMARK_DEFINE_F(ProcessBlockFixture, BM_ONNX_BACKEND)(benchmark::State& state) {
@@ -197,60 +281,6 @@ BENCHMARK_DEFINE_F(ProcessBlockFixture, BM_ONNX_BACKEND)(benchmark::State& state
     }
 }
 
-BENCHMARK_DEFINE_F(ProcessBlockFixture, BM_LIBTORCH_BACKEND)(benchmark::State& state) {
-    auto sessions = plugin->getInferenceManager().getInferenceThreadPool().getSessions();
-    for (size_t i = 0; i < sessions.size(); i++) {
-        sessions[i]->currentBackend = LIBTORCH;
-    }
-    for (auto _ : state) {
-        state.PauseTiming();
-        pushSamplesInBuffer();
-        state.ResumeTiming();
-
-        bool init = plugin->getInferenceManager().isInitializing();
-        int prevNumReceivedSamples = plugin->getInferenceManager().getNumReceivedSamples();
-        plugin->processBlock(*buffer, *midiBuffer);
-
-        if (init) {
-            while (plugin->getInferenceManager().getNumReceivedSamples() < prevNumReceivedSamples + plugin->getBlockSize()){
-                std::this_thread::sleep_for(std::chrono::nanoseconds (10));
-            }
-        }
-        else {
-            while (plugin->getInferenceManager().getNumReceivedSamples() < prevNumReceivedSamples){
-                std::this_thread::sleep_for(std::chrono::nanoseconds (10));
-            }
-        }
-    }
-}
-
-BENCHMARK_DEFINE_F(ProcessBlockFixture, BM_TFLITE_BACKEND)(benchmark::State& state) {
-    auto sessions = plugin->getInferenceManager().getInferenceThreadPool().getSessions();
-    for (size_t i = 0; i < sessions.size(); i++) {
-        sessions[i]->currentBackend = TFLITE;
-    }
-    for (auto _ : state) {
-        state.PauseTiming();
-        pushSamplesInBuffer();
-        state.ResumeTiming();
-
-        bool init = plugin->getInferenceManager().isInitializing();
-        int prevNumReceivedSamples = plugin->getInferenceManager().getNumReceivedSamples();
-        plugin->processBlock(*buffer, *midiBuffer);
-
-        if (init) {
-            while (plugin->getInferenceManager().getNumReceivedSamples() < prevNumReceivedSamples + plugin->getBlockSize()){
-                std::this_thread::sleep_for(std::chrono::nanoseconds (10));
-            }
-        }
-        else {
-            while (plugin->getInferenceManager().getNumReceivedSamples() < prevNumReceivedSamples){
-                std::this_thread::sleep_for(std::chrono::nanoseconds (10));
-            }
-        }
-    }
-}
-
 /* ============================================================ *
  * ======================= JUCE THREAD ======================== *
  * ============================================================ */
@@ -290,24 +320,12 @@ BENCHMARK_DEFINE_F(ThreadFixture, BM_THREAD)(benchmark::State& state) {
  * =================== REGISTER BANCHMARKs ==================== *
  * ============================================================ */
 
-BENCHMARK(BM_PROCESSOR)->Unit(benchmark::kMillisecond);
-BENCHMARK(BM_EDITOR)->Unit(benchmark::kMillisecond);
-
-BENCHMARK_REGISTER_F(ProcessBlockFixture, BM_ONNX_BACKEND)
-->Unit(benchmark::kMillisecond)
-->Iterations(50)->Repetitions(10)
-->RangeMultiplier(2)->Range(128, 8<<10)
-->ComputeStatistics("min", calculateMin)
-->ComputeStatistics("max", calculateMax)
-->ComputeStatistics("percentile", [](const std::vector<double>& v) -> double {
-    return calculatePercentile(v, PERCENTILE);
-  })
-->DisplayAggregatesOnly(true)
-->UseManualTime();
+// BENCHMARK(BM_PROCESSOR)->Unit(benchmark::kMillisecond);
+// BENCHMARK(BM_EDITOR)->Unit(benchmark::kMillisecond);
 
 BENCHMARK_REGISTER_F(ProcessBlockFixture, BM_LIBTORCH_BACKEND)
 ->Unit(benchmark::kMillisecond)
-->Iterations(50)->Repetitions(20)
+->Iterations(50)->Repetitions(10)
 ->RangeMultiplier(2)->Range(128, 8<<10)
 ->ComputeStatistics("min", calculateMin)
 ->ComputeStatistics("max", calculateMax)
@@ -326,6 +344,18 @@ BENCHMARK_REGISTER_F(ProcessBlockFixture, BM_TFLITE_BACKEND)
     return calculatePercentile(v, PERCENTILE);
   })
 ->DisplayAggregatesOnly(true);
+
+BENCHMARK_REGISTER_F(ProcessBlockFixture, BM_ONNX_BACKEND)
+->Unit(benchmark::kMillisecond)
+->Iterations(50)->Repetitions(10)
+->RangeMultiplier(2)->Range(128, 8<<10)
+->ComputeStatistics("min", calculateMin)
+->ComputeStatistics("max", calculateMax)
+->ComputeStatistics("percentile", [](const std::vector<double>& v) -> double {
+    return calculatePercentile(v, PERCENTILE);
+  })
+->DisplayAggregatesOnly(true)
+->UseManualTime();
 
 // BENCHMARK_REGISTER_F(ThreadFixture, BM_THREAD)
 // ->Iterations(1)->Repetitions(1000)
