@@ -99,40 +99,52 @@ public:
 
     void SetUp(const ::benchmark::State& state);
 
-    void TearDown(const ::benchmark::State& state) {
-        std::ignore = state;
-    }
+    void TearDown(const ::benchmark::State& state);
 };
 
 class SingletonSetup {
 public:
 
     ProcessBlockFixture& fixture;
+    inline static std::unique_ptr<SingletonSetup> setup = nullptr;
 
     SingletonSetup(ProcessBlockFixture& thisFixture, const ::benchmark::State& state) : fixture(thisFixture) {
+        std::cout << "Singleton Constructor" << std::endl;
         auto gui = juce::ScopedJuceInitialiser_GUI {};
         fixture.bufferSize = std::make_unique<int>(0);
-        fixture.plugin = std::make_unique<AudioPluginAudioProcessor>();
         fixture.buffer = std::make_unique<juce::AudioBuffer<float>>(2, *fixture.bufferSize);
         fixture.midiBuffer = std::make_unique<juce::MidiBuffer>();
+        fixture.plugin = std::make_unique<AudioPluginAudioProcessor>();
         std::ignore = state;
     }
 
     ~SingletonSetup() {
+        std::cout << "Singleton Destructor" << std::endl;
         fixture.midiBuffer.reset();
         fixture.buffer.reset();
         fixture.plugin.reset();
+        fixture.bufferSize.reset();
     }
 
     static void PerformSetup(ProcessBlockFixture& fixture, const ::benchmark::State& state) {
-        static SingletonSetup setup(fixture, state);
+        std::cout << "Setup" << std::endl;
+        if (setup == nullptr) {
+            setup = std::make_unique<SingletonSetup>(fixture, state);
+            std::cout << "New Plugin generated" << std::endl;
+        }
         if (*fixture.bufferSize != (int) state.range(0)) {
             *fixture.bufferSize = (int) state.range(0);
             std::cout << "Sample Rate 44100 Hz | Buffer Size " << *fixture.bufferSize << " = " << (float) * fixture.bufferSize * 1000.f/44100.f << " ms" << std::endl;
-            fixture.plugin->setPlayConfigDetails(2, 2, 44100, *fixture.bufferSize);
-            fixture.plugin->prepareToPlay (44100, (int) *fixture.bufferSize);
             fixture.buffer->setSize(2, (int) *fixture.bufferSize);
         }
+        fixture.plugin->setPlayConfigDetails(2, 2, 44100, *fixture.bufferSize);
+        fixture.plugin->prepareToPlay (44100, (int) *fixture.bufferSize);
+    }
+
+    static void PerformTearDown(ProcessBlockFixture& fixture, const ::benchmark::State& state) {
+        std::cout << "TearDown" << std::endl;
+        setup.reset();
+        std::cout << "Plugin destructed" << std::endl;
     }
 };
 
@@ -140,18 +152,26 @@ void ProcessBlockFixture::SetUp(const ::benchmark::State& state) {
     SingletonSetup::PerformSetup(*this, state);
 }
 
+void ProcessBlockFixture::TearDown(const ::benchmark::State& state) {
+    SingletonSetup::PerformTearDown(*this, state);
+}
+
 BENCHMARK_DEFINE_F(ProcessBlockFixture, BM_ONNX_BACKEND)(benchmark::State& state) {
     auto& sessions = plugin->getInferenceManager().getInferenceThreadPool().getSessions();
     for (size_t i = 0; i < sessions.size(); i++) {
         sessions[i]->currentBackend.store(ONNX);
     }
+
+    int iteration = 0;
+
     for (auto _ : state) {
-        state.PauseTiming();
         pushSamplesInBuffer();
-        state.ResumeTiming();
 
         bool init = plugin->getInferenceManager().isInitializing();
         int prevNumReceivedSamples = plugin->getInferenceManager().getNumReceivedSamples();
+
+        auto start = std::chrono::high_resolution_clock::now();
+        
         plugin->processBlock(*buffer, *midiBuffer);
 
         if (init) {
@@ -164,6 +184,16 @@ BENCHMARK_DEFINE_F(ProcessBlockFixture, BM_ONNX_BACKEND)(benchmark::State& state
                 std::this_thread::sleep_for(std::chrono::nanoseconds (10));
             }
         }
+
+        auto end = std::chrono::high_resolution_clock::now();
+        auto elapsed_seconds = std::chrono::duration_cast<std::chrono::duration<double>>(end - start);
+
+        state.SetIterationTime(elapsed_seconds.count());
+
+        auto elapsedTimeMS = std::chrono::duration_cast<std::chrono::duration<double, std::milli>>(end - start);
+
+        std::cout << state.name() << "/" << state.range(0) << "/iteration:" << iteration << "\t\t\t" << elapsedTimeMS.count() << std::endl;
+        iteration++;
     }
 }
 
@@ -265,18 +295,19 @@ BENCHMARK(BM_EDITOR)->Unit(benchmark::kMillisecond);
 
 BENCHMARK_REGISTER_F(ProcessBlockFixture, BM_ONNX_BACKEND)
 ->Unit(benchmark::kMillisecond)
-->Iterations(1)->Repetitions(200)
+->Iterations(50)->Repetitions(10)
 ->RangeMultiplier(2)->Range(128, 8<<10)
 ->ComputeStatistics("min", calculateMin)
 ->ComputeStatistics("max", calculateMax)
 ->ComputeStatistics("percentile", [](const std::vector<double>& v) -> double {
     return calculatePercentile(v, PERCENTILE);
   })
-->DisplayAggregatesOnly(true);
+->DisplayAggregatesOnly(true)
+->UseManualTime();
 
 BENCHMARK_REGISTER_F(ProcessBlockFixture, BM_LIBTORCH_BACKEND)
 ->Unit(benchmark::kMillisecond)
-->Iterations(1)->Repetitions(200)
+->Iterations(50)->Repetitions(20)
 ->RangeMultiplier(2)->Range(128, 8<<10)
 ->ComputeStatistics("min", calculateMin)
 ->ComputeStatistics("max", calculateMax)
@@ -287,7 +318,7 @@ BENCHMARK_REGISTER_F(ProcessBlockFixture, BM_LIBTORCH_BACKEND)
 
 BENCHMARK_REGISTER_F(ProcessBlockFixture, BM_TFLITE_BACKEND)
 ->Unit(benchmark::kMillisecond)
-->Iterations(1)->Repetitions(200)
+->Iterations(10)->Repetitions(20)
 ->RangeMultiplier(2)->Range(128, 8<<10)
 ->ComputeStatistics("min", calculateMin)
 ->ComputeStatistics("max", calculateMax)
