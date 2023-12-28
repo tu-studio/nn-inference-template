@@ -16,10 +16,10 @@ LibtorchProcessor::~LibtorchProcessor() {
 void LibtorchProcessor::prepareToPlay() {
     inputs.clear();
     inputs.push_back(torch::zeros(MODEL_INPUT_SHAPE_LIBTORCH));
-    // first run takes longest, so we do it here
-    NNInferenceTemplate::InputArray input;
-    NNInferenceTemplate::OutputArray output;
-    processBlock(input, output);
+    // // first run takes longest, so we do it here
+    // NNInferenceTemplate::InputArray input;
+    // NNInferenceTemplate::OutputArray output;
+    // processBlock(input, output);
 }
 
 void LibtorchProcessor::processBlock(NNInferenceTemplate::InputArray& input, NNInferenceTemplate::OutputArray& output) {

@@ -13,9 +13,9 @@ void OnnxRuntimeProcessor::prepareToPlay() {
     // Define the shape of input tensor
     inputShape = MODEL_INPUT_SHAPE_ONNX;
     // first run takes longest, so we do it here
-    NNInferenceTemplate::InputArray input;
-    NNInferenceTemplate::OutputArray output;
-    processBlock(input, output);
+    // NNInferenceTemplate::InputArray input;
+    // NNInferenceTemplate::OutputArray output;
+    // processBlock(input, output);
 }
 
 void OnnxRuntimeProcessor::processBlock(NNInferenceTemplate::InputArray& input, NNInferenceTemplate::OutputArray& output) {

@@ -28,9 +28,9 @@ void TFLiteProcessor::prepareToPlay() {
     TfLiteInterpreterAllocateTensors(interpreter);
     inputTensor = TfLiteInterpreterGetInputTensor(interpreter, 0);
     outputTensor = TfLiteInterpreterGetOutputTensor(interpreter, 0);
-    NNInferenceTemplate::InputArray input;
-    NNInferenceTemplate::OutputArray output;
-    processBlock(input, output);
+    // NNInferenceTemplate::InputArray input;
+    // NNInferenceTemplate::OutputArray output;
+    // processBlock(input, output);
 }
 
 void TFLiteProcessor::processBlock(NNInferenceTemplate::InputArray& input, NNInferenceTemplate::OutputArray& output) {
