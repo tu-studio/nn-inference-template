@@ -38,7 +38,7 @@ private:
     void processOutput(juce::AudioBuffer<float>& buffer);
 
 private:
-    std::unique_ptr<InferenceThreadPool> inferenceThreadPool;
+    std::shared_ptr<InferenceThreadPool> inferenceThreadPool;
 
     SessionElement& session;
     HostConfig spec;

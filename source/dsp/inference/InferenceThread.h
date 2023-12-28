@@ -17,9 +17,9 @@ public:
     InferenceThread(std::counting_semaphore<1000>& globalSemaphore, std::vector<std::shared_ptr<SessionElement>>& sessions);
     ~InferenceThread();
 
-     void start();
-     void run();
-     void stop();
+    void start();
+    void run();
+    void stop();
 
 private:
     void inference(InferenceBackend backend, NNInferenceTemplate::InputArray& input, NNInferenceTemplate::OutputArray& output);

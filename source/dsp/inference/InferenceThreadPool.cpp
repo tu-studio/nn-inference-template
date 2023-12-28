@@ -4,7 +4,11 @@ InferenceThreadPool::InferenceThreadPool()  {
     for (size_t i = 0; i < (size_t) std::thread::hardware_concurrency() - 1; ++i) {
         threadPool.emplace_back(std::make_unique<InferenceThread>(globalSemaphore, sessions));
     }
-    std::cout << "std::thread::hardware_concurrency() - 1 " << std::thread::hardware_concurrency() - 1 << std::endl;
+    std::cout << "std::thread::hardware_concurrency() - 1 = " << std::thread::hardware_concurrency() - 1 << std::endl;
+}
+
+InferenceThreadPool::~InferenceThreadPool() {
+    std::cout << "InferenceThreadPool destructor" << std::endl;
 }
 
 int InferenceThreadPool::getAvailableSessionID() {
@@ -13,9 +17,15 @@ int InferenceThreadPool::getAvailableSessionID() {
     return nextId.load();
 }
 
-InferenceThreadPool& InferenceThreadPool::getInstance() {
-    static InferenceThreadPool instance;
-    return instance;
+std::shared_ptr<InferenceThreadPool> InferenceThreadPool::getInstance() {
+    if (inferenceThreadPool == nullptr) {
+        inferenceThreadPool = std::make_shared<InferenceThreadPool>();
+    }
+    return inferenceThreadPool;
+}
+
+void InferenceThreadPool::releaseInstance() {
+    inferenceThreadPool.reset();
 }
 
 SessionElement& InferenceThreadPool::createSession() {
@@ -25,21 +35,24 @@ SessionElement& InferenceThreadPool::createSession() {
     return *sessions.back();
 }
 
+void InferenceThreadPool::releaseThreadPool() {
+    threadPool.clear();
+}
+
 void InferenceThreadPool::releaseSession(SessionElement& session) {
-    for (size_t i = 0; i < session.inferenceQueue.size(); ++i) {
-        if (! session.inferenceQueue[i].free.try_acquire()) {
-            if (! session.inferenceQueue[i].ready.try_acquire()) {
-                session.inferenceQueue[i].done.acquire();
-            }
-        }
-    } 
+    activeSessions--;
+    if (activeSessions == 0) {
+        releaseThreadPool();
+    }
     for (size_t i = 0; i < sessions.size(); ++i) {
         if (sessions[i].get() == &session) {
             sessions.erase(sessions.begin() + (ptrdiff_t) i);
             break;
         }
     }
-    activeSessions--;
+    if (activeSessions == 0) {
+        releaseInstance();
+    }
 }
 
 void InferenceThreadPool::newDataSubmitted(SessionElement& session) {

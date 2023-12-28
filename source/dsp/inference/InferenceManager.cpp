@@ -1,7 +1,7 @@
 #include "InferenceManager.h"
 #include "../PluginParameters.h"
 
-InferenceManager::InferenceManager() : inferenceThreadPool(std::make_unique<InferenceThreadPool>(InferenceThreadPool::getInstance())), session(inferenceThreadPool->createSession()) {
+InferenceManager::InferenceManager() : inferenceThreadPool(InferenceThreadPool::getInstance()), session(inferenceThreadPool->createSession()) {
 }
 
 InferenceManager::~InferenceManager() {

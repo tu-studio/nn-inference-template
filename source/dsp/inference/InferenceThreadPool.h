@@ -15,9 +15,13 @@
 
 class InferenceThreadPool{
 public:
-    static InferenceThreadPool& getInstance();
+    InferenceThreadPool();
+    ~InferenceThreadPool();
+    static std::shared_ptr<InferenceThreadPool> getInstance();
     static SessionElement& createSession();
     static void releaseSession(SessionElement& session);
+    static void releaseInstance();
+    static void releaseThreadPool();
 
     static int getNumberOfSessions() {
         return activeSessions.load();
@@ -30,7 +34,7 @@ public:
     static std::vector<std::shared_ptr<SessionElement>>& getSessions();
 
 private:
-    InferenceThreadPool();
+    inline static std::shared_ptr<InferenceThreadPool> inferenceThreadPool = nullptr; 
     static int getAvailableSessionID();
 
     static void preProcess(SessionElement& session);
