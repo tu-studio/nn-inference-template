@@ -27,6 +27,8 @@ public:
     void newDataSubmitted(SessionElement& session);
     void newDataRequest(SessionElement& session, double bufferSizeInSec);
 
+    static std::vector<std::unique_ptr<SessionElement>>& getSessions();
+
 private:
     InferenceThreadPool();
     static int getAvailableSessionID();

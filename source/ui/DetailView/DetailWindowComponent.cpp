@@ -45,7 +45,7 @@ void DetailWindowComponent::timerCallback() {
 
     auto newMissingBlocks = processorRef.getInferenceManager().getMissingBlocks();
     // TODO access through class InferenceThread itself
-    auto newNumOfSessions = processorRef.getInferenceManager().getInferenceThread().getNumberOfSessions();
+    auto newNumOfSessions = processorRef.getInferenceManager().getInferenceThreadPool().getNumberOfSessions();
 
     if (newMissingBlocks != missingBlocks) {
         missingBlocks = newMissingBlocks;

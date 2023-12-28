@@ -65,6 +65,10 @@ void InferenceThreadPool::newDataRequest(SessionElement& session, double bufferS
     }
 }
 
+std::vector<std::unique_ptr<SessionElement>>& InferenceThreadPool::getSessions() {
+    return sessions;
+}
+
 void InferenceThreadPool::preProcess(SessionElement& session) {
     for (size_t i = 0; i < session.inferenceQueue.size(); ++i) {
         if (session.inferenceQueue[i].free.try_acquire()) {

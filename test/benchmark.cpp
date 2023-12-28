@@ -79,8 +79,7 @@ static void BM_EDITOR(benchmark::State& state) {
  * ==================== INFERENCE ENGINES ===================== *
  * ============================================================ */
 
-class ProcessBlockFixture : public benchmark::Fixture 
-{
+class ProcessBlockFixture : public benchmark::Fixture {
 public:
     inline static std::unique_ptr<int> bufferSize = nullptr;
     inline static std::unique_ptr<AudioPluginAudioProcessor> plugin = nullptr;
@@ -88,13 +87,12 @@ public:
     inline static std::unique_ptr<juce::MidiBuffer> midiBuffer = nullptr;
 
     void pushSamplesInBuffer() {
-    for (int channel = 0; channel < plugin->getTotalNumInputChannels(); channel++) {
-        for (int sample = 0; sample < plugin->getBlockSize(); sample++) {
-            buffer->setSample(channel, sample, randomSample());
+        for (int channel = 0; channel < plugin->getTotalNumInputChannels(); channel++) {
+            for (int sample = 0; sample < plugin->getBlockSize(); sample++) {
+                buffer->setSample(channel, sample, randomSample());
+            }
         }
     }
-
-}
 
     ProcessBlockFixture() {}
     ~ProcessBlockFixture() {}
@@ -143,7 +141,10 @@ void ProcessBlockFixture::SetUp(const ::benchmark::State& state) {
 }
 
 BENCHMARK_DEFINE_F(ProcessBlockFixture, BM_ONNX_BACKEND)(benchmark::State& state) {
-    plugin->getInferenceManager().getInferenceThread().setBackend(ONNX);
+    auto& sessions = plugin->getInferenceManager().getInferenceThreadPool().getSessions();
+    for (size_t i = 0; i < sessions.size(); i++) {
+        sessions[i]->currentBackend.store(ONNX);
+    }
     for (auto _ : state) {
         state.PauseTiming();
         pushSamplesInBuffer();
@@ -167,7 +168,10 @@ BENCHMARK_DEFINE_F(ProcessBlockFixture, BM_ONNX_BACKEND)(benchmark::State& state
 }
 
 BENCHMARK_DEFINE_F(ProcessBlockFixture, BM_LIBTORCH_BACKEND)(benchmark::State& state) {
-    plugin->getInferenceManager().getInferenceThread().setBackend(LIBTORCH);
+    auto sessions = plugin->getInferenceManager().getInferenceThreadPool().getSessions();
+    for (size_t i = 0; i < sessions.size(); i++) {
+        sessions[i]->currentBackend = LIBTORCH;
+    }
     for (auto _ : state) {
         state.PauseTiming();
         pushSamplesInBuffer();
@@ -191,7 +195,10 @@ BENCHMARK_DEFINE_F(ProcessBlockFixture, BM_LIBTORCH_BACKEND)(benchmark::State& s
 }
 
 BENCHMARK_DEFINE_F(ProcessBlockFixture, BM_TFLITE_BACKEND)(benchmark::State& state) {
-    plugin->getInferenceManager().getInferenceThread().setBackend(TFLITE);
+    auto sessions = plugin->getInferenceManager().getInferenceThreadPool().getSessions();
+    for (size_t i = 0; i < sessions.size(); i++) {
+        sessions[i]->currentBackend = TFLITE;
+    }
     for (auto _ : state) {
         state.PauseTiming();
         pushSamplesInBuffer();

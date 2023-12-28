@@ -23,7 +23,7 @@ public:
     // Required for unit test
     int getNumReceivedSamples();
     bool isInitializing() const;
-    InferenceThreadPool& getInferenceThread();
+    InferenceThreadPool& getInferenceThreadPool();
 
     int getMissingBlocks() {
         return inferenceCounter.load();;

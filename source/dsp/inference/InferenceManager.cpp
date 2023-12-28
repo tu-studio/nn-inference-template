@@ -87,7 +87,7 @@ int InferenceManager::getLatency() const {
     else return ((int) ((float) initSamples / (float) spec.hostBufferSize) + 1) * (int) spec.hostBufferSize;
 }
 
-InferenceThreadPool &InferenceManager::getInferenceThread() {
+InferenceThreadPool& InferenceManager::getInferenceThreadPool() {
     return *inferenceThreadPool;
 }
 
