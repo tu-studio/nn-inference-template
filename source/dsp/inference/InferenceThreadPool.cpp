@@ -28,8 +28,16 @@ void InferenceThreadPool::releaseInstance() {
 }
 
 SessionElement& InferenceThreadPool::createSession() {
+    for (size_t i = 0; i < (size_t) threadPool.size(); ++i) {
+        threadPool[i]->stop();
+    }
+
     int sessionID = getAvailableSessionID();
     sessions.emplace_back(std::make_unique<SessionElement>(sessionID));
+
+    for (size_t i = 0; i < (size_t) threadPool.size(); ++i) {
+        threadPool[i]->start();
+    } 
 
     return *sessions.back();
 }

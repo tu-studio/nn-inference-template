@@ -5,7 +5,6 @@ InferenceThread::InferenceThread(std::counting_semaphore<1000>& s, std::vector<s
     torchProcessor.prepareToPlay();
     tfliteProcessor.prepareToPlay();
     std::cout << "starting thread" << std::endl;
-    start();
 }
 
 InferenceThread::~InferenceThread() {
@@ -18,7 +17,7 @@ void InferenceThread::start() {
 }
 
 void InferenceThread::run() {
-    std::chrono::milliseconds timeForExit(100);
+    std::chrono::milliseconds timeForExit(1);
     while (!shouldExit) {
         auto success = globalSemaphore.try_acquire_for(timeForExit);
         for (const auto& session : sessions) {
@@ -49,5 +48,5 @@ void InferenceThread::inference(InferenceBackend backend, NNInferenceTemplate::I
 
 void InferenceThread::stop() {
     shouldExit = true;
-    thread.join();
+    if (thread.joinable()) thread.join();
 }
