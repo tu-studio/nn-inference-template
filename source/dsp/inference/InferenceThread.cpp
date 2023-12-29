@@ -13,6 +13,7 @@ InferenceThread::~InferenceThread() {
 }
 
 void InferenceThread::start() {
+    shouldExit = false;
     thread = std::thread(&InferenceThread::run, this);
 }
 
