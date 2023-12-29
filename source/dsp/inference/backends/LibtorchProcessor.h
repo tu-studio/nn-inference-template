@@ -4,6 +4,7 @@
 #include <JuceHeader.h>
 #include "../InferenceConfig.h"
 #include <torch/script.h>
+#include <stdlib.h>
 
 class LibtorchProcessor {
 public:

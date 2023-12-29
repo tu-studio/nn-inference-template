@@ -4,7 +4,6 @@ InferenceThreadPool::InferenceThreadPool()  {
     for (size_t i = 0; i < (size_t) std::thread::hardware_concurrency() - 1; ++i) {
         threadPool.emplace_back(std::make_unique<InferenceThread>(globalSemaphore, sessions));
     }
-    std::cout << "std::thread::hardware_concurrency() - 1 = " << std::thread::hardware_concurrency() - 1 << std::endl;
 }
 
 InferenceThreadPool::~InferenceThreadPool() {

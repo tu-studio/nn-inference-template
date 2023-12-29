@@ -12,7 +12,7 @@ enum InferenceBackend {
 #define MODELS_PATH_ONNX MODELS_PATH_TENSORFLOW
 #define MODEL_ONNX "model_0/model_0-tflite-streaming.onnx"
 
-
+#define WARM_UP false
 #define BATCH_SIZE 128
 #define MODEL_INPUT_SIZE 1
 #define MODEL_INPUT_SIZE_BACKEND 150 // Same as MODEL_INPUT_SIZE, but for streamable models

@@ -14,6 +14,7 @@ TFLiteProcessor::TFLiteProcessor()
 #endif
 
     options = TfLiteInterpreterOptionsCreate();
+    TfLiteInterpreterOptionsSetNumThreads(options, 1);
     interpreter = TfLiteInterpreterCreate(model, options);
 }
 
@@ -28,9 +29,12 @@ void TFLiteProcessor::prepareToPlay() {
     TfLiteInterpreterAllocateTensors(interpreter);
     inputTensor = TfLiteInterpreterGetInputTensor(interpreter, 0);
     outputTensor = TfLiteInterpreterGetOutputTensor(interpreter, 0);
-    // NNInferenceTemplate::InputArray input;
-    // NNInferenceTemplate::OutputArray output;
-    // processBlock(input, output);
+
+    if (WARM_UP) {
+        NNInferenceTemplate::InputArray input;
+        NNInferenceTemplate::OutputArray output;
+        processBlock(input, output);
+    }
 }
 
 void TFLiteProcessor::processBlock(NNInferenceTemplate::InputArray& input, NNInferenceTemplate::OutputArray& output) {

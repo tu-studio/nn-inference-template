@@ -26,7 +26,8 @@ private:
     Ort::Env env;
     Ort::MemoryInfo memory_info;
     Ort::AllocatorWithDefaultOptions ort_alloc;
-    Ort::Session session;
+    Ort::SessionOptions session_options;
+    std::unique_ptr<Ort::Session> session;
 
     std::array<int64_t, 3> inputShape;
     std::array<const char *, 1> inputNames;
