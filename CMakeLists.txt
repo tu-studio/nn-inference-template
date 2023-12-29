@@ -262,3 +262,13 @@ if (BUILD_ARCHITECTURE STREQUAL CMAKE_HOST_SYSTEM_PROCESSOR OR BUILD_ARCHITECTUR
     # gtest_discover_tests will register a CTest test for each gtest and run them all in parallel with the rest of the Test.
     gtest_discover_tests(Test_${TARGET_NAME} DISCOVERY_TIMEOUT 90)
 endif ()
+
+if (MSVC)
+    set(TEST_TARGET "Test_${TARGET_NAME}")
+    add_custom_command(TARGET ${TEST_TARGET}
+            PRE_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            ${INFERENCE_ENGINE_DLLS}
+            $<TARGET_FILE_DIR:${TEST_TARGET}>)
+endif (MSVC)
+
