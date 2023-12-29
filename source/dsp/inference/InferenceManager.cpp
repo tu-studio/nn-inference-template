@@ -92,7 +92,7 @@ InferenceThreadPool& InferenceManager::getInferenceThreadPool() {
 }
 
 int InferenceManager::getNumReceivedSamples() {
-    inferenceThreadPool->newDataRequest(session, 0);
+    inferenceThreadPool->newDataRequest(session, 0); // TODO: Check if processOutput call is better here
     return session.receiveBuffer.getAvailableSamples(0);
 }
 

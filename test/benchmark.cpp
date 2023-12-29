@@ -9,6 +9,8 @@
  * ========================= Configs ========================== *
  * ============================================================ */
 
+#define NUM_ITERATIONS 50
+#define NUM_REPETITIONS 10
 #define PERCENTILE 0.999
 
 /* ============================================================ *
@@ -55,28 +57,7 @@ const auto calculateMax = [](const std::vector<double>& v) -> double {
 };
 
 /* ============================================================ *
- * =================== PROCESSOR AND EDITOR =================== *
- * ============================================================ */
-
-// static void BM_PROCESSOR(benchmark::State& state) {
-//     auto gui = juce::ScopedJuceInitialiser_GUI {};
-//     for (auto _ : state) {
-//         AudioPluginAudioProcessor processor;
-//     }
-// }
-
-// static void BM_EDITOR(benchmark::State& state) {
-//     auto gui = juce::ScopedJuceInitialiser_GUI {};
-//     AudioPluginAudioProcessor plugin;
-//     for (auto _ : state) {
-//         auto editor = plugin.createEditor();
-//         plugin.editorBeingDeleted (editor);
-//         delete editor;
-//     }
-// }
-
-/* ============================================================ *
- * ==================== INFERENCE ENGINES ===================== *
+ * =================== BENCHMARK FIXTURES ===================== *
  * ============================================================ */
 
 class ProcessBlockFixture : public benchmark::Fixture {
@@ -85,6 +66,7 @@ public:
     inline static std::unique_ptr<AudioPluginAudioProcessor> plugin = nullptr;
     inline static std::unique_ptr<juce::AudioBuffer<float>> buffer = nullptr;
     inline static std::unique_ptr<juce::MidiBuffer> midiBuffer = nullptr;
+    inline static std::unique_ptr<int> repetition = nullptr;
 
     void pushSamplesInBuffer() {
         for (int channel = 0; channel < plugin->getTotalNumInputChannels(); channel++) {
@@ -94,7 +76,9 @@ public:
         }
     }
 
-    ProcessBlockFixture() {}
+    ProcessBlockFixture() {
+        std::cout << "Fixture Constructor" << std::endl;
+    }
     ~ProcessBlockFixture() {}
 
     void SetUp(const ::benchmark::State& state);
@@ -115,6 +99,7 @@ public:
         fixture.buffer = std::make_unique<juce::AudioBuffer<float>>(2, *fixture.bufferSize);
         fixture.midiBuffer = std::make_unique<juce::MidiBuffer>();
         fixture.plugin = std::make_unique<AudioPluginAudioProcessor>();
+        fixture.repetition = std::make_unique<int>(0);
         std::ignore = state;
     }
 
@@ -124,6 +109,7 @@ public:
         fixture.buffer.reset();
         fixture.plugin.reset();
         fixture.bufferSize.reset();
+        fixture.repetition.reset();
     }
 
     static void PerformSetup(ProcessBlockFixture& fixture, const ::benchmark::State& state) {
@@ -158,6 +144,10 @@ void ProcessBlockFixture::TearDown(const ::benchmark::State& state) {
     SingletonSetup::PerformTearDown(*this, state);
 }
 
+/* ============================================================ *
+ * ================== BENCHMARK DEFINITIONS =================== *
+ * ============================================================ */
+
 BENCHMARK_DEFINE_F(ProcessBlockFixture, BM_LIBTORCH_BACKEND)(benchmark::State& state) {
     auto sessions = plugin->getInferenceManager().getInferenceThreadPool().getSessions();
     for (size_t i = 0; i < sessions.size(); i++) {
@@ -165,6 +155,7 @@ BENCHMARK_DEFINE_F(ProcessBlockFixture, BM_LIBTORCH_BACKEND)(benchmark::State& s
     }
 
     int iteration = 0;
+    std::cout << "Benchmarking " << state.name() << " with buffer size " << state.range(0) << std::endl;
 
     for (auto _ : state) {
         pushSamplesInBuffer();
@@ -194,9 +185,10 @@ BENCHMARK_DEFINE_F(ProcessBlockFixture, BM_LIBTORCH_BACKEND)(benchmark::State& s
 
         auto elapsedTimeMS = std::chrono::duration_cast<std::chrono::duration<double, std::milli>>(end - start);
 
-        std::cout << state.name() << "/" << state.range(0) << "/iteration:" << iteration << "\t\t\t" << elapsedTimeMS.count() << std::endl;
+        std::cout << state.name() << "/" << state.range(0) << "/iteration:" << iteration << "/repetition:" << repetition << "\t\t\t" << elapsedTimeMS.count() << std::endl;
         iteration++;
     }
+    *repetition.get() += 1;
 }
 
 BENCHMARK_DEFINE_F(ProcessBlockFixture, BM_TFLITE_BACKEND)(benchmark::State& state) {
@@ -282,85 +274,41 @@ BENCHMARK_DEFINE_F(ProcessBlockFixture, BM_ONNX_BACKEND)(benchmark::State& state
 }
 
 /* ============================================================ *
- * ======================= JUCE THREAD ======================== *
+ * ================== BENCHMARK REGISTRATION ================== *
  * ============================================================ */
-
-class ThreadFixture : public benchmark::Fixture
-{
-public:
-    std::unique_ptr<TestThread> thread;
-
-    ThreadFixture() {
-    }
-
-    void SetUp(const ::benchmark::State& state) {
-        thread = std::make_unique<TestThread>();
-        std::ignore = state;
-    }
-
-    void TearDown(const ::benchmark::State& state) {
-        thread.reset();
-        std::ignore = state;
-    }
-};
-
-
-BENCHMARK_DEFINE_F(ThreadFixture, BM_THREAD)(benchmark::State& state) {
-    for (auto _ : state) {
-        thread->startThread(juce::Thread::Priority::highest);
-
-        while (thread->isThreadRunning()) {
-            std::this_thread::sleep_for(std::chrono::nanoseconds (10));
-        }
-    }
-}
-
-
-/* ============================================================ *
- * =================== REGISTER BANCHMARKs ==================== *
- * ============================================================ */
-
-// BENCHMARK(BM_PROCESSOR)->Unit(benchmark::kMillisecond);
-// BENCHMARK(BM_EDITOR)->Unit(benchmark::kMillisecond);
 
 BENCHMARK_REGISTER_F(ProcessBlockFixture, BM_LIBTORCH_BACKEND)
 ->Unit(benchmark::kMillisecond)
-->Iterations(50)->Repetitions(10)
+->Iterations(NUM_ITERATIONS)->Repetitions(NUM_REPETITIONS)
 ->RangeMultiplier(2)->Range(128, 8<<10)
 ->ComputeStatistics("min", calculateMin)
 ->ComputeStatistics("max", calculateMax)
 ->ComputeStatistics("percentile", [](const std::vector<double>& v) -> double {
     return calculatePercentile(v, PERCENTILE);
   })
-->DisplayAggregatesOnly(true);
+->DisplayAggregatesOnly(false)
+->UseManualTime();
 
 BENCHMARK_REGISTER_F(ProcessBlockFixture, BM_TFLITE_BACKEND)
 ->Unit(benchmark::kMillisecond)
-->Iterations(10)->Repetitions(20)
+->Iterations(NUM_ITERATIONS)->Repetitions(NUM_REPETITIONS)
 ->RangeMultiplier(2)->Range(128, 8<<10)
 ->ComputeStatistics("min", calculateMin)
 ->ComputeStatistics("max", calculateMax)
 ->ComputeStatistics("percentile", [](const std::vector<double>& v) -> double {
     return calculatePercentile(v, PERCENTILE);
   })
-->DisplayAggregatesOnly(true);
+->DisplayAggregatesOnly(false)
+->UseManualTime();
 
 BENCHMARK_REGISTER_F(ProcessBlockFixture, BM_ONNX_BACKEND)
 ->Unit(benchmark::kMillisecond)
-->Iterations(50)->Repetitions(10)
+->Iterations(NUM_ITERATIONS)->Repetitions(NUM_REPETITIONS)
 ->RangeMultiplier(2)->Range(128, 8<<10)
 ->ComputeStatistics("min", calculateMin)
 ->ComputeStatistics("max", calculateMax)
 ->ComputeStatistics("percentile", [](const std::vector<double>& v) -> double {
     return calculatePercentile(v, PERCENTILE);
   })
-->DisplayAggregatesOnly(true)
+->DisplayAggregatesOnly(false)
 ->UseManualTime();
-
-// BENCHMARK_REGISTER_F(ThreadFixture, BM_THREAD)
-// ->Iterations(1)->Repetitions(1000)
-// ->RangeMultiplier(2)->Range(128, 8<<10)
-// ->ComputeStatistics("min", calculateMin)
-// ->ComputeStatistics("max", calculateMax)
-// ->ComputeStatistics("99_percentile", calculatePercentile)
-// ->DisplayAggregatesOnly(true);
