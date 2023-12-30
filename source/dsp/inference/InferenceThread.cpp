@@ -15,6 +15,7 @@ InferenceThread::~InferenceThread() {
 void InferenceThread::start() {
     shouldExit = false;
     thread = std::thread(&InferenceThread::run, this);
+    setRealTimeOrLowerPriority();
 }
 
 void InferenceThread::run() {
@@ -50,4 +51,26 @@ void InferenceThread::inference(InferenceBackend backend, NNInferenceTemplate::I
 void InferenceThread::stop() {
     shouldExit = true;
     if (thread.joinable()) thread.join();
+}
+
+void InferenceThread::setRealTimeOrLowerPriority() {
+#if WIN32
+    int priorities[] = {THREAD_PRIORITY_TIME_CRITICAL, THREAD_PRIORITY_HIGHEST, THREAD_PRIORITY_ABOVE_NORMAL};
+
+    for (int priority : priorities) {
+        if (SetThreadPriority(thread.native_handle(), priority)) {
+            std::cout << "Thread priority set to " << priority << std::endl;
+            return;
+        } else {
+            std::cerr << "Failed to set thread priority " << priority << std::endl;
+        }
+    }
+#else
+    //TODO test code
+    sched_param sch_params;
+            sch_params.sched_priority = sched_get_priority_max(SCHED_FIFO);
+            if(pthread_setschedparam(thread.native_handle(), SCHED_FIFO, &sch_params)) {
+                std::cerr << "Failed to set Thread scheduling : " << errno << std::endl;
+            }
+#endif
 }

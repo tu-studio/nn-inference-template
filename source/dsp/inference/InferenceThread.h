@@ -12,6 +12,12 @@
 #include "backends/TFLiteProcessor.h"
 #include "SessionElement.h"
 
+#if WIN32
+    #include <windows.h>
+#else
+    #include <pthread.h>
+#endif
+
 class InferenceThread {
 public:
     InferenceThread(std::counting_semaphore<1000>& globalSemaphore, std::vector<std::shared_ptr<SessionElement>>& sessions);
@@ -20,6 +26,8 @@ public:
     void start();
     void run();
     void stop();
+
+    void setRealTimeOrLowerPriority();
 
 private:
     void inference(InferenceBackend backend, NNInferenceTemplate::InputArray& input, NNInferenceTemplate::OutputArray& output);

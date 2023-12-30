@@ -25,13 +25,8 @@ public:
     bool isInitializing() const;
     InferenceThreadPool& getInferenceThreadPool();
 
-    int getMissingBlocks() {
-        return inferenceCounter.load();;
-    }
-
-    int getSessionID() const {
-        return session.sessionID;
-    }
+    int getMissingBlocks();
+    int getSessionID() const;
 
 private:
     void processInput(juce::AudioBuffer<float>& buffer);

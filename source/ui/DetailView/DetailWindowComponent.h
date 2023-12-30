@@ -24,7 +24,8 @@ private:
     std::vector<juce::Label*> titleLabels {&missingBlocksTitle, &currentSessionIDTitle, &numOfSessionsTitle};
     std::vector<juce::Label*> valueLabels {&missingBlocksValue, &currentSessionIDValue, &numOfSessionsValue};
 
-    int missingBlocks, numOfSessions;
+    int missingBlocks = -1;
+    int numOfSessions = -1;
 };
 
 

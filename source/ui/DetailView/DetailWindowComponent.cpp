@@ -33,7 +33,7 @@ DetailWindowComponent::DetailWindowComponent(AudioPluginAudioProcessor &p) :
     numOfSessionsValue.setText("-", juce::dontSendNotification);
     addAndMakeVisible(numOfSessionsValue);
 
-    startTimerHz(30);
+    startTimer(100);
 }
 
 DetailWindowComponent::~DetailWindowComponent() {

@@ -99,3 +99,11 @@ int InferenceManager::getNumReceivedSamples() {
 bool InferenceManager::isInitializing() const {
     return init;
 }
+
+int InferenceManager::getMissingBlocks() {
+    return inferenceCounter.load();
+}
+
+int InferenceManager::getSessionID() const {
+    return session.sessionID;
+}
