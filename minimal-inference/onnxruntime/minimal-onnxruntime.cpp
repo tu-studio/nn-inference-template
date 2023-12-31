@@ -35,11 +35,15 @@ int main(int argc, char* argv[]) {
         // Define allocator
         Ort::AllocatorWithDefaultOptions ort_alloc;
 
+        // Limit inference to one thread
+        Ort::SessionOptions session_options;
+        session_options.SetIntraOpNumThreads(1);
+
         // Load the model and create InferenceSession
 #ifdef _WIN32
         std::wstring modelWideStr = std::wstring(modelpath.begin(), modelpath.end());
         const wchar_t* modelWideCStr = modelWideStr.c_str();
-        Ort::Session session(env, modelWideCStr, Ort::SessionOptions{nullptr });
+        Ort::Session session(env, modelWideCStr, session_options);
 #else
         Ort::Session session(env, modelpath.c_str(), Ort::SessionOptions{ nullptr });
 #endif
