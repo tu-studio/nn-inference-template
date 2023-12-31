@@ -1,6 +1,14 @@
 #include "LibtorchProcessor.h"
 
 LibtorchProcessor::LibtorchProcessor() {
+#if WIN32
+    _putenv("OMP_NUM_THREADS=1");
+    _putenv("MKL_NUM_THREADS=1");
+#else
+    putenv("OMP_NUM_THREADS=1");
+    putenv("MKL_NUM_THREADS=1");
+#endif
+
     try {
         module = torch::jit::load(filepath + modelname);
     }

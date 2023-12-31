@@ -15,6 +15,14 @@ int main(int argc, const char* argv[]) {
     std::cout << "Minimal LibTorch example:" << std::endl;
     std::cout << "-----------------------------------------" << std::endl;
 
+#if WIN32
+    _putenv("OMP_NUM_THREADS=1");
+    _putenv("MKL_NUM_THREADS=1");
+#else
+    putenv("OMP_NUM_THREADS=1");
+    putenv("MKL_NUM_THREADS=1");
+#endif
+
     const int batchSize = 2;
     const int modelInputSize = 150;
     const int modelOutputSize = 1;

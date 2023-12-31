@@ -10,3 +10,17 @@ add_executable(minimal-libtorch
 target_link_libraries(minimal-libtorch
   torch
 )
+
+if (MSVC)
+    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+        file(GLOB_RECURSE LIBTORCH_DLLS "${CMAKE_SOURCE_DIR}/modules/libtorch*debug/*.dll")
+    else()
+        file(GLOB_RECURSE LIBTORCH_DLLS "${CMAKE_SOURCE_DIR}/modules/libtorch*release/*.dll")
+    endif()
+    add_custom_command(TARGET minimal-libtorch
+            POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            ${LIBTORCH_DLLS}
+            $<TARGET_FILE_DIR:minimal-libtorch>)
+endif (MSVC)
+
