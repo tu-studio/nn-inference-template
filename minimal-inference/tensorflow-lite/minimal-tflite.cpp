@@ -35,6 +35,9 @@ int main(int argc, char* argv[]) {
     TfLiteInterpreterOptions* options = TfLiteInterpreterOptionsCreate();
     TfLiteInterpreter* interpreter = TfLiteInterpreterCreate(model, options);
 
+    // Limit inference to one thread
+    TfLiteInterpreterOptionsSetNumThreads(options, 1);
+
     // Allocate memory for all tensors
     TfLiteInterpreterAllocateTensors(interpreter);
 

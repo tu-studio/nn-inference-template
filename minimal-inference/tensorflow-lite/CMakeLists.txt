@@ -10,3 +10,12 @@ add_executable(minimal-tflite
 target_link_libraries(minimal-tflite
   tensorflowlite_c
 )
+
+if (MSVC)
+    file(GLOB_RECURSE TFLITE_DLLS "${CMAKE_SOURCE_DIR}/modules/tensorflowlite*/*.dll")
+    add_custom_command(TARGET minimal-tflite
+            POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            ${TFLITE_DLLS}
+            $<TARGET_FILE_DIR:minimal-tflite>)
+endif (MSVC)
