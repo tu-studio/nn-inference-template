@@ -67,10 +67,32 @@ void InferenceThread::setRealTimeOrLowerPriority() {
     }
 #else
     //TODO test code
-    sched_param sch_params;
-            sch_params.sched_priority = sched_get_priority_max(SCHED_FIFO);
-            if(pthread_setschedparam(thread.native_handle(), SCHED_FIFO, &sch_params)) {
-                std::cerr << "Failed to set Thread scheduling : " << errno << std::endl;
-            }
+    int sch_policy;
+    struct sched_param sch_params;
+
+    int ret = pthread_getschedparam(thread.native_handle(), &sch_policy, &sch_params);
+    if(ret != 0) {
+        std::cerr << "Failed to get Thread scheduling policy and params : " << errno << std::endl;
+    }
+
+    std::cout << "Initial thread scheduling policy set to " << sch_policy << std::endl;
+    std::cout << "Initial thread priority set to " << sch_params.sched_priority << " (max: " << sched_get_priority_max(sch_policy) << ", min: " << sched_get_priority_min(sch_policy) << ")" << std::endl;
+
+    sch_params.sched_priority = 80;
+
+    ret = pthread_setschedparam(thread.native_handle(), SCHED_FIFO, &sch_params); 
+    if(ret != 0) {
+        std::cerr << "Failed to set Thread scheduling policy and params : " << errno << std::endl;
+        std::cout << "Try running the application as root or with sudo, or add the user to the realtime/audio group" << std::endl;
+    }
+
+    ret = pthread_getschedparam(thread.native_handle(), &sch_policy, &sch_params);
+    if(ret != 0) {
+        std::cerr << "Failed to get Thread scheduling policy and params : " << errno << std::endl;
+    }
+
+    std::cout << "Thread scheduling policy set to " << sch_policy << std::endl;
+    std::cout << "Thread priority set to " << sch_params.sched_priority << " (max: " << sched_get_priority_max(sch_policy) << ", min: " << sched_get_priority_min(sch_policy) << ")" << std::endl;
+
 #endif
 }
