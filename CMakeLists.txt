@@ -59,8 +59,14 @@ include(cmake/SetupLibTorch.cmake)
 # TensorflowLite
 include(cmake/SetupTensorflowLite.cmake)
 
-add_compile_definitions(MODELS_PATH_TENSORFLOW="${CMAKE_SOURCE_DIR}/modules/GuitarLSTM/tensorflow-version/models/")
-add_compile_definitions(MODELS_PATH_PYTORCH="${CMAKE_SOURCE_DIR}/modules/GuitarLSTM/pytorch-version/models/")
+add_compile_definitions(GUITARLSTM_MODELS_PATH_TENSORFLOW="${CMAKE_SOURCE_DIR}/modules/GuitarLSTM/tensorflow-version/models/")
+add_compile_definitions(GUITARLSTM_MODELS_PATH_PYTORCH="${CMAKE_SOURCE_DIR}/modules/GuitarLSTM/pytorch-version/models/")
+
+add_compile_definitions(STEERABLENAFX_MODELS_PATH_TENSORFLOW="${CMAKE_SOURCE_DIR}/modules/steerable-nafx/models/")
+add_compile_definitions(STEERABLENAFX_MODELS_PATH_PYTORCH="${CMAKE_SOURCE_DIR}/modules/steerable-nafx/models/")
+
+# add_compile_definitions(MODEL_TO_USE="GuitarLSTM")
+add_compile_definitions(MODEL_TO_USE="steerable-nafx")
 
 include(FetchContent)
 

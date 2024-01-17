@@ -15,7 +15,7 @@ public:
     void processBlock(NNInferenceTemplate::InputArray& input, NNInferenceTemplate::OutputArray& output);
 
 private:
-    std::string filepath = MODELS_PATH_PYTORCH;
+    std::string filepath = GUITARLSTM_MODELS_PATH_PYTORCH;
     std::string modelname = MODEL_LIBTORCH;
 
     torch::jit::script::Module module;

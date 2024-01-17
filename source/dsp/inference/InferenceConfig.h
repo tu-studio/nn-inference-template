@@ -9,7 +9,7 @@ enum InferenceBackend {
 
 #define MODEL_TFLITE "model_0/model_0-streaming.tflite"
 #define MODEL_LIBTORCH "model_0/model_0-streaming.pt"
-#define MODELS_PATH_ONNX MODELS_PATH_TENSORFLOW
+#define MODELS_PATH_ONNX GUITARLSTM_MODELS_PATH_TENSORFLOW
 #define MODEL_ONNX "model_0/model_0-tflite-streaming.onnx"
 
 #define WARM_UP false

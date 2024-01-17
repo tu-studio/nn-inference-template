@@ -14,7 +14,7 @@ public:
     void processBlock(NNInferenceTemplate::InputArray& input, NNInferenceTemplate::OutputArray& output);
 
 private:
-    std::string filepath = MODELS_PATH_TENSORFLOW;
+    std::string filepath = GUITARLSTM_MODELS_PATH_TENSORFLOW;
     std::string modelname = MODEL_TFLITE;
 #ifdef _WIN32
     std::string modelpathStr = filepath + modelname;

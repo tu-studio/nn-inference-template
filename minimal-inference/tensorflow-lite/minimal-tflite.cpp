@@ -21,12 +21,27 @@ int main(int argc, char* argv[]) {
     std::cout << "Minimal TensorFlow-Lite example:" << std::endl;
     std::cout << "-----------------------------------------" << std::endl;
 
-    const int batchSize = 2;
-    const int modelInputSize = 150;
-    const int modelOutputSize = 1;
+    std::string modelpath = "";
+    int batchSize = 0;
+    int modelInputSize = 0;
+    int modelOutputSize = 0;
 
-    std::string filepath = MODELS_PATH_TENSORFLOW;
-    std::string modelpath = filepath + "model_0/model_0-minimal.tflite";
+    if (MODEL_TO_USE == "GuitarLSTM") {
+        std::string filepath = GUITARLSTM_MODELS_PATH_TENSORFLOW;
+        modelpath = filepath + "model_0/model_0-minimal.tflite";
+
+        batchSize = 2;
+        modelInputSize = 150;
+        modelOutputSize = 1;
+    }
+    else if (MODEL_TO_USE == "steerable-nafx") {
+        std::string filepath = STEERABLENAFX_MODELS_PATH_TENSORFLOW;
+        modelpath = filepath + "model_0/steerable-nafx.tflite";
+
+        batchSize = 1;
+        modelInputSize = 56236;
+        modelOutputSize = 64;
+    }
 
     // Load model
     TfLiteModel* model = TfLiteModelCreateFromFile(modelpath.c_str());
@@ -69,6 +84,7 @@ int main(int argc, char* argv[]) {
 
     std::cout << "Output shape 0: " << TfLiteTensorDim(outputTensor, 0) << '\n';
     std::cout << "Output shape 1: " << TfLiteTensorDim(outputTensor, 1) << '\n';
+    std::cout << "Output shape 2: " << TfLiteTensorDim(outputTensor, 2) << '\n';
 
     for (int i = 0; i < outputSize; i++) {
         std::cout << "Output data [" << i << "]: " << outputData[i] << std::endl;

@@ -13,9 +13,22 @@ int main(int argc, char* argv[]) {
     std::cout << "Minimal OnnxRuntime example:" << std::endl;
     std::cout << "-----------------------------------------" << std::endl;
 
-    const int batchSize = 2;
-    const int modelInputSize = 150;
-    const int modelOutputSize = 1;
+    std::string modelpath = "";
+    std::string filepath = "";
+    int batchSize = 0;
+    int modelInputSize = 0;
+    int modelOutputSize = 0;
+
+    if (MODEL_TO_USE == "GuitarLSTM") {
+        batchSize = 2;
+        modelInputSize = 150;
+        modelOutputSize = 1;
+    }
+    else if (MODEL_TO_USE == "steerable-nafx") {
+        batchSize = 1;
+        modelInputSize = 56236;
+        modelOutputSize = 64;
+    }
 
     bool tflite = true;
     bool libtorch = true;
@@ -24,8 +37,14 @@ int main(int argc, char* argv[]) {
 
         std::cout << "Tensorflow model converted to onnx:" << std::endl;
 
-        std::string filepath = MODELS_PATH_TENSORFLOW;
-        std::string modelpath = filepath + "model_0/model_0-tflite-minimal.onnx";
+        if (MODEL_TO_USE == "GuitarLSTM") {
+            filepath = GUITARLSTM_MODELS_PATH_TENSORFLOW;
+            modelpath = filepath + "model_0/model_0-tflite-minimal.onnx";
+        }
+        else if (MODEL_TO_USE == "steerable-nafx") {
+            filepath = STEERABLENAFX_MODELS_PATH_TENSORFLOW;
+            modelpath = filepath + "model_0/steerable-nafx-tflite.onnx";
+        }
 
         // Define environment that holds logging state used by all other objects.
         // Note: One Env must be created before using any other Onnxruntime functionality.
@@ -88,6 +107,7 @@ int main(int argc, char* argv[]) {
         
         std::cout << "Output shape 0: " << outputTensors[0].GetTensorTypeAndShapeInfo().GetShape()[0] << std::endl;
         std::cout << "Output shape 1: " << outputTensors[0].GetTensorTypeAndShapeInfo().GetShape()[1] << std::endl;
+        std::cout << "Output shape 2: " << outputTensors[0].GetTensorTypeAndShapeInfo().GetShape()[2] << std::endl;
 
         // Define output vector
         int outputSize = batchSize * modelOutputSize;
@@ -101,11 +121,16 @@ int main(int argc, char* argv[]) {
 
     if (libtorch) {
 
-
         std::cout << "PyTorch model converted to onnx:" << std::endl;
 
-        std::string filepath = MODELS_PATH_PYTORCH;
-        std::string modelpath = filepath + "model_0/model_0-libtorch-minimal.onnx";
+        if (MODEL_TO_USE == "GuitarLSTM") {
+            filepath = GUITARLSTM_MODELS_PATH_PYTORCH;
+            modelpath = filepath + "model_0/model_0-libtorch-minimal.onnx";
+        }
+        else if (MODEL_TO_USE == "steerable-nafx") {
+            filepath = STEERABLENAFX_MODELS_PATH_PYTORCH;
+            modelpath = filepath + "model_0/steerable-nafx-libtorch.onnx";
+        }
 
         // Define environment that holds logging state used by all other objects.
         // Note: One Env must be created before using any other Onnxruntime functionality.
@@ -164,6 +189,7 @@ int main(int argc, char* argv[]) {
         
         std::cout << "Output shape 0: " << outputTensors[0].GetTensorTypeAndShapeInfo().GetShape()[0] << std::endl;
         std::cout << "Output shape 1: " << outputTensors[0].GetTensorTypeAndShapeInfo().GetShape()[1] << std::endl;
+        std::cout << "Output shape 2: " << outputTensors[0].GetTensorTypeAndShapeInfo().GetShape()[2] << std::endl;
 
         // Define output vector
         int outputSize = batchSize * modelOutputSize;
