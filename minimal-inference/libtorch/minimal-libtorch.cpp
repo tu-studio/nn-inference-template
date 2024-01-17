@@ -28,22 +28,21 @@ int main(int argc, const char* argv[]) {
     int modelInputSize = 0;
     int modelOutputSize = 0;
 
-    if (MODEL_TO_USE == "GuitarLSTM") {
-        std::string filepath = GUITARLSTM_MODELS_PATH_PYTORCH;
-        modelpath = filepath + "model_0/model_0-minimal.pt";
+#if MODEL_TO_USE == 1
+    std::string filepath = GUITARLSTM_MODELS_PATH_PYTORCH;
+    modelpath = filepath + "model_0/model_0-minimal.pt";
 
-        batchSize = 2;
-        modelInputSize = 150;
-        modelOutputSize = 1;
-    }
-    else if (MODEL_TO_USE == "steerable-nafx") {
-        std::string filepath = STEERABLENAFX_MODELS_PATH_PYTORCH;
-        modelpath = filepath + "model_0/steerable-nafx.pt";
+    batchSize = 2;
+    modelInputSize = 150;
+    modelOutputSize = 1;
+#elif MODEL_TO_USE == 2
+    std::string filepath = STEERABLENAFX_MODELS_PATH_PYTORCH;
+    modelpath = filepath + "model_0/steerable-nafx.pt";
 
-        batchSize = 1;
-        modelInputSize = 56236;
-        modelOutputSize = 64;
-    }
+    batchSize = 1;
+    modelInputSize = 56236;
+    modelOutputSize = 64;
+#endif
 
     // Load model
     torch::jit::Module module;
@@ -85,18 +84,17 @@ int main(int argc, const char* argv[]) {
     const int outputSize = batchSize * modelOutputSize;
     float outputData[outputSize];
 
-    if (MODEL_TO_USE == "GuitarLSTM") {
-        for (int i = 0; i < outputSize; i++) {
-            outputData[i] = outputTensor[i][0].item().toFloat();
-            std::cout << "Output data [" << i << "]: " << outputData[i] << std::endl;
-        }
+#if MODEL_TO_USE == 1
+    for (int i = 0; i < outputSize; i++) {
+        outputData[i] = outputTensor[i][0].item().toFloat();
+        std::cout << "Output data [" << i << "]: " << outputData[i] << std::endl;
     }
-    else if (MODEL_TO_USE == "steerable-nafx") {
-        for (int i = 0; i < outputSize; i++) {
-            outputData[i] = outputTensor[0][0][i].item().toFloat();
-            std::cout << "Output data [" << i << "]: " << outputData[i] << std::endl;
-        }
+#elif MODEL_TO_USE == 2
+    for (int i = 0; i < outputSize; i++) {
+        outputData[i] = outputTensor[0][0][i].item().toFloat();
+        std::cout << "Output data [" << i << "]: " << outputData[i] << std::endl;
     }
+#endif
 
     return 0;
 }

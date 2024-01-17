@@ -94,6 +94,7 @@ void InferenceThreadPool::preProcess(SessionElement& session) {
     for (size_t i = 0; i < session.inferenceQueue.size(); ++i) {
         if (session.inferenceQueue[i].free.try_acquire()) {
             // TODO if getAvSamples != 0 check
+#if MODEL_TO_USE == 1
             for (size_t batch = 0; batch < BATCH_SIZE; batch++) {
                 size_t baseIdx = batch * MODEL_INPUT_SIZE_BACKEND;
 
@@ -105,6 +106,16 @@ void InferenceThreadPool::preProcess(SessionElement& session) {
                     }
                 }
             }
+#elif MODEL_TO_USE == 2
+            for (int j = MODEL_INPUT_SIZE_BACKEND - 1; j >= 0; j--) {
+                if (j >= MODEL_INPUT_SIZE_BACKEND - MODEL_INPUT_SIZE) {
+                    session.inferenceQueue[i].processedModelInput[(size_t) j] = session.sendBuffer.popSample(0);
+                } else  {
+                    session.inferenceQueue[i].processedModelInput[(size_t) j] = session.sendBuffer.getSample(0, MODEL_INPUT_SIZE_BACKEND - (size_t) j);
+                }
+            }
+#endif // MODEL_TO_USE
+
             const std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
             session.timeStamps.push(now);
             session.inferenceQueue[i].time = now;

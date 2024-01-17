@@ -26,22 +26,21 @@ int main(int argc, char* argv[]) {
     int modelInputSize = 0;
     int modelOutputSize = 0;
 
-    if (MODEL_TO_USE == "GuitarLSTM") {
-        std::string filepath = GUITARLSTM_MODELS_PATH_TENSORFLOW;
-        modelpath = filepath + "model_0/model_0-minimal.tflite";
+#if MODEL_TO_USE == 1
+    std::string filepath = GUITARLSTM_MODELS_PATH_TENSORFLOW;
+    modelpath = filepath + "model_0/model_0-minimal.tflite";
 
-        batchSize = 2;
-        modelInputSize = 150;
-        modelOutputSize = 1;
-    }
-    else if (MODEL_TO_USE == "steerable-nafx") {
-        std::string filepath = STEERABLENAFX_MODELS_PATH_TENSORFLOW;
-        modelpath = filepath + "model_0/steerable-nafx.tflite";
+    batchSize = 2;
+    modelInputSize = 150;
+    modelOutputSize = 1;
+#elif MODEL_TO_USE == 2
+    std::string filepath = STEERABLENAFX_MODELS_PATH_TENSORFLOW;
+    modelpath = filepath + "model_0/steerable-nafx.tflite";
 
-        batchSize = 1;
-        modelInputSize = 56236;
-        modelOutputSize = 64;
-    }
+    batchSize = 1;
+    modelInputSize = 56236;
+    modelOutputSize = 64;
+#endif
 
     // Load model
     TfLiteModel* model = TfLiteModelCreateFromFile(modelpath.c_str());

@@ -43,6 +43,10 @@ void LibtorchProcessor::processBlock(NNInferenceTemplate::InputArray& input, NNI
 
     // Extract the output tensor data
     for (size_t i = 0; i < BATCH_SIZE * MODEL_OUTPUT_SIZE_BACKEND; i++) {
-        output[i] = outputTensor[(int64_t) i].item<float>();
+#if MODEL_TO_USE == 1
+        output[i] = outputTensor[(int64_t) i][0].item<float>();
+#elif MODEL_TO_USE == 2
+        output[i] = outputTensor[0][0][(int64_t) i].item<float>();
+#endif
     }
 }
