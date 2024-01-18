@@ -25,8 +25,8 @@ int main(int argc, char* argv[]) {
     modelOutputSize = 1;
 #elif MODEL_TO_USE == 2
     batchSize = 1;
-    modelInputSize = 56236;
-    modelOutputSize = 64;
+    modelInputSize = 15380;
+    modelOutputSize = 2048;
 #endif
 
     bool tflite = true;
@@ -69,7 +69,7 @@ int main(int argc, char* argv[]) {
         const int inputSize = batchSize * modelInputSize;
         float inputData[inputSize];
         for (int i = 0; i < inputSize; i++) {
-            inputData[i] = i * 0.001f;
+            inputData[i] = i * 0.000001f;
         }
 
         // Define the shape of input tensor

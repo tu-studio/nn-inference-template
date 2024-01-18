@@ -38,8 +38,8 @@ int main(int argc, char* argv[]) {
     modelpath = filepath + "model_0/steerable-nafx.tflite";
 
     batchSize = 1;
-    modelInputSize = 56236;
-    modelOutputSize = 64;
+    modelInputSize = 15380;
+    modelOutputSize = 2048;
 #endif
 
     // Load model
@@ -66,7 +66,7 @@ int main(int argc, char* argv[]) {
     const int inputSize = batchSize * modelInputSize;
     float inputData[inputSize];
     for (int i = 0; i < inputSize; i++) {
-        inputData[i] = i * 0.001f;
+        inputData[i] = i * 0.000001f;
     }
     TfLiteTensorCopyFromBuffer(inputTensor, &inputData, inputSize * sizeof(float));
 
