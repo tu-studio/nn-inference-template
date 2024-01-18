@@ -12,6 +12,8 @@
 #define NUM_ITERATIONS 50
 #define NUM_REPETITIONS 10
 #define PERCENTILE 0.999
+#define STARTING_BUFFER_SIZE 2048
+#define STOPPING_BUFFER_SIZE 8192
 
 /* ============================================================ *
  * ===================== Helper functions ===================== *
@@ -280,7 +282,7 @@ BENCHMARK_DEFINE_F(ProcessBlockFixture, BM_ONNX_BACKEND)(benchmark::State& state
 BENCHMARK_REGISTER_F(ProcessBlockFixture, BM_LIBTORCH_BACKEND)
 ->Unit(benchmark::kMillisecond)
 ->Iterations(NUM_ITERATIONS)->Repetitions(NUM_REPETITIONS)
-->RangeMultiplier(2)->Range(128, 8<<10)
+->RangeMultiplier(2)->Range(STARTING_BUFFER_SIZE, STOPPING_BUFFER_SIZE)
 ->ComputeStatistics("min", calculateMin)
 ->ComputeStatistics("max", calculateMax)
 ->ComputeStatistics("percentile", [](const std::vector<double>& v) -> double {
@@ -292,7 +294,7 @@ BENCHMARK_REGISTER_F(ProcessBlockFixture, BM_LIBTORCH_BACKEND)
 BENCHMARK_REGISTER_F(ProcessBlockFixture, BM_TFLITE_BACKEND)
 ->Unit(benchmark::kMillisecond)
 ->Iterations(NUM_ITERATIONS)->Repetitions(NUM_REPETITIONS)
-->RangeMultiplier(2)->Range(128, 8<<10)
+->RangeMultiplier(2)->Range(STARTING_BUFFER_SIZE, STOPPING_BUFFER_SIZE)
 ->ComputeStatistics("min", calculateMin)
 ->ComputeStatistics("max", calculateMax)
 ->ComputeStatistics("percentile", [](const std::vector<double>& v) -> double {
@@ -304,7 +306,7 @@ BENCHMARK_REGISTER_F(ProcessBlockFixture, BM_TFLITE_BACKEND)
 BENCHMARK_REGISTER_F(ProcessBlockFixture, BM_ONNX_BACKEND)
 ->Unit(benchmark::kMillisecond)
 ->Iterations(NUM_ITERATIONS)->Repetitions(NUM_REPETITIONS)
-->RangeMultiplier(2)->Range(128, 8<<10)
+->RangeMultiplier(2)->Range(STARTING_BUFFER_SIZE, STOPPING_BUFFER_SIZE)
 ->ComputeStatistics("min", calculateMin)
 ->ComputeStatistics("max", calculateMax)
 ->ComputeStatistics("percentile", [](const std::vector<double>& v) -> double {
