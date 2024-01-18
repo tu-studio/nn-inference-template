@@ -14,7 +14,16 @@ InferenceThread::~InferenceThread() {
 
 void InferenceThread::start() {
     shouldExit = false;
+#if LINUX
+    pthread_attr_t thread_attr;
+    pthread_attr_init(&thread_attr);
+    pthread_attr_setinheritsched(&thread_attr, PTHREAD_EXPLICIT_SCHED);
+    pthread_setattr_default_np(&thread_attr);
+#endif
     thread = std::thread(&InferenceThread::run, this);
+#if LINUX
+    pthread_attr_destroy(&thread_attr);
+#endif
     setRealTimeOrLowerPriority();
 }
 
@@ -65,7 +74,7 @@ void InferenceThread::setRealTimeOrLowerPriority() {
             std::cerr << "Failed to set thread priority " << priority << std::endl;
         }
     }
-#else
+#elif LINUX
     int sch_policy;
     struct sched_param sch_params;
 
@@ -86,5 +95,27 @@ void InferenceThread::setRealTimeOrLowerPriority() {
     if(ret != 0) {
         std::cerr << "Failed to get Thread scheduling policy and params : " << errno << std::endl;
     }
+
+    if (sch_policy != SCHED_FIFO) {
+        std::cerr << "Failed to set thread scheduling policy to SCHED_FIFO" << std::endl;
+    }
+    if (sch_params.sched_priority != 80) {
+        std::cerr << "Failed to set thread scheduling priority to 80" << std::endl;
+    }
+
+    int attr_inheritsched;
+    pthread_attr_t thread_attr;
+    ret = pthread_getattr_np(thread.native_handle(), &thread_attr);
+    ret = pthread_attr_getinheritsched(&thread_attr, &attr_inheritsched);
+    if(ret != 0) {
+        std::cerr << "Failed to get Thread scheduling policy and params : " << errno << std::endl;
+    }
+
+    if (attr_inheritsched != PTHREAD_EXPLICIT_SCHED) {
+        std::cerr << "Failed to set thread scheduling policy to PTHREAD_EXPLICIT_SCHED" << std::endl;
+    }
+
+    pthread_attr_destroy(&thread_attr);
+
 #endif
 }
