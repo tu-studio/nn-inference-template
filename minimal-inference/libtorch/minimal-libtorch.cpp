@@ -23,25 +23,20 @@ int main(int argc, const char* argv[]) {
     putenv("MKL_NUM_THREADS=1");
 #endif
 
-    std::string modelpath = "";
-    int batchSize = 0;
-    int modelInputSize = 0;
-    int modelOutputSize = 0;
-
 #if MODEL_TO_USE == 1
     std::string filepath = GUITARLSTM_MODELS_PATH_PYTORCH;
-    modelpath = filepath + "model_0/model_0-minimal.pt";
+    std::string modelpath = filepath + "model_0/model_0-minimal.pt";
 
-    batchSize = 2;
-    modelInputSize = 150;
-    modelOutputSize = 1;
+    const int batchSize = 2;
+    const int modelInputSize = 150;
+    const int modelOutputSize = 1;
 #elif MODEL_TO_USE == 2
     std::string filepath = STEERABLENAFX_MODELS_PATH_PYTORCH;
-    modelpath = filepath + "model_0/steerable-nafx.pt";
+    std::string modelpath = filepath + "model_0/steerable-nafx.pt";
 
-    batchSize = 1;
-    modelInputSize = 15380;
-    modelOutputSize = 2048;
+    const int batchSize = 1;
+    const int modelInputSize = 15380;
+    const int modelOutputSize = 2048;
 #endif
 
     // Load model

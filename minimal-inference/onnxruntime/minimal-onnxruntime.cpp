@@ -13,20 +13,14 @@ int main(int argc, char* argv[]) {
     std::cout << "Minimal OnnxRuntime example:" << std::endl;
     std::cout << "-----------------------------------------" << std::endl;
 
-    std::string modelpath = "";
-    std::string filepath = "";
-    int batchSize = 0;
-    int modelInputSize = 0;
-    int modelOutputSize = 0;
-
 #if MODEL_TO_USE == 1
-    batchSize = 2;
-    modelInputSize = 150;
-    modelOutputSize = 1;
+    const int batchSize = 2;
+    const int modelInputSize = 150;
+    const int modelOutputSize = 1;
 #elif MODEL_TO_USE == 2
-    batchSize = 1;
-    modelInputSize = 15380;
-    modelOutputSize = 2048;
+    const int batchSize = 1;
+    const int modelInputSize = 15380;
+    const int modelOutputSize = 2048;
 #endif
 
     bool tflite = true;
@@ -37,11 +31,11 @@ int main(int argc, char* argv[]) {
         std::cout << "Tensorflow model converted to onnx:" << std::endl;
 
 #if MODEL_TO_USE == 1
-        filepath = GUITARLSTM_MODELS_PATH_TENSORFLOW;
-        modelpath = filepath + "model_0/model_0-tflite-minimal.onnx";
+        std::string filepath = GUITARLSTM_MODELS_PATH_TENSORFLOW;
+        std::string modelpath = filepath + "model_0/model_0-tflite-minimal.onnx";
 #elif MODEL_TO_USE == 2
-        filepath = STEERABLENAFX_MODELS_PATH_TENSORFLOW;
-        modelpath = filepath + "model_0/steerable-nafx-tflite.onnx";
+        std::string filepath = STEERABLENAFX_MODELS_PATH_TENSORFLOW;
+        std::string modelpath = filepath + "model_0/steerable-nafx-tflite.onnx";
 #endif
 
         // Define environment that holds logging state used by all other objects.
@@ -122,11 +116,11 @@ int main(int argc, char* argv[]) {
         std::cout << "PyTorch model converted to onnx:" << std::endl;
 
 #if MODEL_TO_USE == 1
-        filepath = GUITARLSTM_MODELS_PATH_PYTORCH;
-        modelpath = filepath + "model_0/model_0-libtorch-minimal.onnx";
+        std::string filepath = GUITARLSTM_MODELS_PATH_PYTORCH;
+        std::string modelpath = filepath + "model_0/model_0-libtorch-minimal.onnx";
 #elif MODEL_TO_USE == 2
-        filepath = STEERABLENAFX_MODELS_PATH_PYTORCH;
-        modelpath = filepath + "model_0/steerable-nafx-libtorch.onnx";
+        std::string filepath = STEERABLENAFX_MODELS_PATH_PYTORCH;
+        std::string modelpath = filepath + "model_0/steerable-nafx-libtorch.onnx";
 #endif
 
         // Define environment that holds logging state used by all other objects.

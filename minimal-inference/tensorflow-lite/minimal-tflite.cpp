@@ -21,25 +21,20 @@ int main(int argc, char* argv[]) {
     std::cout << "Minimal TensorFlow-Lite example:" << std::endl;
     std::cout << "-----------------------------------------" << std::endl;
 
-    std::string modelpath = "";
-    int batchSize = 0;
-    int modelInputSize = 0;
-    int modelOutputSize = 0;
-
 #if MODEL_TO_USE == 1
     std::string filepath = GUITARLSTM_MODELS_PATH_TENSORFLOW;
-    modelpath = filepath + "model_0/model_0-minimal.tflite";
+    std::string modelpath = filepath + "model_0/model_0-minimal.tflite";
 
-    batchSize = 2;
-    modelInputSize = 150;
-    modelOutputSize = 1;
+    const int batchSize = 2;
+    const int modelInputSize = 150;
+    const int modelOutputSize = 1;
 #elif MODEL_TO_USE == 2
     std::string filepath = STEERABLENAFX_MODELS_PATH_TENSORFLOW;
-    modelpath = filepath + "model_0/steerable-nafx.tflite";
+    std::string modelpath = filepath + "model_0/steerable-nafx.tflite";
 
-    batchSize = 1;
-    modelInputSize = 15380;
-    modelOutputSize = 2048;
+    const int batchSize = 1;
+    const int modelInputSize = 15380;
+    const int modelOutputSize = 2048;
 #endif
 
     // Load model
