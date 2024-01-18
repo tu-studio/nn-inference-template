@@ -6,4 +6,4 @@
 	url = https://github.com/faressc/GuitarLSTM.git
 [submodule "modules/steerable-nafx"]
 	path = modules/steerable-nafx
-	url = git@github.com:faressc/steerable-nafx.git
+	url = https://github.com/faressc/steerable-nafx.git

@@ -7,3 +7,5 @@ cmake-build*
 codesign_and_copy.sh
 add_debug_entitlement.sh
 */venv/
+!modules/GuitarLSTM/
+!modules/steerable-nafx/
