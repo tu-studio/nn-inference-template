@@ -79,9 +79,13 @@ public:
     }
 
     ProcessBlockFixture() {
-        std::cout << "Fixture Constructor" << std::endl;
+        bufferSize = std::make_unique<int>(0);
+        repetition = std::make_unique<int>(0);
     }
-    ~ProcessBlockFixture() {}
+    ~ProcessBlockFixture() {
+        bufferSize.reset(); // buffersize and repetetion don't need to be reset when the plugin is reset
+        repetition.reset();
+    }
 
     void SetUp(const ::benchmark::State& state);
 
@@ -95,46 +99,39 @@ public:
     inline static std::unique_ptr<SingletonSetup> setup = nullptr;
 
     SingletonSetup(ProcessBlockFixture& thisFixture, const ::benchmark::State& state) : fixture(thisFixture) {
-        std::cout << "Singleton Constructor" << std::endl;
         auto gui = juce::ScopedJuceInitialiser_GUI {};
-        fixture.bufferSize = std::make_unique<int>(0);
         fixture.buffer = std::make_unique<juce::AudioBuffer<float>>(2, *fixture.bufferSize);
         fixture.midiBuffer = std::make_unique<juce::MidiBuffer>();
         fixture.plugin = std::make_unique<AudioPluginAudioProcessor>();
-        fixture.repetition = std::make_unique<int>(0);
         std::ignore = state;
     }
 
     ~SingletonSetup() {
-        std::cout << "Singleton Destructor" << std::endl;
         fixture.midiBuffer.reset();
         fixture.buffer.reset();
         fixture.plugin.reset();
-        fixture.bufferSize.reset();
-        fixture.repetition.reset();
     }
 
     static void PerformSetup(ProcessBlockFixture& fixture, const ::benchmark::State& state) {
-        std::cout << "Setup" << std::endl;
         if (setup == nullptr) {
             setup = std::make_unique<SingletonSetup>(fixture, state);
-            std::cout << "New Plugin generated" << std::endl;
         }
         if (*fixture.bufferSize != (int) state.range(0)) {
             *fixture.bufferSize = (int) state.range(0);
+            std::cout << "\n------------------------------------------------------------------------------------------------" << std::endl;
             std::cout << "Sample Rate 44100 Hz | Buffer Size " << *fixture.bufferSize << " = " << (float) * fixture.bufferSize * 1000.f/44100.f << " ms" << std::endl;
+            std::cout << "------------------------------------------------------------------------------------------------\n" << std::endl;
             fixture.buffer->setSize(2, (int) *fixture.bufferSize);
+            fixture.repetition.reset(new int(0));
         }
         fixture.plugin->setPlayConfigDetails(2, 2, 44100, *fixture.bufferSize);
         fixture.plugin->prepareToPlay (44100, (int) *fixture.bufferSize);
     }
 
     static void PerformTearDown(ProcessBlockFixture& fixture, const ::benchmark::State& state) {
-        std::cout << "TearDown" << std::endl;
         setup.reset();
-        std::cout << "Plugin destructed" << std::endl;
-        // std::ignore(fixture);
-        // std::ignore(state);
+        std::ignore = fixture;
+        std::ignore = state;
     }
 };
 
@@ -157,7 +154,6 @@ BENCHMARK_DEFINE_F(ProcessBlockFixture, BM_LIBTORCH_BACKEND)(benchmark::State& s
     }
 
     int iteration = 0;
-    std::cout << "Benchmarking " << state.name() << " with buffer size " << state.range(0) << std::endl;
 
     for (auto _ : state) {
         pushSamplesInBuffer();
@@ -187,10 +183,12 @@ BENCHMARK_DEFINE_F(ProcessBlockFixture, BM_LIBTORCH_BACKEND)(benchmark::State& s
 
         auto elapsedTimeMS = std::chrono::duration_cast<std::chrono::duration<double, std::milli>>(end - start);
 
-        std::cout << state.name() << "/" << state.range(0) << "/iteration:" << iteration << "/repetition:" << repetition << "\t\t\t" << elapsedTimeMS.count() << std::endl;
+        std::cout << state.name() << "/" << state.range(0) << "/iteration:" << iteration << "/repetition:" << *repetition.get() << "\t\t\t" << elapsedTimeMS.count() << std::endl;
         iteration++;
     }
     *repetition.get() += 1;
+
+    std::cout << "\n------------------------------------------------------------------------------------------------\n" << std::endl;
 }
 
 BENCHMARK_DEFINE_F(ProcessBlockFixture, BM_TFLITE_BACKEND)(benchmark::State& state) {
@@ -229,9 +227,12 @@ BENCHMARK_DEFINE_F(ProcessBlockFixture, BM_TFLITE_BACKEND)(benchmark::State& sta
 
         auto elapsedTimeMS = std::chrono::duration_cast<std::chrono::duration<double, std::milli>>(end - start);
 
-        std::cout << state.name() << "/" << state.range(0) << "/iteration:" << iteration << "\t\t\t" << elapsedTimeMS.count() << std::endl;
+        std::cout << state.name() << "/" << state.range(0) << "/iteration:" << iteration << "/repetition:" << *repetition.get() << "\t\t\t" << elapsedTimeMS.count() << std::endl;
         iteration++;
     }
+    *repetition.get() += 1;
+
+    std::cout << "\n------------------------------------------------------------------------------------------------\n" << std::endl;
 }
 
 BENCHMARK_DEFINE_F(ProcessBlockFixture, BM_ONNX_BACKEND)(benchmark::State& state) {
@@ -270,9 +271,12 @@ BENCHMARK_DEFINE_F(ProcessBlockFixture, BM_ONNX_BACKEND)(benchmark::State& state
 
         auto elapsedTimeMS = std::chrono::duration_cast<std::chrono::duration<double, std::milli>>(end - start);
 
-        std::cout << state.name() << "/" << state.range(0) << "/iteration:" << iteration << "\t\t\t" << elapsedTimeMS.count() << std::endl;
+        std::cout << state.name() << "/" << state.range(0) << "/iteration:" << iteration << "/repetition:" << *repetition.get() << "\t\t\t" << elapsedTimeMS.count() << std::endl;
         iteration++;
     }
+    *repetition.get() += 1;
+
+    std::cout << "\n------------------------------------------------------------------------------------------------\n" << std::endl;
 }
 
 /* ============================================================ *

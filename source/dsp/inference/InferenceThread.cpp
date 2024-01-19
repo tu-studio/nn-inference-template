@@ -4,11 +4,9 @@ InferenceThread::InferenceThread(std::counting_semaphore<1000>& s, std::vector<s
     onnxProcessor.prepareToPlay();
     torchProcessor.prepareToPlay();
     tfliteProcessor.prepareToPlay();
-    std::cout << "starting thread" << std::endl;
 }
 
 InferenceThread::~InferenceThread() {
-    std::cout << "stopping thread" << std::endl;
     stop();
 }
 
