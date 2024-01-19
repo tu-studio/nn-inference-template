@@ -35,7 +35,7 @@ int main(int argc, char* argv[]) {
         std::string modelpath = filepath + "model_0/model_0-tflite-minimal.onnx";
 #elif MODEL_TO_USE == 2
         std::string filepath = STEERABLENAFX_MODELS_PATH_TENSORFLOW;
-        std::string modelpath = filepath + "model_0/steerable-nafx-tflite.onnx";
+        std::string modelpath = filepath + "model_0/steerable-nafx-tflite-2048.onnx";
 #endif
 
         // Define environment that holds logging state used by all other objects.
@@ -120,7 +120,7 @@ int main(int argc, char* argv[]) {
         std::string modelpath = filepath + "model_0/model_0-libtorch-minimal.onnx";
 #elif MODEL_TO_USE == 2
         std::string filepath = STEERABLENAFX_MODELS_PATH_PYTORCH;
-        std::string modelpath = filepath + "model_0/steerable-nafx-libtorch.onnx";
+        std::string modelpath = filepath + "model_0/steerable-nafx-libtorch-2048.onnx";
 #endif
 
         // Define environment that holds logging state used by all other objects.

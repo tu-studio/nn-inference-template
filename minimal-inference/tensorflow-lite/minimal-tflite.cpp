@@ -30,7 +30,7 @@ int main(int argc, char* argv[]) {
     const int modelOutputSize = 1;
 #elif MODEL_TO_USE == 2
     std::string filepath = STEERABLENAFX_MODELS_PATH_TENSORFLOW;
-    std::string modelpath = filepath + "model_0/steerable-nafx.tflite";
+    std::string modelpath = filepath + "model_0/steerable-nafx-2048.tflite";
 
     const int batchSize = 1;
     const int modelInputSize = 15380;

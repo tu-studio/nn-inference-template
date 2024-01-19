@@ -32,7 +32,7 @@ int main(int argc, const char* argv[]) {
     const int modelOutputSize = 1;
 #elif MODEL_TO_USE == 2
     std::string filepath = STEERABLENAFX_MODELS_PATH_PYTORCH;
-    std::string modelpath = filepath + "model_0/steerable-nafx.pt";
+    std::string modelpath = filepath + "model_0/steerable-nafx-2048.pt";
 
     const int batchSize = 1;
     const int modelInputSize = 15380;

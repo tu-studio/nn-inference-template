@@ -45,11 +45,11 @@ namespace NNInferenceTemplate {
 #elif MODEL_TO_USE == 2
 
 #define MODELS_PATH_TENSORFLOW STEERABLENAFX_MODELS_PATH_TENSORFLOW
-#define MODEL_TFLITE "model_0/steerable-nafx.tflite"
+#define MODEL_TFLITE "model_0/steerable-nafx-2048.tflite"
 #define MODELS_PATH_PYTORCH STEERABLENAFX_MODELS_PATH_PYTORCH
-#define MODEL_LIBTORCH "model_0/steerable-nafx.pt"
+#define MODEL_LIBTORCH "model_0/steerable-nafx-2048.pt"
 #define MODELS_PATH_ONNX STEERABLENAFX_MODELS_PATH_PYTORCH
-#define MODEL_ONNX "model_0/steerable-nafx-libtorch.onnx"
+#define MODEL_ONNX "model_0/steerable-nafx-libtorch-2048.onnx"
 
 #define WARM_UP false
 #define BATCH_SIZE 1
