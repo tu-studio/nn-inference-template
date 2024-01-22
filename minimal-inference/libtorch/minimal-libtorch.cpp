@@ -42,8 +42,8 @@ int main(int argc, const char* argv[]) {
     std::string modelpath = filepath + "model_0/stateful-lstm.pt";
 
     const int batchSize = 1;
-    const int modelInputSize = 64;
-    const int modelOutputSize = 64;
+    const int modelInputSize = 2048;
+    const int modelOutputSize = 2048;
 #endif
 
     // Load model
