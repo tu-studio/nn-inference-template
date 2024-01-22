@@ -5,8 +5,10 @@ LibtorchProcessor::LibtorchProcessor() {
     _putenv("OMP_NUM_THREADS=1");
     _putenv("MKL_NUM_THREADS=1");
 #else
-    putenv("OMP_NUM_THREADS=1");
-    putenv("MKL_NUM_THREADS=1");
+    const char* ompNumThreads = "OMP_NUM_THREADS=1";
+    const char* mklNumThreads = "MKL_NUM_THREADS=1";
+    putenv(const_cast<char*>(ompNumThreads));
+    putenv(const_cast<char*>(mklNumThreads));
 #endif
 
     try {
@@ -47,6 +49,8 @@ void LibtorchProcessor::processBlock(NNInferenceTemplate::InputArray& input, NNI
         output[i] = outputTensor[(int64_t) i][0].item<float>();
 #elif MODEL_TO_USE == 2
         output[i] = outputTensor[0][0][(int64_t) i].item<float>();
+#elif MODEL_TO_USE == 3
+        output[i] = outputTensor[(int64_t) i][0][0].item<float>();
 #endif
     }
 }

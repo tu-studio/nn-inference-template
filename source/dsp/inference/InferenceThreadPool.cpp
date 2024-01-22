@@ -112,6 +112,10 @@ void InferenceThreadPool::preProcess(SessionElement& session) {
                     session.inferenceQueue[i].processedModelInput[(size_t) j] = session.sendBuffer.getSample(0, MODEL_INPUT_SIZE_BACKEND - (size_t) j);
                 }
             }
+#elif MODEL_TO_USE == 3
+            for (size_t j = 0; j < MODEL_INPUT_SIZE_BACKEND; j++) {
+                session.inferenceQueue[i].processedModelInput[j] = session.sendBuffer.popSample(0);
+            }
 #endif // MODEL_TO_USE
 
             const std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
