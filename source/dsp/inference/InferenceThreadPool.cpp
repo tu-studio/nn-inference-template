@@ -1,7 +1,7 @@
 #include "InferenceThreadPool.h"
 
 InferenceThreadPool::InferenceThreadPool()  {
-    for (size_t i = 0; i < (size_t) std::thread::hardware_concurrency() - 1; ++i) {
+    for (size_t i = 0; i < (size_t) 1; ++i) {
         threadPool.emplace_back(std::make_unique<InferenceThread>(globalSemaphore, sessions));
     }
 }
