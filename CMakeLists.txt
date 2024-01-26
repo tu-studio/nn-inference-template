@@ -79,6 +79,8 @@ FetchContent_MakeAvailable(readerwriterqueue)
 
 # Add minimal examples
 add_subdirectory(minimal-inference)
+# Add validation of real time principles
+add_subdirectory(validate-real-time-principles)
 
 # Include the assets and common directories
 add_subdirectory(assets)
