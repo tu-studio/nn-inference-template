@@ -65,8 +65,12 @@ add_compile_definitions(GUITARLSTM_MODELS_PATH_PYTORCH="${CMAKE_SOURCE_DIR}/modu
 add_compile_definitions(STEERABLENAFX_MODELS_PATH_TENSORFLOW="${CMAKE_SOURCE_DIR}/modules/steerable-nafx/models/")
 add_compile_definitions(STEERABLENAFX_MODELS_PATH_PYTORCH="${CMAKE_SOURCE_DIR}/modules/steerable-nafx/models/")
 
+add_compile_definitions(STATEFULLSTM_MODELS_PATH_TENSORFLOW="${CMAKE_SOURCE_DIR}/modules/stateful-lstm/models/")
+add_compile_definitions(STATEFULLSTM_MODELS_PATH_PYTORCH="${CMAKE_SOURCE_DIR}/modules/stateful-lstm/models/")
+
 # add_compile_definitions(MODEL_TO_USE=1) # GuitarLSTM
-add_compile_definitions(MODEL_TO_USE=2) # steerable-nafx
+# add_compile_definitions(MODEL_TO_USE=2) # steerable-nafx
+add_compile_definitions(MODEL_TO_USE=3) # stateful-LSTM
 
 include(FetchContent)
 

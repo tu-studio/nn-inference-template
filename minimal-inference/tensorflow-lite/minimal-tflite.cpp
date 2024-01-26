@@ -35,6 +35,13 @@ int main(int argc, char* argv[]) {
     const int batchSize = 1;
     const int modelInputSize = 15380;
     const int modelOutputSize = 2048;
+#elif MODEL_TO_USE == 3
+    std::string filepath = STATEFULLSTM_MODELS_PATH_TENSORFLOW;
+    std::string modelpath = filepath + "model_0/stateful-lstm.tflite";
+
+    const int batchSize = 1;
+    const int modelInputSize = 2048;
+    const int modelOutputSize = 2048;
 #endif
 
     // Load model

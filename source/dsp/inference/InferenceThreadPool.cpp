@@ -1,7 +1,7 @@
 #include "InferenceThreadPool.h"
 
 InferenceThreadPool::InferenceThreadPool()  {
-    for (size_t i = 0; i < (size_t) std::thread::hardware_concurrency() - 1; ++i) {
+    for (size_t i = 0; i < (size_t) 1; ++i) {
         threadPool.emplace_back(std::make_unique<InferenceThread>(globalSemaphore, sessions));
     }
 }
@@ -111,6 +111,10 @@ void InferenceThreadPool::preProcess(SessionElement& session) {
                 } else  {
                     session.inferenceQueue[i].processedModelInput[(size_t) j] = session.sendBuffer.getSample(0, MODEL_INPUT_SIZE_BACKEND - (size_t) j);
                 }
+            }
+#elif MODEL_TO_USE == 3
+            for (size_t j = 0; j < MODEL_INPUT_SIZE_BACKEND; j++) {
+                session.inferenceQueue[i].processedModelInput[j] = session.sendBuffer.popSample(0);
             }
 #endif // MODEL_TO_USE
 

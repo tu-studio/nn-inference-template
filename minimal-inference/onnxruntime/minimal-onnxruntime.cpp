@@ -21,6 +21,10 @@ int main(int argc, char* argv[]) {
     const int batchSize = 1;
     const int modelInputSize = 15380;
     const int modelOutputSize = 2048;
+#elif MODEL_TO_USE == 3
+    const int batchSize = 1;
+    const int modelInputSize = 2048;
+    const int modelOutputSize = 2048;
 #endif
 
     bool tflite = true;
@@ -36,6 +40,9 @@ int main(int argc, char* argv[]) {
 #elif MODEL_TO_USE == 2
         std::string filepath = STEERABLENAFX_MODELS_PATH_TENSORFLOW;
         std::string modelpath = filepath + "model_0/steerable-nafx-tflite-2048.onnx";
+#elif MODEL_TO_USE == 3
+        std::string filepath = STATEFULLSTM_MODELS_PATH_TENSORFLOW;
+        std::string modelpath = filepath + "model_0/stateful-lstm-tflite.onnx";
 #endif
 
         // Define environment that holds logging state used by all other objects.
@@ -121,6 +128,9 @@ int main(int argc, char* argv[]) {
 #elif MODEL_TO_USE == 2
         std::string filepath = STEERABLENAFX_MODELS_PATH_PYTORCH;
         std::string modelpath = filepath + "model_0/steerable-nafx-libtorch-2048.onnx";
+#elif MODEL_TO_USE == 3
+        std::string filepath = STATEFULLSTM_MODELS_PATH_PYTORCH;
+        std::string modelpath = filepath + "model_0/stateful-lstm-libtorch.onnx";
 #endif
 
         // Define environment that holds logging state used by all other objects.
@@ -148,7 +158,11 @@ int main(int argc, char* argv[]) {
         }
 
         // Define the shape of input tensor
+#if MODEL_TO_USE == 1 || MODEL_TO_USE == 2
         std::array<int64_t, 3> inputShape = {batchSize, 1, modelInputSize};
+#elif MODEL_TO_USE == 3
+        std::array<int64_t, 3> inputShape = {modelInputSize, batchSize, 1};
+#endif
 
         // Create input tensor object from input data values and shape
         const Ort::Value inputTensor = Ort::Value::CreateTensor<float>  (memory_info,

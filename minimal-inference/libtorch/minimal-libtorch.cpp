@@ -37,6 +37,13 @@ int main(int argc, const char* argv[]) {
     const int batchSize = 1;
     const int modelInputSize = 15380;
     const int modelOutputSize = 2048;
+#elif MODEL_TO_USE == 3
+    std::string filepath = STATEFULLSTM_MODELS_PATH_PYTORCH;
+    std::string modelpath = filepath + "model_0/stateful-lstm.pt";
+
+    const int batchSize = 1;
+    const int modelInputSize = 2048;
+    const int modelOutputSize = 2048;
 #endif
 
     // Load model
@@ -58,7 +65,11 @@ int main(int argc, const char* argv[]) {
     }
 
     // Create input tensor object from input data values and reshape
+#if MODEL_TO_USE == 1 || MODEL_TO_USE == 2
     torch::Tensor inputTensor = torch::from_blob(&inputData, { batchSize, 1, modelInputSize });
+#elif MODEL_TO_USE == 3
+    torch::Tensor inputTensor = torch::from_blob(&inputData, { modelInputSize, batchSize, 1 });
+#endif
 
     std::cout << "Input shape 0: " << inputTensor.sizes()[0] << '\n';
     std::cout << "Input shape 1: " << inputTensor.sizes()[1] << '\n';
@@ -87,6 +98,11 @@ int main(int argc, const char* argv[]) {
 #elif MODEL_TO_USE == 2
     for (int i = 0; i < outputSize; i++) {
         outputData[i] = outputTensor[0][0][i].item().toFloat();
+        std::cout << "Output data [" << i << "]: " << outputData[i] << std::endl;
+    }
+#elif MODEL_TO_USE == 3
+    for (int i = 0; i < outputSize; i++) {
+        outputData[i] = outputTensor[i][0][0].item().toFloat();
         std::cout << "Output data [" << i << "]: " << outputData[i] << std::endl;
     }
 #endif

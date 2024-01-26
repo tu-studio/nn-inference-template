@@ -7,3 +7,6 @@
 [submodule "modules/steerable-nafx"]
 	path = modules/steerable-nafx
 	url = https://github.com/faressc/steerable-nafx.git
+[submodule "modules/stateful-lstm"]
+	path = modules/stateful-lstm
+	url = https://github.com/vackva/stateful-lstm.git
