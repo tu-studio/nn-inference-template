@@ -8,6 +8,20 @@ Licence: MIT
 #include "onnxruntime_cxx_api.h"
 #include <iostream>
 
+void warmUpInference(Ort::Session& session,
+                     const std::array<const char *, 1>& inputNames,
+                     const Ort::Value& inputTensor,
+                     const std::array<const char *, 1>& outputNames,
+                     std::vector<Ort::Value>& outputTensors)
+{
+    try {
+        outputTensors = session.Run(Ort::RunOptions{nullptr}, inputNames.data(), &inputTensor, inputNames.size(), outputNames.data(), outputNames.size());
+    }
+    catch (Ort::Exception &e) {
+        std::cout << e.what() << std::endl;
+    }
+}
+
 [[clang::realtime]] void runInference(Ort::Session& session,
                     const std::array<const char *, 1>& inputNames,
                     const Ort::Value& inputTensor,
@@ -110,7 +124,13 @@ int main(int argc, char* argv[]) {
         // Define output tensor vector
         std::vector<Ort::Value> outputTensors;
 
+        warmUpInference(session, inputNames, inputTensor, outputNames, outputTensors);
+
+        std::cout << "Warm-Up finished" << std::endl;
+
         runInference(session, inputNames, inputTensor, outputNames, outputTensors);
+
+        std::cout << "Real-Time-Safety finished" << std::endl;
 
         std::cout << "Output shape 0: " << outputTensors[0].GetTensorTypeAndShapeInfo().GetShape()[0] << std::endl;
         std::cout << "Output shape 1: " << outputTensors[0].GetTensorTypeAndShapeInfo().GetShape()[1] << std::endl;
@@ -192,7 +212,13 @@ int main(int argc, char* argv[]) {
         // Define output tensor vector
         std::vector<Ort::Value> outputTensors;
 
+        warmUpInference(session, inputNames, inputTensor, outputNames, outputTensors);
+
+        std::cout << "Warm-Up finished" << std::endl;
+
         runInference(session, inputNames, inputTensor, outputNames, outputTensors);
+
+        std::cout << "Real-Time-Safety finished" << std::endl;
 
         std::cout << "Output shape 0: " << outputTensors[0].GetTensorTypeAndShapeInfo().GetShape()[0] << std::endl;
         std::cout << "Output shape 1: " << outputTensors[0].GetTensorTypeAndShapeInfo().GetShape()[1] << std::endl;
