@@ -9,7 +9,7 @@ docker pull realtimesanitizer/radsan-clang
 ```
 Mount docker image to repo:
 ```sh
-docker run -v /path/to/nn-inference-template -it realtimesanitizer/radsan-clang /bin/bash
+sudo docker run -v  $(pwd):/nn-inferenced-template -it realtimesanitizer/radsan-clang /bin/bash
 ```
 **Inside docker:**
 
@@ -31,18 +31,20 @@ apt install libasound2-dev libjack-jackd2-dev \
 
 Build:
 ```sh
+cd /nn-inference-template/nn-inference-template/
+
 cmake . -B cmake-build-release -DCMAKE_BUILD_TYPE=Release
 
 # Build and test tflite
 cmake --build cmake-build-release --config Release --target validate-real-time-principles-tflite
-RADSAN_ERROR_MODE=continue ./cmake-build-release/validate-real-time-principles/onnxruntime/validate-real-time-principles-tflite
+RADSAN_ERROR_MODE=continue ./cmake-build-release/validate-real-time-principles/tensorflow-lite/validate-real-time-principles-tflite 2>&1 | tee validate-real-time-principles-tflite.txt
 
 # Build onnx
 cmake --build cmake-build-release --config Release --target validate-real-time-principles-onnxruntime
-RADSAN_ERROR_MODE=continue ./cmake-build-release/validate-real-time-principles/onnxruntime/validate-real-time-principles-onnxruntime
+RADSAN_ERROR_MODE=continue ./cmake-build-release/validate-real-time-principles/onnxruntime/validate-real-time-principles-onnxruntime 2>&1 | tee validate-real-time-principles-onnxruntime.txt
 
 # Build libtorch
 cmake --build cmake-build-release --config Release --target validate-real-time-principles-libtorch
-RADSAN_ERROR_MODE=continue ./cmake-build-release/validate-real-time-principles/onnxruntime/validate-real-time-principles-libtorch
+RADSAN_ERROR_MODE=continue ./cmake-build-release/validate-real-time-principles/libtorch/validate-real-time-principles-libtorch 2>&1 | tee validate-real-time-principles-libtorch.txt
 
 ```
