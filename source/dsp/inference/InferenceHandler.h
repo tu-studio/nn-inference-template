@@ -9,40 +9,17 @@
 
 class InferenceHandler {
 public:
-    InferenceHandler() {
+    InferenceHandler();
+    ~InferenceHandler();
 
-    }
+    void setInferenceBackend(InferenceBackend inferenceBackend);
+    InferenceBackend getInferenceBackend();
 
-    ~InferenceHandler() {
+    void prepare(HostAudioConfig newAudioConfig);
+    void process(float ** inputBuffer, const int inputSamples); // buffer[channel][index]
 
-    }
-
-    void setInferenceBackend(InferenceBackend inferenceBackend) {
-        currentBackend = inferenceBackend;
-    }
-
-    InferenceBackend getInferenceBackend() {
-        return currentBackend;
-    }
-
-    void prepare(HostAudioConfig newAudioConfig) {
-        assert(newAudioConfig.hostChannels == 1 && "Stereo processing is not fully implemented yet");
-        inferenceManager.prepare(newAudioConfig);
-    }
-
-    int getLatency() {
-        return inferenceManager.getLatency();
-    }
-
-    // buffer[channel][index]
-    void process(float ** inputBuffer, const int inputSamples) {
-        inferenceManager.process(inputBuffer, inputSamples);
-    }
-
-    // TODO remove
-    InferenceManager &getInferenceManager() {
-        return inferenceManager;
-    }
+    int getLatency();
+    InferenceManager &getInferenceManager(); // TODO remove
 
 private:
     InferenceBackend currentBackend;

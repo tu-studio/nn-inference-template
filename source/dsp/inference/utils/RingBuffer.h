@@ -1,7 +1,8 @@
 #ifndef VAESYNTH_RINGBUFFER_H
 #define VAESYNTH_RINGBUFFER_H
 
-#include <JuceHeader.h>
+#include <vector>
+#include <cmath>
 
 class RingBuffer
 {
@@ -16,10 +17,15 @@ public:
     size_t getAvailableSamples(size_t channel);
 
 private:
-    juce::AudioBuffer<float> buffer;
+    void allocateVector();
+    void resetVector();
+
+private:
+    std::vector<std::vector<float>> buffer;
     std::vector<size_t> readPos, writePos;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (RingBuffer)
+    size_t nChannels;
+    size_t nSamples;
 };
 
 #endif //VAESYNTH_RINGBUFFER_H

@@ -6,7 +6,6 @@
 #include "dsp/utils/Mixer.h"
 #include "dsp/utils/MonoStereo.h"
 #include "dsp/inference/InferenceHandler.h"
-#include "dsp/inference/InferenceManager.h"
 
 //==============================================================================
 class AudioPluginAudioProcessor  : public juce::AudioProcessor, private juce::AudioProcessorValueTreeState::Listener

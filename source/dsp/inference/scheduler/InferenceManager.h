@@ -5,7 +5,7 @@
 
 #include "InferenceThread.h"
 #include "InferenceThreadPool.h"
-#include "../utils/HostConfig.h"
+#include "../utils/HostAudioConfig.h"
 
 class InferenceManager {
 public:

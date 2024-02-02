@@ -1,9 +1,11 @@
 #ifndef NN_INFERENCE_TEMPLATE_SESSIONELEMENT_H
 #define NN_INFERENCE_TEMPLATE_SESSIONELEMENT_H
 
-#include "../utils/RingBuffer.h"
-#include "InferenceConfig.h"
 #include <semaphore>
+#include <queue>
+#include "InferenceConfig.h"
+#include "../utils/RingBuffer.h"
+#include "../utils/InferenceBackend.h"
 
 struct SessionElement {
     SessionElement(int newSessionID);
