@@ -100,7 +100,7 @@ void InferenceThreadPool::preProcess(SessionElement& session) {
                     if (j == MODEL_INPUT_SIZE_BACKEND - 1) {
                         session.inferenceQueue[i].processedModelInput[baseIdx + (size_t) j] = session.sendBuffer.popSample(0);
                     } else  {
-                        session.inferenceQueue[i].processedModelInput[baseIdx + (size_t) j] = session.sendBuffer.getSample(0, MODEL_INPUT_SIZE_BACKEND - (size_t) j);
+                        session.inferenceQueue[i].processedModelInput[baseIdx + (size_t) j] = session.sendBuffer.getSampleFromTail(0, MODEL_INPUT_SIZE_BACKEND - (size_t) j);
                     }
                 }
             }
@@ -109,7 +109,7 @@ void InferenceThreadPool::preProcess(SessionElement& session) {
                 if (j >= MODEL_INPUT_SIZE_BACKEND - MODEL_INPUT_SIZE) {
                     session.inferenceQueue[i].processedModelInput[(size_t) 2 * MODEL_INPUT_SIZE_BACKEND - j - MODEL_INPUT_SIZE - 1] = session.sendBuffer.popSample(0); // looks crazy, but this way the samples poped first are at the beginning of the end of the array
                 } else  {
-                    session.inferenceQueue[i].processedModelInput[(size_t) j] = session.sendBuffer.getSample(0, MODEL_INPUT_SIZE_BACKEND - (size_t) j);
+                    session.inferenceQueue[i].processedModelInput[(size_t) j] = session.sendBuffer.getSampleFromTail(0, MODEL_INPUT_SIZE_BACKEND - (size_t) j);
                 }
             }
 #elif MODEL_TO_USE == 3

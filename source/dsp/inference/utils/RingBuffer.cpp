@@ -2,24 +2,19 @@
 
 RingBuffer::RingBuffer() = default;
 
-void RingBuffer::initialise(size_t numChannels, size_t numSamples) {
-    readPos.resize(numChannels);
-    writePos.resize(numChannels);
+void RingBuffer::initializeWithPositions(size_t numChannels, size_t numSamples) {
+    initialize(numChannels, numSamples);
+    readPos.resize(getNumChannels());
+    writePos.resize(getNumChannels());
 
     for (size_t i = 0; i < readPos.size(); i++) {
         readPos[i] = 0;
         writePos[i] = 0;
     }
-
-    nChannels = numChannels;
-    nSamples = numSamples;
-
-    allocateVector();
 }
 
-void RingBuffer::reset() {
-    resetVector();
-
+void RingBuffer::clearWithPositions() {
+    clear();
     for (size_t i = 0; i < readPos.size(); i++) {
         readPos[i] = 0;
         writePos[i] = 0;
@@ -30,21 +25,21 @@ void RingBuffer::pushSample(float sample, size_t channel) {
     if (std::isnan(sample)){
         sample = 0.f;
     }
-    buffer[channel][writePos[channel]] = sample;
+    setSample(channel, writePos[channel], sample);
 
     ++writePos[channel];
 
-    if (writePos[channel] >= nSamples) {
+    if (writePos[channel] >= getNumSamples()) {
         writePos[channel] = 0;
     }
 }
 
 float RingBuffer::popSample(size_t channel) {
-    auto sample = buffer[channel][readPos[channel]];
+    auto sample = getSample(channel, readPos[channel]);
 
     ++readPos[channel];
 
-    if (readPos[channel] >= nSamples) {
+    if (readPos[channel] >= getNumSamples()) {
         readPos[channel] = 0;
     }
 
@@ -55,11 +50,11 @@ float RingBuffer::popSample(size_t channel) {
     }
 }
 
-float RingBuffer::getSample (size_t channel, size_t offset) {
+float RingBuffer::getSampleFromTail (size_t channel, size_t offset) {
     if ((int) readPos[channel] - (int) offset < 0) {
-        return buffer[channel][nSamples + readPos[channel] - offset];
+        return getSample(channel, getNumSamples() + readPos[channel] - offset);
     } else {
-        return buffer[channel][readPos[channel] - offset];
+        return getSample(channel, readPos[channel] - offset);
     }
 }
 
@@ -69,26 +64,8 @@ size_t RingBuffer::getAvailableSamples(size_t channel) {
     if (readPos[channel] <= writePos[channel]) {
         returnValue = writePos[channel] - readPos[channel];
     } else {
-        returnValue = writePos[channel] + nSamples - readPos[channel];
+        returnValue = writePos[channel] + getNumSamples() - readPos[channel];
     }
 
     return returnValue;
-}
-
-void RingBuffer::allocateVector() {
-    float initialValue = 0.0f;
-
-    buffer.resize(nChannels);
-
-    for (auto& innerBuffer : buffer) {
-        innerBuffer.resize(nSamples, initialValue);
-    }
-}
-
-void RingBuffer::resetVector() {
-    float newValue = 0.0f;
-
-    for (auto& innerBuffer : buffer) {
-        std::fill(innerBuffer.begin(), innerBuffer.end(), newValue);
-    }
 }

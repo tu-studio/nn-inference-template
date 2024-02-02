@@ -13,14 +13,14 @@ public:
     ~InferenceManager();
 
     void prepare(HostAudioConfig config);
-    void process(float ** inputBuffer, int inputSamples);
+    void process(float ** inputBuffer, size_t inputSamples);
 
     void parameterChanged(const juce::String &parameterID, float newValue);
 
     int getLatency() const;
 
     // Required for unit test
-    int getNumReceivedSamples();
+    size_t getNumReceivedSamples();
     bool isInitializing() const;
     InferenceThreadPool& getInferenceThreadPool();
 
@@ -28,9 +28,9 @@ public:
     int getSessionID() const;
 
 private:
-    void processInput(float ** inputBuffer, const int inputSamples);
-    void processOutput(float ** inputBuffer, const int inputSamples);
-    void clearBuffer(float ** inputBuffer, const int inputSamples);
+    void processInput(float ** inputBuffer, const size_t inputSamples);
+    void processOutput(float ** inputBuffer, const size_t inputSamples);
+    void clearBuffer(float ** inputBuffer, const size_t inputSamples);
 
 private:
     std::shared_ptr<InferenceThreadPool> inferenceThreadPool;
@@ -39,8 +39,8 @@ private:
     HostAudioConfig spec;
 
     bool init = true;
-    int bufferCount = 0;
-    int initSamples = 0;
+    size_t bufferCount = 0;
+    size_t initSamples = 0;
     std::atomic<int> inferenceCounter {0};
 };
 

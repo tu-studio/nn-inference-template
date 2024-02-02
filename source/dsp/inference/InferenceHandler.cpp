@@ -17,7 +17,7 @@ void InferenceHandler::prepare(HostAudioConfig newAudioConfig) {
     inferenceManager.prepare(newAudioConfig);
 }
 
-void InferenceHandler::process(float **inputBuffer, const int inputSamples) {
+void InferenceHandler::process(float **inputBuffer, const size_t inputSamples) {
     inferenceManager.process(inputBuffer, inputSamples);
 }
 

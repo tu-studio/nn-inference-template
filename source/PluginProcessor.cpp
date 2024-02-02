@@ -99,7 +99,7 @@ void AudioPluginAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
 
     HostAudioConfig monoConfig {
         1,
-        samplesPerBlock,
+        (size_t) samplesPerBlock,
         sampleRate
     };
 
@@ -159,7 +159,7 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
     dryWetMixer.setDrySamples(monoBuffer);
 
     auto inferenceBuffer = const_cast<float **>(monoBuffer.getArrayOfWritePointers());
-    inferenceHandler.process(inferenceBuffer, buffer.getNumSamples());
+    inferenceHandler.process(inferenceBuffer, (size_t) buffer.getNumSamples());
 
     dryWetMixer.setWetSamples(monoBuffer);
     monoStereoProcessor.monoToStereo(buffer, monoBuffer);

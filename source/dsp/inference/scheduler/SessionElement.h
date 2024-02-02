@@ -3,9 +3,10 @@
 
 #include <semaphore>
 #include <queue>
-#include "InferenceConfig.h"
-#include "../utils/RingBuffer.h"
-#include "../utils/InferenceBackend.h"
+#include <atomic>
+#include <InferenceConfig.h>
+#include <RingBuffer.h>
+#include <InferenceBackend.h>
 
 struct SessionElement {
     SessionElement(int newSessionID);
@@ -28,7 +29,7 @@ struct SessionElement {
 
     std::counting_semaphore<1000> sendSemaphore{0};
 
-    const std::atomic<int> sessionID;
+    const std::atomic<int> sessionID; // TODO does it make sense to have this atomic const?
 };
 
 

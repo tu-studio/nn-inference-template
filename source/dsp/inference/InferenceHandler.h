@@ -16,7 +16,7 @@ public:
     InferenceBackend getInferenceBackend();
 
     void prepare(HostAudioConfig newAudioConfig);
-    void process(float ** inputBuffer, const int inputSamples); // buffer[channel][index]
+    void process(float ** inputBuffer, const size_t inputSamples); // buffer[channel][index]
 
     int getLatency();
     InferenceManager &getInferenceManager(); // TODO remove
