@@ -5,7 +5,6 @@
 #include <semaphore>
 
 #include "SessionElement.h"
-#include "../utils/ThreadSafeBuffer.h"
 #include "../utils/HostConfig.h"
 #include "InferenceThread.h"
 #include "InferenceConfig.h"

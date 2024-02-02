@@ -5,7 +5,6 @@
 
 #include "InferenceThread.h"
 #include "InferenceThreadPool.h"
-#include "../utils/ThreadSafeBuffer.h"
 #include "../utils/HostConfig.h"
 
 class InferenceManager {

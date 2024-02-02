@@ -1,9 +1,7 @@
 #ifndef NN_INFERENCE_TEMPLATE_SESSIONELEMENT_H
 #define NN_INFERENCE_TEMPLATE_SESSIONELEMENT_H
 
-#include <JuceHeader.h>
 #include "../utils/RingBuffer.h"
-#include "../utils/ThreadSafeBuffer.h"
 #include "InferenceConfig.h"
 #include <semaphore>
 

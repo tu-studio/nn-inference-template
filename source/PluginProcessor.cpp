@@ -158,7 +158,7 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
     monoStereoProcessor.stereoToMono(monoBuffer, buffer);
     dryWetMixer.setDrySamples(monoBuffer);
 
-    auto inferenceBuffer = const_cast<float **>(buffer.getArrayOfWritePointers());
+    auto inferenceBuffer = const_cast<float **>(monoBuffer.getArrayOfWritePointers());
     inferenceHandler.process(inferenceBuffer, buffer.getNumSamples());
 
     dryWetMixer.setWetSamples(monoBuffer);

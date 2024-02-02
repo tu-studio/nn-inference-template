@@ -34,6 +34,7 @@ public:
         return inferenceManager.getLatency();
     }
 
+    // buffer[channel][index]
     void process(float ** inputBuffer, const int inputSamples) {
         inferenceManager.process(inputBuffer, inputSamples);
     }

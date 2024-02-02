@@ -96,13 +96,6 @@ add_compile_definitions(MODEL_TO_USE=3) # stateful-LSTM
 
 include(FetchContent)
 
-FetchContent_Declare(
-    readerwriterqueue
-    GIT_REPOSITORY https://github.com/cameron314/readerwriterqueue
-    GIT_TAG v1.0.6)
-
-FetchContent_MakeAvailable(readerwriterqueue)
-
 # Add minimal examples
 add_subdirectory(minimal-inference)
 # Add validation of real time principles
@@ -202,7 +195,6 @@ endif()
 
 target_link_libraries(${TARGET_NAME}
     PRIVATE
-        readerwriterqueue
 		BinaryData
         juce::juce_audio_utils
         juce::juce_dsp
