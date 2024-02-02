@@ -97,7 +97,7 @@ void AudioPluginAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
                                  static_cast<juce::uint32>(samplesPerBlock),
                                  static_cast<juce::uint32>(1)};
 
-    HostConfig monoConfig {
+    HostAudioConfig monoConfig {
         1,
         samplesPerBlock,
         sampleRate
@@ -106,9 +106,8 @@ void AudioPluginAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
     dryWetMixer.prepare(monoSpec);
 
     monoBuffer.setSize(1, samplesPerBlock);
-    inferenceManager.prepareToPlay(monoConfig);
-
-    auto newLatency = inferenceManager.getLatency();
+    inferenceHandler.prepare(monoConfig);
+    auto newLatency = inferenceHandler.getLatency();
     dryWetMixer.setWetLatency(newLatency);
     setLatencySamples(newLatency);
 
@@ -159,7 +158,8 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
     monoStereoProcessor.stereoToMono(monoBuffer, buffer);
     dryWetMixer.setDrySamples(monoBuffer);
 
-    inferenceManager.processBlock(monoBuffer);
+    auto inferenceBuffer = const_cast<float **>(buffer.getArrayOfWritePointers());
+    inferenceHandler.process(inferenceBuffer, buffer.getNumSamples());
 
     dryWetMixer.setWetSamples(monoBuffer);
     monoStereoProcessor.monoToStereo(buffer, monoBuffer);
@@ -195,8 +195,11 @@ void AudioPluginAudioProcessor::setStateInformation (const void* data, int sizeI
 void AudioPluginAudioProcessor::parameterChanged(const juce::String &parameterID, float newValue) {
     if (parameterID == PluginParameters::DRY_WET_ID.getParamID()) {
         dryWetMixer.setDryWetProportion(newValue);
-    } else {
-        inferenceManager.parameterChanged(parameterID, newValue);
+    } else if (parameterID == PluginParameters::BACKEND_TYPE_ID.getParamID()) {
+        const auto paramInt = static_cast<int>(newValue);
+        auto paramString = PluginParameters::backendTypes.getReference(paramInt);
+        InferenceBackend newBackend = (paramString == "TFLITE") ? TFLITE : (paramString == "LIBTORCH") ? LIBTORCH : ONNX;
+        inferenceHandler.setInferenceBackend(newBackend);
     }
 }
 //==============================================================================
@@ -207,5 +210,5 @@ juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 }
 
 InferenceManager &AudioPluginAudioProcessor::getInferenceManager() {
-    return inferenceManager;
+    return inferenceHandler.getInferenceManager();
 }

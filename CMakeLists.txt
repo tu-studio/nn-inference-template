@@ -26,6 +26,20 @@ set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 set(CMAKE_VISIBILITY_INLINES_HIDDEN ON)
 
 
+# Define options for backends
+option(WITH_LIBTORCH "Build with LibTorch backend" OFF)
+option(WITH_ONNXRUNTIME "Build with ONNX Runtime backend" OFF)
+option(WITH_TFLITE "Build with TensorFlow Lite backend" OFF)
+option(WITH_ALL "Build with all backends" OFF)
+
+option(BACKEND_ALL "Build with BACKEND_ALL" ON)
+
+if(BACKEND_ALL)
+    set(BACKEND_LIBTORCH ON)
+    set(BACKEND_ONNXRUNTIME ON)
+    set(BACKEND_TFLITE ON)
+endif()
+
 # ==============================================================================
 
 # Plug-In / Standalone setup
@@ -51,13 +65,21 @@ endif()
 add_subdirectory(modules/JUCE)
 
 # Install inference engines
+if(BACKEND_LIBTORCH)
+    include(cmake/SetupLibTorch.cmake)
+endif()
 
-# ONNXRuntime
-include(cmake/SetupOnnxRuntime.cmake)
-# LibTorch
-include(cmake/SetupLibTorch.cmake)
-# TensorflowLite
-include(cmake/SetupTensorflowLite.cmake)
+if(BACKEND_ONNXRUNTIME)
+    include(cmake/SetupOnnxRuntime.cmake)
+endif()
+
+if(BACKEND_TFLITE)
+    include(cmake/SetupTensorflowLite.cmake)
+endif()
+
+if(NOT BACKEND_LIBTORCH AND NOT BACKEND_ONNXRUNTIME AND NOT BACKEND_TFLITE)
+    message(FATAL_ERROR "No backend selected. Please select at least one backend by setting one of the following options to ON: BACKEND_LIBTORCH, BACKEND_ONNXRUNTIME, or BACKEND_TFLITE. For example, add '-DBACKEND_LIBTORCH=ON' to your CMake command line")
+endif()
 
 add_compile_definitions(GUITARLSTM_MODELS_PATH_TENSORFLOW="${CMAKE_SOURCE_DIR}/modules/GuitarLSTM/tensorflow-version/models/")
 add_compile_definitions(GUITARLSTM_MODELS_PATH_PYTORCH="${CMAKE_SOURCE_DIR}/modules/GuitarLSTM/pytorch-version/models/")
@@ -158,13 +180,28 @@ target_compile_definitions(${TARGET_NAME}
     JUCE_VST3_CAN_REPLACE_VST2=0
     JUCE_DISPLAY_SPLASH_SCREEN=0
     DONT_SET_USING_JUCE_NAMESPACE=1
+
+    # Backend-specific definitions
+    $<$<BOOL:${BACKEND_LIBTORCH}>:USE_LIBTORCH>
+    $<$<BOOL:${BACKEND_ONNXRUNTIME}>:USE_ONNXRUNTIME>
+    $<$<BOOL:${BACKEND_TFLITE}>:USE_TFLITE>
 )
+
+# Link backend-specific libraries conditionally
+if(BACKEND_LIBTORCH)
+    target_link_libraries(${TARGET_NAME} PRIVATE torch)
+endif()
+
+if(BACKEND_ONNXRUNTIME)
+    target_link_libraries(${TARGET_NAME} PRIVATE onnxruntime)
+endif()
+
+if(BACKEND_TFLITE)
+    target_link_libraries(${TARGET_NAME} PRIVATE tensorflowlite_c)
+endif()
 
 target_link_libraries(${TARGET_NAME}
     PRIVATE
-		onnxruntime
-		torch
-        tensorflowlite_c
         readerwriterqueue
 		BinaryData
         juce::juce_audio_utils

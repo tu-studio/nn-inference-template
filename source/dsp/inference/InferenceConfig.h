@@ -1,10 +1,22 @@
 #ifndef NN_INFERENCE_TEMPLATE_INFERENCECONFIG_H
 #define NN_INFERENCE_TEMPLATE_INFERENCECONFIG_H
 
+struct HostAudioConfig {
+    int hostChannels;
+    int hostBufferSize;
+    double hostSampleRate;
+};
+
 enum InferenceBackend {
+#ifdef USE_LIBTORCH
     LIBTORCH,
+#endif
+#ifdef USE_ONNXRUNTIME
     ONNX,
-    TFLITE
+#endif
+#ifdef USE_TFLITE
+    TFLITE,
+#endif
 };
 
 #if MODEL_TO_USE == 1

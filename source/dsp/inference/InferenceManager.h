@@ -13,8 +13,8 @@ public:
     InferenceManager();
     ~InferenceManager();
 
-    void prepareToPlay(HostConfig config);
-    void processBlock(juce::AudioBuffer<float>& buffer);
+    void prepare(HostAudioConfig config);
+    void process(float ** inputBuffer, int inputSamples);
 
     void parameterChanged(const juce::String &parameterID, float newValue);
 
@@ -29,14 +29,15 @@ public:
     int getSessionID() const;
 
 private:
-    void processInput(juce::AudioBuffer<float>& buffer);
-    void processOutput(juce::AudioBuffer<float>& buffer);
+    void processInput(float ** inputBuffer, const int inputSamples);
+    void processOutput(float ** inputBuffer, const int inputSamples);
+    void clearBuffer(float ** inputBuffer, const int inputSamples);
 
 private:
     std::shared_ptr<InferenceThreadPool> inferenceThreadPool;
 
     SessionElement& session;
-    HostConfig spec;
+    HostAudioConfig spec;
 
     bool init = true;
     int bufferCount = 0;

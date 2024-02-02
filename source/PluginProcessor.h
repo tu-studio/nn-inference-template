@@ -5,6 +5,7 @@
 #include "PluginParameters.h"
 #include "dsp/utils/Mixer.h"
 #include "dsp/utils/MonoStereo.h"
+#include "dsp/inference/InferenceHandler.h"
 #include "dsp/inference/InferenceManager.h"
 
 //==============================================================================
@@ -57,7 +58,8 @@ private:
     juce::AudioProcessorValueTreeState parameters;
     juce::AudioBuffer<float> monoBuffer;
 
-    InferenceManager inferenceManager;
+    InferenceHandler inferenceHandler;
+
     Mixer dryWetMixer;
     MonoStereo monoStereoProcessor;
 

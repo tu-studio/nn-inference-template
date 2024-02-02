@@ -16,7 +16,7 @@ void InferenceManager::parameterChanged(const juce::String &parameterID, float n
     }
 }
 
-void InferenceManager::prepareToPlay(HostConfig newConfig) {
+void InferenceManager::prepare(HostAudioConfig newConfig) {
     spec = newConfig;
 
     session.sendBuffer.initialise(1, (size_t) spec.hostSampleRate * 6);
@@ -36,32 +36,37 @@ void InferenceManager::prepareToPlay(HostConfig newConfig) {
     }
 }
 
-void InferenceManager::processBlock(juce::AudioBuffer<float> &buffer) {
-    processInput(buffer);
+void InferenceManager::process(float ** inputBuffer, int inputSamples) {
+    processInput(inputBuffer, inputSamples);
     if (init) {
-        bufferCount += buffer.getNumSamples();
-        buffer.clear();
+        bufferCount += inputSamples;
+        clearBuffer(inputBuffer, inputSamples);
         if (bufferCount >= initSamples) init = false;
     } else {
-        processOutput(buffer);
+        processOutput(inputBuffer, inputSamples);
     }
 }
 
-void InferenceManager::processInput(juce::AudioBuffer<float> &buffer) {
-    for (int sample = 0; sample < buffer.getNumSamples(); ++sample) {
-        session.sendBuffer.pushSample(buffer.getSample(0, sample), 0);
+void InferenceManager::processInput(float ** inputBuffer, int inputSamples) {
+    for (int channel = 0; channel < spec.hostChannels; ++channel) {
+        for (int sample = 0; sample < inputSamples; ++sample) {
+            session.sendBuffer.pushSample(inputBuffer[channel][sample], 0);
+        }
     }
+
     inferenceThreadPool->newDataSubmitted(session);
 }
 
-void InferenceManager::processOutput(juce::AudioBuffer<float> &buffer) {
-    double timeInSec = static_cast<double>(buffer.getNumSamples()) / spec.hostSampleRate;
+void InferenceManager::processOutput(float ** inputBuffer, int inputSamples) {
+    double timeInSec = static_cast<double>(inputSamples) / spec.hostSampleRate;
     inferenceThreadPool->newDataRequest(session, timeInSec);
     
     while (inferenceCounter > 0) {
-        if (session.receiveBuffer.getAvailableSamples(0) >= 2 * (size_t) buffer.getNumSamples()) {
-            for (int i = 0; i < buffer.getNumSamples(); ++i) {
-                session.receiveBuffer.popSample(0);
+        if (session.receiveBuffer.getAvailableSamples(0) >= 2 * (size_t) inputSamples) {
+            for (int channel = 0; channel < spec.hostChannels; ++channel) {
+                for (int sample = 0; sample < inputSamples; ++sample) {
+                    session.receiveBuffer.popSample(channel);
+                }
             }
             inferenceCounter--;
             std::cout << "##### catch up samples" << std::endl;
@@ -70,15 +75,25 @@ void InferenceManager::processOutput(juce::AudioBuffer<float> &buffer) {
             break;
         }
     }
-    if (session.receiveBuffer.getAvailableSamples(0) >= (size_t) buffer.getNumSamples()) {
-        for (int sample = 0; sample < buffer.getNumSamples(); ++sample) {
-            buffer.setSample(0, sample, session.receiveBuffer.popSample(0));
+    if (session.receiveBuffer.getAvailableSamples(0) >= (size_t) inputSamples) {
+        for (int channel = 0; channel < spec.hostChannels; ++channel) {
+            for (int sample = 0; sample < inputSamples; ++sample) {
+                inputBuffer[channel][sample] = session.receiveBuffer.popSample(channel);
+            }
         }
     }
     else {
-        buffer.clear();
+        clearBuffer(inputBuffer, inputSamples);
         inferenceCounter++;
         std::cout << "##### missing samples" << std::endl;
+    }
+}
+
+void InferenceManager::clearBuffer(float ** inputBuffer, int inputSamples) {
+    for (int channel = 0; channel < spec.hostChannels; ++channel) {
+        for (int sample = 0; sample < inputSamples; ++sample) {
+            inputBuffer[channel][sample] = 0.f;
+        }
     }
 }
 
