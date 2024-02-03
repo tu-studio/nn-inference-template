@@ -134,11 +134,9 @@ public:
     {
         delete[] m_p_data;
         delete[] m_p_channels;
-        if (m_number_of_channels != number_of_channels || m_size != size) {
-            m_number_of_channels = number_of_channels;
-            m_size = size;
-            allocateMemory();
-        }
+        m_number_of_channels = number_of_channels;
+        m_size = size;
+        allocateMemory();
     }
 
     // Returns the number of channels in the buffer, const since it is not supposed to modify any member variables
