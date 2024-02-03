@@ -25,24 +25,28 @@ InferenceConfig config(
         {BATCH_SIZE, 1, MODEL_INPUT_SIZE_BACKEND},
         {BATCH_SIZE, MODEL_OUTPUT_SIZE_BACKEND},
         0,
+        false,
 #endif
 #ifdef USE_ONNXRUNTIME
         GUITARLSTM_MODELS_PATH_TENSORFLOW + std::string("/") + std::string("model_0/model_0-tflite-streaming.onnx"),
         {BATCH_SIZE, MODEL_INPUT_SIZE_BACKEND, 1},
         {BATCH_SIZE, MODEL_OUTPUT_SIZE_BACKEND},
         0,
+        false,
 #endif
 #ifdef USE_TFLITE
         GUITARLSTM_MODELS_PATH_PYTORCH + std::string("/") + std::string("model_0/model_0-streaming.pt"),
         {BATCH_SIZE, MODEL_INPUT_SIZE_BACKEND, 1},
         {BATCH_SIZE, MODEL_OUTPUT_SIZE_BACKEND},
         0,
+        false,
 #endif
         BATCH_SIZE,
         1,
         MODEL_INPUT_SIZE_BACKEND,
         MODEL_OUTPUT_SIZE_BACKEND,
-        MAX_INFERENCE_TIME
+        MAX_INFERENCE_TIME,
+        1
 );
 #elif MODEL_TO_USE == 2
 
@@ -63,18 +67,21 @@ InferenceConfig config(
         {BATCH_SIZE, 1, MODEL_INPUT_SIZE_BACKEND},
         {BATCH_SIZE, 1, MODEL_OUTPUT_SIZE_BACKEND},
         0,
+        false,
 #endif
 #ifdef USE_ONNXRUNTIME
         STEERABLENAFX_MODELS_PATH_PYTORCH + std::string("/") + std::string("model_0/steerable-nafx-libtorch-2048.onnx"),
         {BATCH_SIZE, 1, MODEL_INPUT_SIZE_BACKEND},
         {BATCH_SIZE, 1, MODEL_OUTPUT_SIZE_BACKEND},
         0,
+        false,
 #endif
 #ifdef USE_TFLITE
         STEERABLENAFX_MODELS_PATH_TENSORFLOW + std::string("/") + std::string("model_0/steerable-nafx-2048.tflite"),
         {BATCH_SIZE, MODEL_INPUT_SIZE_BACKEND, 1},
         {BATCH_SIZE, MODEL_OUTPUT_SIZE_BACKEND, 1},
         0,
+        false,
 #endif
         BATCH_SIZE,
         2048,
@@ -101,18 +108,21 @@ InferenceConfig config(
         {MODEL_INPUT_SIZE_BACKEND, BATCH_SIZE, 1},
         {MODEL_OUTPUT_SIZE_BACKEND, BATCH_SIZE, 1},
         0,
+        false,
 #endif
 #ifdef USE_ONNXRUNTIME
         STATEFULLSTM_MODELS_PATH_PYTORCH + std::string("/") + std::string("model_0/stateful-lstm-libtorch.onnx"),
         {MODEL_INPUT_SIZE_BACKEND, BATCH_SIZE, 1},
         {MODEL_OUTPUT_SIZE_BACKEND, BATCH_SIZE, 1},
         0,
+        false,
 #endif
 #ifdef USE_TFLITE
         STATEFULLSTM_MODELS_PATH_TENSORFLOW + std::string("/") + std::string("model_0/stateful-lstm.tflite"),
         {BATCH_SIZE, MODEL_INPUT_SIZE_BACKEND, 1},
         {BATCH_SIZE, MODEL_OUTPUT_SIZE_BACKEND, 1},
         0,
+        false,
 #endif
         BATCH_SIZE,
         2048,
@@ -121,10 +131,5 @@ InferenceConfig config(
         MAX_INFERENCE_TIME
 );
 #endif
-
-namespace NNInferenceTemplate {
-    using InputArray = std::array<float, BATCH_SIZE * MODEL_INPUT_SIZE_BACKEND>;
-    using OutputArray = std::array<float, BATCH_SIZE * MODEL_OUTPUT_SIZE_BACKEND>;
-}
 
 #endif //NN_INFERENCE_TEMPLATE_CONFIGS_H
