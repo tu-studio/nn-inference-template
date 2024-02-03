@@ -6,9 +6,16 @@
 
 #include "../utils/HostConfig.h"
 #include "InferenceConfig.h"
-#include "backends/OnnxRuntimeProcessor.h"
-#include "backends/LibtorchProcessor.h"
-#include "backends/TFLiteProcessor.h"
+#ifdef USE_LIBTORCH
+    #include "backends/LibtorchProcessor.h"
+#endif
+#ifdef USE_ONNXRUNTIME
+    #include "backends/OnnxRuntimeProcessor.h"
+#endif
+#ifdef USE_TFLITE
+    #include "backends/TFLiteProcessor.h"
+#endif
+
 #include "SessionElement.h"
 
 #if WIN32
@@ -37,9 +44,16 @@ private:
      std::counting_semaphore<1000>& globalSemaphore;
      std::vector<std::shared_ptr<SessionElement>>& sessions;
 
-     OnnxRuntimeProcessor onnxProcessor;
-     LibtorchProcessor torchProcessor;
-     TFLiteProcessor tfliteProcessor;
+#ifdef USE_LIBTORCH
+    LibtorchProcessor torchProcessor;
+#endif
+#ifdef USE_ONNXRUNTIME
+    OnnxRuntimeProcessor onnxProcessor;
+#endif
+#ifdef USE_TFLITE
+    TFLiteProcessor tfliteProcessor;
+#endif
+
  };
 
 #endif //NN_INFERENCE_TEMPLATE_INFERENCETHREAD_H

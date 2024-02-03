@@ -1,9 +1,15 @@
 #include "InferenceThread.h"
 
 InferenceThread::InferenceThread(std::counting_semaphore<1000>& s, std::vector<std::shared_ptr<SessionElement>>& ses) : shouldExit(false), globalSemaphore(s), sessions(ses) {
-    onnxProcessor.prepareToPlay();
+#ifdef USE_LIBTORCH
     torchProcessor.prepareToPlay();
+#endif
+#ifdef USE_ONNXRUNTIME
+    onnxProcessor.prepareToPlay();
+#endif
+#ifdef USE_TFLITE
     tfliteProcessor.prepareToPlay();
+#endif
 }
 
 InferenceThread::~InferenceThread() {
@@ -46,13 +52,21 @@ void InferenceThread::run() {
 }
 
 void InferenceThread::inference(InferenceBackend backend, NNInferenceTemplate::InputArray &input, NNInferenceTemplate::OutputArray &output) {
+#ifdef USE_LIBTORCH
+    if (backend == LIBTORCH) {
+        torchProcessor.processBlock(input, output);
+    }
+#endif
+#ifdef USE_ONNXRUNTIME
     if (backend == ONNX) {
         onnxProcessor.processBlock(input, output);
-    } else if (backend == LIBTORCH) {
-        torchProcessor.processBlock(input, output);
-    } else if (backend == TFLITE) {
+    }
+#endif
+#ifdef USE_TFLITE
+    if (backend == TFLITE) {
         tfliteProcessor.processBlock(input, output);
     }
+#endif
 }
 
 
