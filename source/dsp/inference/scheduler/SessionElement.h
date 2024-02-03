@@ -4,13 +4,14 @@
 #include <semaphore>
 #include <queue>
 #include <atomic>
-#include <InferenceConfig.h>
+#include <InferenceBuffer.h>
 #include <RingBuffer.h>
 #include <InferenceBackend.h>
 #include <PrePostProcessor.h>
+#include <InferenceConfig.h>
 
 struct SessionElement {
-    SessionElement(int newSessionID, PrePostProcessor& prePostProcessor);
+    SessionElement(int newSessionID, PrePostProcessor& prePostProcessor, InferenceConfig& config);
 
     RingBuffer sendBuffer;
     RingBuffer receiveBuffer;
@@ -23,6 +24,8 @@ struct SessionElement {
         NNInferenceTemplate::InputArray processedModelInput;
         NNInferenceTemplate::OutputArray rawModelOutput;
     };
+
+    // TODO define a dynamic number instead of 5000
     std::array<ThreadSafeStruct, 5000> inferenceQueue;
 
     std::atomic<InferenceBackend> currentBackend {ONNX};
@@ -32,6 +35,7 @@ struct SessionElement {
     const int sessionID;
 
     PrePostProcessor& prePostProcessor;
+    InferenceConfig& inferenceConfig;
 };
 
 

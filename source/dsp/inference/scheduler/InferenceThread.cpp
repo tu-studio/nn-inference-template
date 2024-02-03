@@ -1,6 +1,13 @@
 #include "InferenceThread.h"
 
-InferenceThread::InferenceThread(std::counting_semaphore<1000>& s, std::vector<std::shared_ptr<SessionElement>>& ses) : shouldExit(false), globalSemaphore(s), sessions(ses) {
+InferenceThread::InferenceThread(std::counting_semaphore<1000>& s, std::vector<std::shared_ptr<SessionElement>>& ses, InferenceConfig& config) :
+    shouldExit(false),
+    globalSemaphore(s),
+    sessions(ses),
+    torchProcessor(config),
+    onnxProcessor(config),
+    tfliteProcessor(config)
+{
 #ifdef USE_LIBTORCH
     torchProcessor.prepareToPlay();
 #endif

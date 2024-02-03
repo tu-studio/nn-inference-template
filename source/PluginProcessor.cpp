@@ -12,7 +12,7 @@ AudioPluginAudioProcessor::AudioPluginAudioProcessor()
                      #endif
                        ),
         parameters (*this, nullptr, juce::Identifier (getName()), PluginParameters::createParameterLayout()),
-        inferenceHandler(prePostProcessor)
+        inferenceHandler(prePostProcessor, config)
 {
     for (auto & parameterID : PluginParameters::getPluginParameterList()) {
         parameters.addParameterListener(parameterID, this);

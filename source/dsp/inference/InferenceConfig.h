@@ -2,114 +2,106 @@
 #define NN_INFERENCE_TEMPLATE_INFERENCECONFIG_H
 
 #include <array>
+#include <string>
+#include <vector>
+#include <thread>
 
-#if MODEL_TO_USE == 1
+struct InferenceConfig {
+    InferenceConfig(
+#ifdef USE_LIBTORCH
+            const std::string model_path_torch,
+            const std::vector<int64_t> model_input_shape_torch,
+            const std::vector<int64_t> model_output_shape_torch,
+            const int model_latency_torch,
+            const bool model_stateful_torch,
+#endif
+#ifdef USE_ONNXRUNTIME
+            const std::string model_path_onnx,
+            const std::vector<int64_t> model_input_shape_onnx,
+            const std::vector<int64_t> model_output_shape_onnx,
+            const int model_latency_onnx,
+            const bool model_stateful_onnx,
+#endif
+#ifdef USE_TFLITE
+            const std::string model_path_tflite,
+            const std::vector<int64_t> model_input_shape_tflite,
+            const std::vector<int64_t> model_output_shape_tflite,
+            const int model_latency_tflite,
+            const bool model_stateful_tflite,
+#endif
+            int batch_size,
+            int model_input_size,
+            int model_input_size_backend,
+            int model_output_size_backend,
+            int max_inference_time,
+            int model_latency,
+            bool warm_up = true,
+            int numberOfThreads = std::thread::hardware_concurrency() - 1) :
+#ifdef USE_LIBTORCH
+            m_model_path_torch(model_path_torch),
+            m_model_input_shape_torch(model_input_shape_torch),
+            m_model_output_shape_torch(model_output_shape_torch),
+            m_model_latency_torch(model_latency_torch),
+            m_model_stateful_torch(model_stateful_torch),
+#endif
+#ifdef USE_ONNXRUNTIME
+            m_model_path_onnx(model_path_onnx),
+            m_model_input_shape_onnx(model_input_shape_onnx),
+            m_model_output_shape_onnx(model_output_shape_onnx),
+            m_model_latency_onnx(model_latency_onnx),
+            m_model_stateful_onnx(model_stateful_onnx),
+#endif
+#ifdef USE_TFLITE
+            m_model_path_tflite(model_path_tflite),
+            m_model_input_shape_tflite(model_input_shape_tflite),
+            m_model_output_shape_tflite(model_output_shape_tflite),
+            m_model_latency_tflite(model_latency_tflite),
+            m_model_stateful_tflite(model_stateful_tflite),
+#endif
+            m_batch_size(batch_size),
+            m_model_input_size(model_input_size),
+            m_model_input_size_backend(model_input_size_backend),
+            m_model_output_size_backend(model_output_size_backend),
+            m_max_inference_time(max_inference_time),
+            m_model_latency(model_latency),
+            m_warm_up(warm_up),
+            m_number_of_threads(numberOfThreads)
+    {}
 
-#define MODELS_PATH_TENSORFLOW GUITARLSTM_MODELS_PATH_TENSORFLOW
-#define MODEL_TFLITE "model_0/model_0-streaming.tflite"
-#define MODELS_PATH_PYTORCH GUITARLSTM_MODELS_PATH_PYTORCH
-#define MODEL_LIBTORCH "model_0/model_0-streaming.pt"
-#define MODELS_PATH_ONNX GUITARLSTM_MODELS_PATH_TENSORFLOW
-#define MODEL_ONNX "model_0/model_0-tflite-streaming.onnx"
+    const int m_batch_size;
+    const int m_model_input_size;
+    const int m_model_input_size_backend;
+    const int m_model_output_size_backend;
+    const int m_max_inference_time;
+    const int m_model_latency;
+    const bool m_warm_up;
 
-#define WARM_UP false
-#define BATCH_SIZE 128
-#define MODEL_INPUT_SIZE 1
-#define MODEL_INPUT_SIZE_BACKEND 150 // Same as MODEL_INPUT_SIZE, but for streamable models
-#define MODEL_INPUT_SHAPE_ONNX {BATCH_SIZE, MODEL_INPUT_SIZE_BACKEND, 1}
-#define MODEL_INPUT_SHAPE_TFLITE {BATCH_SIZE, MODEL_INPUT_SIZE_BACKEND, 1}
-#define MODEL_INPUT_SHAPE_LIBTORCH {BATCH_SIZE, 1, MODEL_INPUT_SIZE_BACKEND}
+    const int m_number_of_threads;
 
-
-#define MODEL_OUTPUT_SIZE_BACKEND 1
-#define MODEL_OUTPUT_SHAPE {BATCH_SIZE, MODEL_OUTPUT_SIZE_BACKEND}
-
-
-#if WIN32
-#define MAX_INFERENCE_TIME 16384
-#else
-#define MAX_INFERENCE_TIME 256
+#ifdef USE_LIBTORCH
+    const std::string m_model_path_torch;
+    const std::vector<int64_t> m_model_input_shape_torch;
+    const std::vector<int64_t> m_model_output_shape_torch;
+    const int m_model_latency_torch;
+    const bool m_model_stateful_torch;
 #endif
 
-#define MODEL_LATENCY 0
-
-namespace NNInferenceTemplate {
-    using InputArray = std::array<float, BATCH_SIZE * MODEL_INPUT_SIZE_BACKEND>;
-    using OutputArray = std::array<float, BATCH_SIZE * MODEL_OUTPUT_SIZE_BACKEND>;
-}
-
-#elif MODEL_TO_USE == 2
-
-#define MODELS_PATH_TENSORFLOW STEERABLENAFX_MODELS_PATH_TENSORFLOW
-#define MODEL_TFLITE "model_0/steerable-nafx-2048.tflite"
-#define MODELS_PATH_PYTORCH STEERABLENAFX_MODELS_PATH_PYTORCH
-#define MODEL_LIBTORCH "model_0/steerable-nafx-2048.pt"
-#define MODELS_PATH_ONNX STEERABLENAFX_MODELS_PATH_PYTORCH
-#define MODEL_ONNX "model_0/steerable-nafx-libtorch-2048.onnx"
-
-#define WARM_UP false
-#define BATCH_SIZE 1
-#define MODEL_INPUT_SIZE 2048
-#define MODEL_INPUT_SIZE_BACKEND 15380 // Same as MODEL_INPUT_SIZE, but for streamable models
-#define MODEL_INPUT_SHAPE_ONNX {BATCH_SIZE, 1, MODEL_INPUT_SIZE_BACKEND}
-#define MODEL_INPUT_SHAPE_TFLITE {BATCH_SIZE, MODEL_INPUT_SIZE_BACKEND, 1}
-#define MODEL_INPUT_SHAPE_LIBTORCH {BATCH_SIZE, 1, MODEL_INPUT_SIZE_BACKEND}
-
-
-#define MODEL_OUTPUT_SIZE_BACKEND 2048
-#define MODEL_OUTPUT_SHAPE_TFLITE {BATCH_SIZE, MODEL_OUTPUT_SIZE_BACKEND, 1}
-#define MODEL_OUTPUT_SHAPE_LIBTORCH {BATCH_SIZE, 1, MODEL_OUTPUT_SIZE_BACKEND}
-
-
-#if WIN32
-#define MAX_INFERENCE_TIME 16384
-#else
-#define MAX_INFERENCE_TIME 15380
+#ifdef USE_ONNXRUNTIME
+    const std::string m_model_path_onnx;
+    const std::vector<int64_t> m_model_input_shape_onnx;
+    const std::vector<int64_t> m_model_output_shape_onnx;
+    const int m_model_latency_onnx;
+    const bool m_model_stateful_onnx;
 #endif
 
-#define MODEL_LATENCY 0
-
-namespace NNInferenceTemplate {
-    using InputArray = std::array<float, BATCH_SIZE * MODEL_INPUT_SIZE_BACKEND>;
-    using OutputArray = std::array<float, BATCH_SIZE * MODEL_OUTPUT_SIZE_BACKEND>;
-}
-
-#elif MODEL_TO_USE == 3
-
-#define MODELS_PATH_TENSORFLOW STATEFULLSTM_MODELS_PATH_TENSORFLOW
-#define MODEL_TFLITE "model_0/stateful-lstm.tflite"
-#define MODELS_PATH_PYTORCH STATEFULLSTM_MODELS_PATH_PYTORCH
-#define MODEL_LIBTORCH "model_0/stateful-lstm.pt"
-#define MODELS_PATH_ONNX STATEFULLSTM_MODELS_PATH_PYTORCH
-#define MODEL_ONNX "model_0/stateful-lstm-libtorch.onnx"
-
-#define WARM_UP false
-#define BATCH_SIZE 1
-#define MODEL_INPUT_SIZE 2048
-#define MODEL_INPUT_SIZE_BACKEND 2048 // Same as MODEL_INPUT_SIZE, but for streamable models
-#define MODEL_INPUT_SHAPE_ONNX {MODEL_INPUT_SIZE_BACKEND, BATCH_SIZE, 1}
-#define MODEL_INPUT_SHAPE_TFLITE {BATCH_SIZE, MODEL_INPUT_SIZE_BACKEND, 1}
-#define MODEL_INPUT_SHAPE_LIBTORCH {MODEL_INPUT_SIZE_BACKEND, BATCH_SIZE, 1}
-
-
-#define MODEL_OUTPUT_SIZE_BACKEND 2048
-#define MODEL_OUTPUT_SHAPE_TFLITE {BATCH_SIZE, MODEL_OUTPUT_SIZE_BACKEND, 1}
-#define MODEL_OUTPUT_SHAPE_LIBTORCH {MODEL_OUTPUT_SIZE_BACKEND, BATCH_SIZE, 1}
-
-
-#if WIN32
-#define MAX_INFERENCE_TIME 16384
-#else
-#define MAX_INFERENCE_TIME 15380
+#ifdef USE_TFLITE
+    const std::string m_model_path_tflite;
+    const std::vector<int64_t> m_model_input_shape_tflite;
+    const std::vector<int64_t> m_model_output_shape_tflite;
+    const int m_model_latency_tflite;
+    const bool m_model_stateful_tflite;
 #endif
+};
 
-#define MODEL_LATENCY 0
-
-namespace NNInferenceTemplate {
-    using InputArray = std::array<float, BATCH_SIZE * MODEL_INPUT_SIZE_BACKEND>;
-    using OutputArray = std::array<float, BATCH_SIZE * MODEL_OUTPUT_SIZE_BACKEND>;
-}
-
-#endif // MODEL_TO_USE
 
 #endif //NN_INFERENCE_TEMPLATE_INFERENCECONFIG_H

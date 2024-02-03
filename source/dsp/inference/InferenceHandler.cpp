@@ -1,10 +1,6 @@
-//
-// Created by Valentin Ackva on 02/02/2024.
-//
-
 #include "InferenceHandler.h"
 
-InferenceHandler::InferenceHandler(PrePostProcessor &ppP) : inferenceManager(ppP) {
+InferenceHandler::InferenceHandler(PrePostProcessor &ppP, InferenceConfig& config) : inferenceManager(ppP, config) {
 }
 
 void InferenceHandler::prepare(HostAudioConfig newAudioConfig) {

@@ -1,18 +1,14 @@
-//
-// Created by Valentin Ackva on 02/02/2024.
-//
-
 #ifndef NN_INFERENCE_TEMPLATE_INFERENCEHANDLER_H
 #define NN_INFERENCE_TEMPLATE_INFERENCEHANDLER_H
 
 #include <InferenceManager.h>
 #include <PrePostProcessor.h>
-
+#include <InferenceConfig.h>
 
 class InferenceHandler {
 public:
     InferenceHandler() = delete;
-    InferenceHandler(PrePostProcessor &prePostProcessor);
+    InferenceHandler(PrePostProcessor &prePostProcessor, InferenceConfig& config);
     ~InferenceHandler() = default;
 
     void setInferenceBackend(InferenceBackend inferenceBackend);

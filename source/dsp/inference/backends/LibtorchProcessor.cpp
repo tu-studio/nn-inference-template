@@ -1,6 +1,6 @@
 #include "LibtorchProcessor.h"
 
-LibtorchProcessor::LibtorchProcessor() {
+LibtorchProcessor::LibtorchProcessor(InferenceConfig& config) : inferenceConfig(config) {
 #if WIN32
     _putenv("OMP_NUM_THREADS=1");
     _putenv("MKL_NUM_THREADS=1");
@@ -12,7 +12,7 @@ LibtorchProcessor::LibtorchProcessor() {
 #endif
 
     try {
-        module = torch::jit::load(filepath + modelname);
+        module = torch::jit::load(inferenceConfig.m_model_path_torch);
     }
     catch (const c10::Error& e) {
         std::cerr << "error loading the model\n";
@@ -25,9 +25,9 @@ LibtorchProcessor::~LibtorchProcessor() {
 
 void LibtorchProcessor::prepareToPlay() {
     inputs.clear();
-    inputs.push_back(torch::zeros(MODEL_INPUT_SHAPE_LIBTORCH));
+    inputs.push_back(torch::zeros(inferenceConfig.m_model_input_shape_torch));
 
-    if (WARM_UP) {
+    if (inferenceConfig.m_warm_up) {
         NNInferenceTemplate::InputArray input;
         NNInferenceTemplate::OutputArray output;
         processBlock(input, output);
@@ -36,7 +36,7 @@ void LibtorchProcessor::prepareToPlay() {
 
 void LibtorchProcessor::processBlock(NNInferenceTemplate::InputArray& input, NNInferenceTemplate::OutputArray& output) {
     // Create input tensor object from input data values and shape
-    inputTensor = torch::from_blob(input.data(), (const long long) input.size()).reshape(MODEL_INPUT_SHAPE_LIBTORCH);
+    inputTensor = torch::from_blob(input.data(), (const long long) input.size()).reshape(inferenceConfig.m_model_input_shape_torch);
 
     inputs[0] = inputTensor;
 
@@ -44,7 +44,7 @@ void LibtorchProcessor::processBlock(NNInferenceTemplate::InputArray& input, NNI
     outputTensor = module.forward(inputs).toTensor();
 
     // Extract the output tensor data
-    for (size_t i = 0; i < BATCH_SIZE * MODEL_OUTPUT_SIZE_BACKEND; i++) {
+    for (size_t i = 0; i < inferenceConfig.m_batch_size * inferenceConfig.m_model_output_size_backend; i++) {
 #if MODEL_TO_USE == 1
         output[i] = outputTensor[(int64_t) i][0].item<float>();
 #elif MODEL_TO_USE == 2

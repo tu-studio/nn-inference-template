@@ -1,7 +1,11 @@
 #include "InferenceManager.h"
 #include "../PluginParameters.h"
 
-InferenceManager::InferenceManager(PrePostProcessor& ppP) : inferenceThreadPool(InferenceThreadPool::getInstance()), session(inferenceThreadPool->createSession(ppP)) {
+InferenceManager::InferenceManager(PrePostProcessor& ppP, InferenceConfig& config) :
+    inferenceThreadPool(InferenceThreadPool::getInstance(config)),
+    session(inferenceThreadPool->createSession(ppP, config)),
+    inferenceConfig(config)
+{
 }
 
 InferenceManager::~InferenceManager() {
@@ -26,13 +30,13 @@ void InferenceManager::prepare(HostAudioConfig newConfig) {
     init = true;
     bufferCount = 0;
 
-    size_t result = spec.hostBufferSize % (BATCH_SIZE * MODEL_INPUT_SIZE);
+    size_t result = spec.hostBufferSize % (inferenceConfig.m_batch_size * inferenceConfig.m_model_input_size);
     if (result == 0) {
-        initSamples = MAX_INFERENCE_TIME + BATCH_SIZE * MODEL_LATENCY;
+        initSamples = inferenceConfig.m_max_inference_time + inferenceConfig.m_batch_size * inferenceConfig.m_model_latency;
     } else if (result > 0 && result < spec.hostBufferSize) {
-        initSamples = MAX_INFERENCE_TIME + spec.hostBufferSize + BATCH_SIZE * MODEL_LATENCY; //TODO not minimum possible
+        initSamples = inferenceConfig.m_max_inference_time + spec.hostBufferSize + inferenceConfig.m_batch_size * inferenceConfig.m_model_latency; //TODO not minimum possible
     } else {
-        initSamples = MAX_INFERENCE_TIME + (BATCH_SIZE * MODEL_INPUT_SIZE) + BATCH_SIZE * MODEL_LATENCY;
+        initSamples = inferenceConfig.m_max_inference_time + (inferenceConfig.m_batch_size * inferenceConfig.m_model_input_size) + inferenceConfig.m_batch_size * inferenceConfig.m_model_latency;
     }
 }
 

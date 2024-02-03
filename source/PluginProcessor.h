@@ -7,6 +7,7 @@
 #include "dsp/utils/MonoStereo.h"
 #include "dsp/inference/InferenceHandler.h"
 #include "MyPrePostProcessor.h"
+#include "Configs.h"
 
 //==============================================================================
 class AudioPluginAudioProcessor  : public juce::AudioProcessor, private juce::AudioProcessorValueTreeState::Listener

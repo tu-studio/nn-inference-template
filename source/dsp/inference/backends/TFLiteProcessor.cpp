@@ -4,8 +4,15 @@
 #include <comdef.h>
 #endif
 
-TFLiteProcessor::TFLiteProcessor()
+TFLiteProcessor::TFLiteProcessor(InferenceConfig& config) : inferenceConfig(config)
 {
+#ifdef _WIN32
+    std::string modelpathStr = inferenceConfig.m_model_path_tflite;
+    std::wstring modelpath = std::wstring(modelpathStr.begin(), modelpathStr.end());
+#else
+    std::string modelpath = inferenceConfig.m_model_path_tflite;
+#endif
+
 #ifdef _WIN32
     _bstr_t modelPathChar (modelpath.c_str());
     model = TfLiteModelCreateFromFile(modelPathChar);
@@ -30,7 +37,7 @@ void TFLiteProcessor::prepareToPlay() {
     inputTensor = TfLiteInterpreterGetInputTensor(interpreter, 0);
     outputTensor = TfLiteInterpreterGetOutputTensor(interpreter, 0);
 
-    if (WARM_UP) {
+    if (inferenceConfig.m_warm_up) {
         NNInferenceTemplate::InputArray input;
         NNInferenceTemplate::OutputArray output;
         processBlock(input, output);

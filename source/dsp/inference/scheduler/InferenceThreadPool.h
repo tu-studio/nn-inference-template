@@ -5,7 +5,7 @@
 
 #include "SessionElement.h"
 #include "InferenceThread.h"
-#include "InferenceConfig.h"
+#include "InferenceBuffer.h"
 #include "backends/OnnxRuntimeProcessor.h"
 #include "backends/LibtorchProcessor.h"
 #include "backends/TFLiteProcessor.h"
@@ -13,17 +13,15 @@
 
 class InferenceThreadPool{
 public:
-    InferenceThreadPool();
+    InferenceThreadPool(InferenceConfig& config);
     ~InferenceThreadPool();
-    static std::shared_ptr<InferenceThreadPool> getInstance();
-    static SessionElement& createSession(PrePostProcessor& prePostProcessor);
+    static std::shared_ptr<InferenceThreadPool> getInstance(InferenceConfig& config);
+    static SessionElement& createSession(PrePostProcessor& prePostProcessor, InferenceConfig& config);
     static void releaseSession(SessionElement& session);
     static void releaseInstance();
     static void releaseThreadPool();
 
-    static int getNumberOfSessions() {
-        return activeSessions.load();
-    }
+    static int getNumberOfSessions();
 
     inline static std::counting_semaphore<1000> globalSemaphore{0};
     void newDataSubmitted(SessionElement& session);

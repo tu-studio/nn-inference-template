@@ -6,12 +6,13 @@
 #include "InferenceThread.h"
 #include "InferenceThreadPool.h"
 #include "../utils/HostAudioConfig.h"
+#include "../InferenceConfig.h"
 #include <PrePostProcessor.h>
 
 class InferenceManager {
 public:
     InferenceManager() = delete;
-    InferenceManager(PrePostProcessor &prePostProcessor); 
+    InferenceManager(PrePostProcessor &prePostProcessor, InferenceConfig& config);
     ~InferenceManager();
 
     void prepare(HostAudioConfig config);
@@ -38,6 +39,7 @@ private:
 private:
     std::shared_ptr<InferenceThreadPool> inferenceThreadPool;
 
+    InferenceConfig& inferenceConfig;
     SessionElement& session;
     HostAudioConfig spec;
 

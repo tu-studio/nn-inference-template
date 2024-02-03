@@ -2,26 +2,20 @@
 #define NN_INFERENCE_TEMPLATE_ONNXRUNTIMEPROCESSOR_H
 
 #include <JuceHeader.h>
-#include "../InferenceConfig.h"
+#include "../InferenceBuffer.h"
+#include <InferenceConfig.h>
 #include "onnxruntime_cxx_api.h"
 
 class OnnxRuntimeProcessor {
 public:
-    OnnxRuntimeProcessor();
+    OnnxRuntimeProcessor(InferenceConfig& config);
     ~OnnxRuntimeProcessor();
 
     void prepareToPlay();
     void processBlock(NNInferenceTemplate::InputArray& input, NNInferenceTemplate::OutputArray& output);
 
 private:
-    std::string filepath = MODELS_PATH_ONNX;
-    std::string modelname = MODEL_ONNX;
-#ifdef _WIN32
-    std::string modelpathStr = filepath + modelname;
-    std::wstring modelpath = std::wstring(modelpathStr.begin(), modelpathStr.end());
-#else
-    std::string modelpath = filepath + modelname;
-#endif
+    InferenceConfig& inferenceConfig;
 
     Ort::Env env;
     Ort::MemoryInfo memory_info;
@@ -29,7 +23,7 @@ private:
     Ort::SessionOptions session_options;
     std::unique_ptr<Ort::Session> session;
 
-    std::array<int64_t, 3> inputShape;
+    std::vector<int64_t> inputShape;
     std::array<const char *, 1> inputNames;
 
     std::array<const char *, 1> outputNames;

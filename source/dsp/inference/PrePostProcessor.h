@@ -1,7 +1,7 @@
 #ifndef NN_INFERENCE_TEMPLATE_PREPOSTPROCESSOR_H
 #define NN_INFERENCE_TEMPLATE_PREPOSTPROCESSOR_H
 
-#include <InferenceConfig.h>
+#include <InferenceBuffer.h>
 #include <RingBuffer.h>
 #include <InferenceBackend.h>
 

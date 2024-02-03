@@ -1,8 +1,8 @@
 #include "InferenceThreadPool.h"
 
-InferenceThreadPool::InferenceThreadPool()  {
-    for (size_t i = 0; i < (size_t) 1; ++i) {
-        threadPool.emplace_back(std::make_unique<InferenceThread>(globalSemaphore, sessions));
+InferenceThreadPool::InferenceThreadPool(InferenceConfig& config)  {
+    for (size_t i = 0; i < (size_t) config.m_number_of_threads; ++i) {
+        threadPool.emplace_back(std::make_unique<InferenceThread>(globalSemaphore, sessions, config));
     }
 }
 
@@ -14,9 +14,9 @@ int InferenceThreadPool::getAvailableSessionID() {
     return nextId.load();
 }
 
-std::shared_ptr<InferenceThreadPool> InferenceThreadPool::getInstance() {
+std::shared_ptr<InferenceThreadPool> InferenceThreadPool::getInstance(InferenceConfig& config) {
     if (inferenceThreadPool == nullptr) {
-        inferenceThreadPool = std::make_shared<InferenceThreadPool>();
+        inferenceThreadPool = std::make_shared<InferenceThreadPool>(config);
     }
     return inferenceThreadPool;
 }
@@ -25,13 +25,13 @@ void InferenceThreadPool::releaseInstance() {
     inferenceThreadPool.reset();
 }
 
-SessionElement& InferenceThreadPool::createSession(PrePostProcessor& prePostProcessor) {
+SessionElement& InferenceThreadPool::createSession(PrePostProcessor& prePostProcessor, InferenceConfig& config) {
     for (size_t i = 0; i < (size_t) threadPool.size(); ++i) {
         threadPool[i]->stop();
     }
 
     int sessionID = getAvailableSessionID();
-    sessions.emplace_back(std::make_unique<SessionElement>(sessionID, prePostProcessor));
+    sessions.emplace_back(std::make_unique<SessionElement>(sessionID, prePostProcessor, config));
 
     for (size_t i = 0; i < (size_t) threadPool.size(); ++i) {
         threadPool[i]->start();
@@ -61,7 +61,7 @@ void InferenceThreadPool::releaseSession(SessionElement& session) {
 }
 
 void InferenceThreadPool::newDataSubmitted(SessionElement& session) {
-    while (session.sendBuffer.getAvailableSamples(0) >= (BATCH_SIZE * MODEL_INPUT_SIZE)) {
+    while (session.sendBuffer.getAvailableSamples(0) >= (session.inferenceConfig.m_batch_size * session.inferenceConfig.m_model_input_size)) {
         preProcess(session);
         session.sendSemaphore.release();
         globalSemaphore.release();
@@ -106,4 +106,8 @@ void InferenceThreadPool::postProcess(SessionElement& session, SessionElement::T
     session.prePostProcessor.postProcess(nextBuffer.rawModelOutput, session.receiveBuffer, session.currentBackend.load());
     // TODO: shall we clear before we release?
     nextBuffer.free.release();
+}
+
+int InferenceThreadPool::getNumberOfSessions() {
+    return activeSessions.load();
 }

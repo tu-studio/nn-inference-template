@@ -4,7 +4,7 @@
 #include <JuceHeader.h>
 #include <semaphore>
 
-#include "InferenceConfig.h"
+#include "InferenceBuffer.h"
 #ifdef USE_LIBTORCH
     #include "backends/LibtorchProcessor.h"
 #endif
@@ -25,7 +25,7 @@
 
 class InferenceThread {
 public:
-    InferenceThread(std::counting_semaphore<1000>& globalSemaphore, std::vector<std::shared_ptr<SessionElement>>& sessions);
+    InferenceThread(std::counting_semaphore<1000>& globalSemaphore, std::vector<std::shared_ptr<SessionElement>>& sessions, InferenceConfig& config);
     ~InferenceThread();
 
     void start();

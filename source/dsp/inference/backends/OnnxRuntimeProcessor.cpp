@@ -1,7 +1,8 @@
 #include "OnnxRuntimeProcessor.h"
 
-OnnxRuntimeProcessor::OnnxRuntimeProcessor() :  memory_info(Ort::MemoryInfo::CreateCpu(OrtDeviceAllocator, OrtMemTypeCPU))
-                                                
+OnnxRuntimeProcessor::OnnxRuntimeProcessor(InferenceConfig& config) :
+    memory_info(Ort::MemoryInfo::CreateCpu(OrtDeviceAllocator, OrtMemTypeCPU)),
+    inferenceConfig(config)
 {
 }
 
@@ -10,12 +11,23 @@ OnnxRuntimeProcessor::~OnnxRuntimeProcessor()
 }
 
 void OnnxRuntimeProcessor::prepareToPlay() {
+#ifdef _WIN32
+    std::string modelpathStr = inferenceConfig.m_model_path_onnx;
+    std::wstring modelpath = std::wstring(modelpathStr.begin(), modelpathStr.end());
+#else
+    std::string modelpath = inferenceConfig.m_model_path_onnx;
+#endif
+
     session_options.SetIntraOpNumThreads(1);
     session = std::make_unique<Ort::Session>(env, modelpath.c_str(), session_options);
     // Define the shape of input tensor
-    inputShape = MODEL_INPUT_SHAPE_ONNX;
 
-    if (WARM_UP) {
+    inputShape.clear();
+    for (long long i : inferenceConfig.m_model_input_shape_onnx) {
+        inputShape.push_back(i);
+    }
+
+    if (inferenceConfig.m_warm_up) {
         NNInferenceTemplate::InputArray input;
         NNInferenceTemplate::OutputArray output;
         processBlock(input, output);
@@ -47,7 +59,7 @@ void OnnxRuntimeProcessor::processBlock(NNInferenceTemplate::InputArray& input, 
     }
 
     // Extract the output tensor dat
-    for (size_t i = 0; i < BATCH_SIZE * MODEL_OUTPUT_SIZE_BACKEND; i++) {
+    for (size_t i = 0; i < inferenceConfig.m_batch_size * inferenceConfig.m_model_output_size_backend; i++) {
         output[i] = outputTensors[0].GetTensorMutableData<float>()[i];
     }
 }

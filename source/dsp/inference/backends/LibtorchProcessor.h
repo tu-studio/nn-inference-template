@@ -2,21 +2,21 @@
 #define NN_INFERENCE_TEMPLATE_LIBTORCHPROCESSOR_H
 
 #include <JuceHeader.h>
-#include "../InferenceConfig.h"
+#include "../InferenceBuffer.h"
+#include <InferenceConfig.h>
 #include <torch/script.h>
 #include <stdlib.h>
 
 class LibtorchProcessor {
 public:
-    LibtorchProcessor();
+    LibtorchProcessor(InferenceConfig& config);
     ~LibtorchProcessor();
 
     void prepareToPlay();
     void processBlock(NNInferenceTemplate::InputArray& input, NNInferenceTemplate::OutputArray& output);
 
 private:
-    std::string filepath = MODELS_PATH_PYTORCH;
-    std::string modelname = MODEL_LIBTORCH;
+    InferenceConfig& inferenceConfig;
 
     torch::jit::script::Module module;
 
