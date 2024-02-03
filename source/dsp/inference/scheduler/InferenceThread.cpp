@@ -28,7 +28,7 @@ void InferenceThread::start() {
 void InferenceThread::run() {
     std::chrono::milliseconds timeForExit(1);
     while (!shouldExit) {
-        auto success = globalSemaphore.try_acquire_for(timeForExit);
+        [[maybe_unused]] auto success = globalSemaphore.try_acquire_for(timeForExit);
         for (const auto& session : sessions) {
             if (session->sendSemaphore.try_acquire()) {
                 for (size_t i = 0; i < session->inferenceQueue.size(); ++i) {
@@ -41,7 +41,6 @@ void InferenceThread::run() {
                 break;
             }
         }
-        std::ignore = success;
     }
 }
 

@@ -11,13 +11,11 @@ public:
     PrePostProcessor() = default;
     ~PrePostProcessor() = default;
 
-    virtual void preProcess(RingBuffer& input, NNInferenceTemplate::InputArray& output, InferenceBackend currentInferenceBackend) {
+    virtual void preProcess(RingBuffer& input, NNInferenceTemplate::InputArray& output, [[maybe_unused]] InferenceBackend currentInferenceBackend) {
         popSamplesFromBuffer(input, output);
-        std::ignore = currentInferenceBackend;
     };
-    virtual void postProcess(NNInferenceTemplate::OutputArray input, RingBuffer& output, InferenceBackend currentInferenceBackend) {
+    virtual void postProcess(NNInferenceTemplate::OutputArray input, RingBuffer& output, [[maybe_unused]] InferenceBackend currentInferenceBackend) {
         pushSamplesToBuffer(input, output);
-        std::ignore = currentInferenceBackend;
     }
 
 protected:
