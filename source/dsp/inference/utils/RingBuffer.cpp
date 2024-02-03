@@ -21,7 +21,7 @@ void RingBuffer::clearWithPositions() {
     }
 }
 
-void RingBuffer::pushSample(float sample, size_t channel) {
+void RingBuffer::pushSample(size_t channel, float sample) {
     setSample(channel, writePos[channel], sample);
 
     ++writePos[channel];

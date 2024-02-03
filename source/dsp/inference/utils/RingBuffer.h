@@ -12,7 +12,7 @@ public:
 
     void initializeWithPositions(size_t numChannels, size_t numSamples);
     void clearWithPositions();
-    void pushSample(float sample, size_t channel);
+    void pushSample(size_t channel, float sample);
     float popSample(size_t channel);
     float getSampleFromTail(size_t channel, size_t offset);
     size_t getAvailableSamples(size_t channel);
