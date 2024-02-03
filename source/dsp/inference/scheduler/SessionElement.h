@@ -7,9 +7,10 @@
 #include <InferenceConfig.h>
 #include <RingBuffer.h>
 #include <InferenceBackend.h>
+#include <PrePostProcessor.h>
 
 struct SessionElement {
-    SessionElement(int newSessionID);
+    SessionElement(int newSessionID, PrePostProcessor& prePostProcessor);
 
     RingBuffer sendBuffer;
     RingBuffer receiveBuffer;
@@ -20,16 +21,17 @@ struct SessionElement {
         std::binary_semaphore done{false};
         std::chrono::time_point<std::chrono::system_clock> time;
         NNInferenceTemplate::InputArray processedModelInput;
-        NNInferenceTemplate::OutputArray rawModelOutputBuffer;
+        NNInferenceTemplate::OutputArray rawModelOutput;
     };
     std::array<ThreadSafeStruct, 5000> inferenceQueue;
 
     std::atomic<InferenceBackend> currentBackend {ONNX};
-    std::queue<std::chrono::time_point<std::chrono::system_clock>> timeStamps; // TODO remove
-
+    std::queue<std::chrono::time_point<std::chrono::system_clock>> timeStamps;
     std::counting_semaphore<1000> sendSemaphore{0};
+    
+    const int sessionID;
 
-    const std::atomic<int> sessionID; // TODO does it make sense to have this atomic const?
+    PrePostProcessor& prePostProcessor;
 };
 
 

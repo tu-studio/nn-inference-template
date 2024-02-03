@@ -6,10 +6,12 @@
 #include "InferenceThread.h"
 #include "InferenceThreadPool.h"
 #include "../utils/HostAudioConfig.h"
+#include <PrePostProcessor.h>
 
 class InferenceManager {
 public:
-    InferenceManager();
+    InferenceManager() = delete;
+    InferenceManager(PrePostProcessor &prePostProcessor); 
     ~InferenceManager();
 
     void prepare(HostAudioConfig config);

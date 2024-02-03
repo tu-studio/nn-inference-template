@@ -22,9 +22,6 @@ void RingBuffer::clearWithPositions() {
 }
 
 void RingBuffer::pushSample(float sample, size_t channel) {
-    if (std::isnan(sample)){
-        sample = 0.f;
-    }
     setSample(channel, writePos[channel], sample);
 
     ++writePos[channel];
@@ -43,11 +40,7 @@ float RingBuffer::popSample(size_t channel) {
         readPos[channel] = 0;
     }
 
-    if (std::isnan(sample)){
-        return 0.f;
-    } else {
-        return sample;
-    }
+    return sample;
 }
 
 float RingBuffer::getSampleFromTail (size_t channel, size_t offset) {

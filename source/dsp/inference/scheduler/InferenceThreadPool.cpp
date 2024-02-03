@@ -25,13 +25,13 @@ void InferenceThreadPool::releaseInstance() {
     inferenceThreadPool.reset();
 }
 
-SessionElement& InferenceThreadPool::createSession() {
+SessionElement& InferenceThreadPool::createSession(PrePostProcessor& prePostProcessor) {
     for (size_t i = 0; i < (size_t) threadPool.size(); ++i) {
         threadPool[i]->stop();
     }
 
     int sessionID = getAvailableSessionID();
-    sessions.emplace_back(std::make_unique<SessionElement>(sessionID));
+    sessions.emplace_back(std::make_unique<SessionElement>(sessionID, prePostProcessor));
 
     for (size_t i = 0; i < (size_t) threadPool.size(); ++i) {
         threadPool[i]->start();
@@ -91,32 +91,7 @@ std::vector<std::shared_ptr<SessionElement>>& InferenceThreadPool::getSessions()
 void InferenceThreadPool::preProcess(SessionElement& session) {
     for (size_t i = 0; i < session.inferenceQueue.size(); ++i) {
         if (session.inferenceQueue[i].free.try_acquire()) {
-            // TODO if getAvSamples != 0 check
-#if MODEL_TO_USE == 1
-            for (size_t batch = 0; batch < BATCH_SIZE; batch++) {
-                size_t baseIdx = batch * MODEL_INPUT_SIZE_BACKEND;
-
-                for (int j = MODEL_INPUT_SIZE_BACKEND - 1; j >= 0; j--) {
-                    if (j == MODEL_INPUT_SIZE_BACKEND - 1) {
-                        session.inferenceQueue[i].processedModelInput[baseIdx + (size_t) j] = session.sendBuffer.popSample(0);
-                    } else  {
-                        session.inferenceQueue[i].processedModelInput[baseIdx + (size_t) j] = session.sendBuffer.getSampleFromTail(0, MODEL_INPUT_SIZE_BACKEND - (size_t) j);
-                    }
-                }
-            }
-#elif MODEL_TO_USE == 2
-            for (int j = MODEL_INPUT_SIZE_BACKEND - 1; j >= 0; j--) {
-                if (j >= MODEL_INPUT_SIZE_BACKEND - MODEL_INPUT_SIZE) {
-                    session.inferenceQueue[i].processedModelInput[(size_t) 2 * MODEL_INPUT_SIZE_BACKEND - j - MODEL_INPUT_SIZE - 1] = session.sendBuffer.popSample(0); // looks crazy, but this way the samples poped first are at the beginning of the end of the array
-                } else  {
-                    session.inferenceQueue[i].processedModelInput[(size_t) j] = session.sendBuffer.getSampleFromTail(0, MODEL_INPUT_SIZE_BACKEND - (size_t) j);
-                }
-            }
-#elif MODEL_TO_USE == 3
-            for (size_t j = 0; j < MODEL_INPUT_SIZE_BACKEND; j++) {
-                session.inferenceQueue[i].processedModelInput[j] = session.sendBuffer.popSample(0);
-            }
-#endif // MODEL_TO_USE
+            session.prePostProcessor.preProcess(session.sendBuffer, session.inferenceQueue[i].processedModelInput, session.currentBackend.load());
 
             const std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
             session.timeStamps.push(now);
@@ -128,8 +103,7 @@ void InferenceThreadPool::preProcess(SessionElement& session) {
 }
 
 void InferenceThreadPool::postProcess(SessionElement& session, SessionElement::ThreadSafeStruct& nextBuffer) {
-    for (size_t j = 0; j < BATCH_SIZE * MODEL_OUTPUT_SIZE_BACKEND; j++) {
-        session.receiveBuffer.pushSample(nextBuffer.rawModelOutputBuffer[j], 0);
-    }
+    session.prePostProcessor.postProcess(nextBuffer.rawModelOutput, session.receiveBuffer, session.currentBackend.load());
+    // TODO: shall we clear before we release?
     nextBuffer.free.release();
 }

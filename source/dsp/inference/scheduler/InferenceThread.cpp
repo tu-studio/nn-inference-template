@@ -39,7 +39,7 @@ void InferenceThread::run() {
             if (session->sendSemaphore.try_acquire()) {
                 for (size_t i = 0; i < session->inferenceQueue.size(); ++i) {
                     if (session->inferenceQueue[i].ready.try_acquire()) {
-                        inference(session->currentBackend, session->inferenceQueue[i].processedModelInput, session->inferenceQueue[i].rawModelOutputBuffer);
+                        inference(session->currentBackend, session->inferenceQueue[i].processedModelInput, session->inferenceQueue[i].rawModelOutput);
                         session->inferenceQueue[i].done.release();
                         break;
                     }

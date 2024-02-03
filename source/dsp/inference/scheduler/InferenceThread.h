@@ -4,7 +4,6 @@
 #include <JuceHeader.h>
 #include <semaphore>
 
-#include "../utils/HostConfig.h"
 #include "InferenceConfig.h"
 #ifdef USE_LIBTORCH
     #include "backends/LibtorchProcessor.h"

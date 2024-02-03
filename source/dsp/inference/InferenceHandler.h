@@ -5,12 +5,15 @@
 #ifndef NN_INFERENCE_TEMPLATE_INFERENCEHANDLER_H
 #define NN_INFERENCE_TEMPLATE_INFERENCEHANDLER_H
 
-#include "InferenceManager.h"
+#include <InferenceManager.h>
+#include <PrePostProcessor.h>
+
 
 class InferenceHandler {
 public:
-    InferenceHandler();
-    ~InferenceHandler();
+    InferenceHandler() = delete;
+    InferenceHandler(PrePostProcessor &prePostProcessor);
+    ~InferenceHandler() = default;
 
     void setInferenceBackend(InferenceBackend inferenceBackend);
     InferenceBackend getInferenceBackend();

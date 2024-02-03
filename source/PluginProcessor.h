@@ -6,6 +6,7 @@
 #include "dsp/utils/Mixer.h"
 #include "dsp/utils/MonoStereo.h"
 #include "dsp/inference/InferenceHandler.h"
+#include "MyPrePostProcessor.h"
 
 //==============================================================================
 class AudioPluginAudioProcessor  : public juce::AudioProcessor, private juce::AudioProcessorValueTreeState::Listener
@@ -57,6 +58,7 @@ private:
     juce::AudioProcessorValueTreeState parameters;
     juce::AudioBuffer<float> monoBuffer;
 
+    MyPrePostProcessor prePostProcessor;
     InferenceHandler inferenceHandler;
 
     Mixer dryWetMixer;

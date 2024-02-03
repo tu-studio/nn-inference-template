@@ -1,7 +1,7 @@
 #include "InferenceManager.h"
 #include "../PluginParameters.h"
 
-InferenceManager::InferenceManager() : inferenceThreadPool(InferenceThreadPool::getInstance()), session(inferenceThreadPool->createSession()) {
+InferenceManager::InferenceManager(PrePostProcessor& ppP) : inferenceThreadPool(InferenceThreadPool::getInstance()), session(inferenceThreadPool->createSession(ppP)) {
 }
 
 InferenceManager::~InferenceManager() {
@@ -19,8 +19,8 @@ InferenceBackend InferenceManager::getBackend() {
 void InferenceManager::prepare(HostAudioConfig newConfig) {
     spec = newConfig;
 
-    session.sendBuffer.initializeWithPositions(1, (size_t) spec.hostSampleRate * 6);
-    session.receiveBuffer.initializeWithPositions(1, (size_t) spec.hostSampleRate * 6);
+    session.sendBuffer.initializeWithPositions(1, (size_t) spec.hostSampleRate * 6); // TODO find appropriate size dynamically
+    session.receiveBuffer.initializeWithPositions(1, (size_t) spec.hostSampleRate * 6); // TODO find appropriate size dynamically
     inferenceCounter = 0;
 
     init = true;

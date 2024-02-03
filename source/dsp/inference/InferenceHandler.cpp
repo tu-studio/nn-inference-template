@@ -4,12 +4,7 @@
 
 #include "InferenceHandler.h"
 
-InferenceHandler::InferenceHandler() {
-
-}
-
-InferenceHandler::~InferenceHandler() {
-
+InferenceHandler::InferenceHandler(PrePostProcessor &ppP) : inferenceManager(ppP) {
 }
 
 void InferenceHandler::prepare(HostAudioConfig newAudioConfig) {
