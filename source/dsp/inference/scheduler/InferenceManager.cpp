@@ -54,7 +54,7 @@ void InferenceManager::process(float ** inputBuffer, size_t inputSamples) {
 void InferenceManager::processInput(float ** inputBuffer, size_t inputSamples) {
     for (size_t channel = 0; channel < spec.hostChannels; ++channel) {
         for (size_t sample = 0; sample < inputSamples; ++sample) {
-            session.sendBuffer.pushSample(inputBuffer[channel][sample], 0);
+            session.sendBuffer.pushSample(0, inputBuffer[channel][sample]);
         }
     }
 

@@ -4,7 +4,8 @@
 #include <semaphore>
 #include <queue>
 #include <atomic>
-#include <InferenceBuffer.h>
+#include <InferenceConfig.h>
+#include <AudioBuffer.h>
 #include <RingBuffer.h>
 #include <InferenceBackend.h>
 #include <PrePostProcessor.h>
@@ -21,8 +22,8 @@ struct SessionElement {
         std::binary_semaphore ready{false};
         std::binary_semaphore done{false};
         std::chrono::time_point<std::chrono::system_clock> time;
-        NNInferenceTemplate::InputArray processedModelInput;
-        NNInferenceTemplate::OutputArray rawModelOutput;
+        AudioBufferF processedModelInput = AudioBufferF(1, BATCH_SIZE * MODEL_INPUT_SIZE_BACKEND);
+        AudioBufferF rawModelOutput = AudioBufferF(1, BATCH_SIZE * MODEL_OUTPUT_SIZE_BACKEND);
     };
 
     // TODO define a dynamic number instead of 5000

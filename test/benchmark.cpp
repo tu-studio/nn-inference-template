@@ -98,12 +98,11 @@ public:
     ProcessBlockFixture& fixture;
     inline static std::unique_ptr<SingletonSetup> setup = nullptr;
 
-    SingletonSetup(ProcessBlockFixture& thisFixture, const ::benchmark::State& state) : fixture(thisFixture) {
+    SingletonSetup(ProcessBlockFixture& thisFixture, [[maybe_unused]] const ::benchmark::State& state) : fixture(thisFixture) {
         auto gui = juce::ScopedJuceInitialiser_GUI {};
         fixture.buffer = std::make_unique<juce::AudioBuffer<float>>(2, *fixture.bufferSize);
         fixture.midiBuffer = std::make_unique<juce::MidiBuffer>();
         fixture.plugin = std::make_unique<AudioPluginAudioProcessor>();
-        std::ignore = state;
     }
 
     ~SingletonSetup() {
@@ -128,10 +127,8 @@ public:
         fixture.plugin->prepareToPlay (44100, (int) *fixture.bufferSize);
     }
 
-    static void PerformTearDown(ProcessBlockFixture& fixture, const ::benchmark::State& state) {
+    static void PerformTearDown([[maybe_unused]] ProcessBlockFixture& fixture, [[maybe_unused]] const ::benchmark::State& state) {
         setup.reset();
-        std::ignore = fixture;
-        std::ignore = state;
     }
 };
 

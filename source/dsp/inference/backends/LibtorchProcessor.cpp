@@ -28,15 +28,15 @@ void LibtorchProcessor::prepareToPlay() {
     inputs.push_back(torch::zeros(inferenceConfig.m_model_input_shape_torch));
 
     if (inferenceConfig.m_warm_up) {
-        NNInferenceTemplate::InputArray input;
-        NNInferenceTemplate::OutputArray output;
+        AudioBufferF input(1, inferenceConfig.m_batch_size * inferenceConfig.m_model_input_size_backend);
+        AudioBufferF output(1, inferenceConfig.m_batch_size * inferenceConfig.m_model_output_size_backend);
         processBlock(input, output);
     }
 }
 
-void LibtorchProcessor::processBlock(NNInferenceTemplate::InputArray& input, NNInferenceTemplate::OutputArray& output) {
+void LibtorchProcessor::processBlock(AudioBufferF& input, AudioBufferF& output) {
     // Create input tensor object from input data values and shape
-    inputTensor = torch::from_blob(input.data(), (const long long) input.size()).reshape(inferenceConfig.m_model_input_shape_torch);
+    inputTensor = torch::from_blob(input.getRawData(), (const long long) input.getNumSamples()).reshape(inferenceConfig.m_model_input_shape_torch); // TODO: Multichannel support
 
     inputs[0] = inputTensor;
 
@@ -46,11 +46,11 @@ void LibtorchProcessor::processBlock(NNInferenceTemplate::InputArray& input, NNI
     // Extract the output tensor data
     for (size_t i = 0; i < inferenceConfig.m_batch_size * inferenceConfig.m_model_output_size_backend; i++) {
 #if MODEL_TO_USE == 1
-        output[i] = outputTensor[(int64_t) i][0].item<float>();
+        output.setSample(0, i, outputTensor[(int64_t) i][0].item<float>()); //TODO: Multichannel support
 #elif MODEL_TO_USE == 2
-        output[i] = outputTensor[0][0][(int64_t) i].item<float>();
+        output.setSample(0, i, outputTensor[0][0][(int64_t) i].item<float>());
 #elif MODEL_TO_USE == 3
-        output[i] = outputTensor[(int64_t) i][0][0].item<float>();
+        output.setSample(0, i, outputTensor[(int64_t) i][0][0].item<float>());
 #endif
     }
 }

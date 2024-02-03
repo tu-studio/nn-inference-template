@@ -1,7 +1,7 @@
 #include "InferenceThreadPool.h"
 
 InferenceThreadPool::InferenceThreadPool(InferenceConfig& config)  {
-    for (size_t i = 0; i < (size_t) config.m_number_of_threads; ++i) {
+    for (int i = 0; i < config.m_number_of_threads; ++i) {
         threadPool.emplace_back(std::make_unique<InferenceThread>(globalSemaphore, sessions, config));
     }
 }

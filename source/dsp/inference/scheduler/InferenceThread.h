@@ -1,9 +1,7 @@
 #ifndef NN_INFERENCE_TEMPLATE_INFERENCETHREAD_H
 #define NN_INFERENCE_TEMPLATE_INFERENCETHREAD_H
 
-#include <JuceHeader.h>
 #include <semaphore>
-
 #include "InferenceBuffer.h"
 #ifdef USE_LIBTORCH
     #include "backends/LibtorchProcessor.h"
@@ -16,6 +14,7 @@
 #endif
 
 #include "SessionElement.h"
+#include "../utils/AudioBuffer.h"
 
 #if WIN32
     #include <windows.h>
@@ -35,7 +34,7 @@ public:
     void setRealTimeOrLowerPriority();
 
 private:
-    void inference(InferenceBackend backend, NNInferenceTemplate::InputArray& input, NNInferenceTemplate::OutputArray& output);
+    void inference(InferenceBackend backend, AudioBufferF& input, AudioBufferF& output);
 
 private:
      std::thread thread;
