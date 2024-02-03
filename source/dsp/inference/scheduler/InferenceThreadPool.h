@@ -1,23 +1,22 @@
 #ifndef NN_INFERENCE_TEMPLATE_INFERENCETHREADPOOL_H
 #define NN_INFERENCE_TEMPLATE_INFERENCETHREADPOOL_H
 
-#include <JuceHeader.h>
 #include <semaphore>
 
 #include "SessionElement.h"
-#include "../utils/HostConfig.h"
 #include "InferenceThread.h"
 #include "InferenceConfig.h"
 #include "backends/OnnxRuntimeProcessor.h"
 #include "backends/LibtorchProcessor.h"
 #include "backends/TFLiteProcessor.h"
+#include <PrePostProcessor.h>
 
 class InferenceThreadPool{
 public:
     InferenceThreadPool();
     ~InferenceThreadPool();
     static std::shared_ptr<InferenceThreadPool> getInstance();
-    static SessionElement& createSession();
+    static SessionElement& createSession(PrePostProcessor& prePostProcessor);
     static void releaseSession(SessionElement& session);
     static void releaseInstance();
     static void releaseThreadPool();

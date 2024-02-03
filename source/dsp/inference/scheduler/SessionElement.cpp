@@ -4,6 +4,5 @@
 
 #include "SessionElement.h"
 
-SessionElement::SessionElement(int newSessionID) : sessionID(newSessionID) {
-
+SessionElement::SessionElement(int newSessionID, PrePostProcessor& ppP) : sessionID(newSessionID), prePostProcessor(ppP) {
 }
