@@ -44,7 +44,7 @@ void InferenceThread::run() {
     }
 }
 
-void InferenceThread::inference(InferenceBackend backend, NNInferenceTemplate::InputArray &input, NNInferenceTemplate::OutputArray &output) {
+void InferenceThread::inference(InferenceBackend backend, AudioBufferF& input, AudioBufferF& output) {
     if (backend == ONNX) {
         onnxProcessor.processBlock(input, output);
     } else if (backend == LIBTORCH) {

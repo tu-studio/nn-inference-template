@@ -9,6 +9,7 @@
 #include "backends/LibtorchProcessor.h"
 #include "backends/TFLiteProcessor.h"
 #include "SessionElement.h"
+#include "../utils/AudioBuffer.h"
 
 #if WIN32
     #include <windows.h>
@@ -28,7 +29,7 @@ public:
     void setRealTimeOrLowerPriority();
 
 private:
-    void inference(InferenceBackend backend, NNInferenceTemplate::InputArray& input, NNInferenceTemplate::OutputArray& output);
+    void inference(InferenceBackend backend, AudioBufferF& input, AudioBufferF& output);
 
 private:
      std::thread thread;

@@ -1,8 +1,8 @@
 #ifndef NN_INFERENCE_TEMPLATE_LIBTORCHPROCESSOR_H
 #define NN_INFERENCE_TEMPLATE_LIBTORCHPROCESSOR_H
 
-#include <JuceHeader.h>
 #include "../InferenceConfig.h"
+#include "../utils/AudioBuffer.h"
 #include <torch/script.h>
 #include <stdlib.h>
 
@@ -12,7 +12,7 @@ public:
     ~LibtorchProcessor();
 
     void prepareToPlay();
-    void processBlock(NNInferenceTemplate::InputArray& input, NNInferenceTemplate::OutputArray& output);
+    void processBlock(AudioBufferF& input, AudioBufferF& output);
 
 private:
     std::string filepath = MODELS_PATH_PYTORCH;

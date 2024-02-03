@@ -16,18 +16,18 @@ void OnnxRuntimeProcessor::prepareToPlay() {
     inputShape = MODEL_INPUT_SHAPE_ONNX;
 
     if (WARM_UP) {
-        NNInferenceTemplate::InputArray input;
-        NNInferenceTemplate::OutputArray output;
+        AudioBufferF input(1, BATCH_SIZE * MODEL_INPUT_SIZE_BACKEND);
+        AudioBufferF output(1, BATCH_SIZE * MODEL_OUTPUT_SIZE_BACKEND);
         processBlock(input, output);
     }
 }
 
-void OnnxRuntimeProcessor::processBlock(NNInferenceTemplate::InputArray& input, NNInferenceTemplate::OutputArray& output) {
+void OnnxRuntimeProcessor::processBlock(AudioBufferF& input, AudioBufferF& output) {
 
     // Create input tensor object from input data values and shape
     const Ort::Value inputTensor = Ort::Value::CreateTensor<float>  (memory_info,
-                                                                    input.data(),
-                                                                    input.size(),
+                                                                    input.getRawData(),
+                                                                    input.getNumSamples(), // TODO: Multichannel support
                                                                     inputShape.data(),
                                                                     inputShape.size());
 
@@ -48,6 +48,6 @@ void OnnxRuntimeProcessor::processBlock(NNInferenceTemplate::InputArray& input, 
 
     // Extract the output tensor dat
     for (size_t i = 0; i < BATCH_SIZE * MODEL_OUTPUT_SIZE_BACKEND; i++) {
-        output[i] = outputTensors[0].GetTensorMutableData<float>()[i];
+        output.setSample(0, i, outputTensors[0].GetTensorMutableData<float>()[i]); // TODO: Multichannel support
     }
 }

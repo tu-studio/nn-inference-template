@@ -31,14 +31,14 @@ void TFLiteProcessor::prepareToPlay() {
     outputTensor = TfLiteInterpreterGetOutputTensor(interpreter, 0);
 
     if (WARM_UP) {
-        NNInferenceTemplate::InputArray input;
-        NNInferenceTemplate::OutputArray output;
+        AudioBufferF input(1, BATCH_SIZE * MODEL_INPUT_SIZE_BACKEND);
+        AudioBufferF output(1, BATCH_SIZE * MODEL_OUTPUT_SIZE_BACKEND);
         processBlock(input, output);
     }
 }
 
-void TFLiteProcessor::processBlock(NNInferenceTemplate::InputArray& input, NNInferenceTemplate::OutputArray& output) {
-    TfLiteTensorCopyFromBuffer(inputTensor, input.data(), input.size() * sizeof(float));
+void TFLiteProcessor::processBlock(AudioBufferF& input, AudioBufferF& output) {
+    TfLiteTensorCopyFromBuffer(inputTensor, input.getRawData(), input.getNumSamples() * sizeof(float)); //TODO: Multichannel support
     TfLiteInterpreterInvoke(interpreter);
-    TfLiteTensorCopyToBuffer(outputTensor, output.data(), output.size() * sizeof(float));
+    TfLiteTensorCopyToBuffer(outputTensor, output.getRawData(), output.getNumChannels() * sizeof(float)); //TODO: Multichannel support
 }

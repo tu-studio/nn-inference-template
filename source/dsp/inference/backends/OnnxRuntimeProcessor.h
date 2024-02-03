@@ -1,8 +1,8 @@
 #ifndef NN_INFERENCE_TEMPLATE_ONNXRUNTIMEPROCESSOR_H
 #define NN_INFERENCE_TEMPLATE_ONNXRUNTIMEPROCESSOR_H
 
-#include <JuceHeader.h>
 #include "../InferenceConfig.h"
+#include "../utils/AudioBuffer.h"
 #include "onnxruntime_cxx_api.h"
 
 class OnnxRuntimeProcessor {
@@ -11,7 +11,7 @@ public:
     ~OnnxRuntimeProcessor();
 
     void prepareToPlay();
-    void processBlock(NNInferenceTemplate::InputArray& input, NNInferenceTemplate::OutputArray& output);
+    void processBlock(AudioBufferF& input, AudioBufferF& output);
 
 private:
     std::string filepath = MODELS_PATH_ONNX;

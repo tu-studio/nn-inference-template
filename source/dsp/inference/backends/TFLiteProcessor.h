@@ -1,8 +1,8 @@
 #ifndef NN_INFERENCE_TEMPLATE_TFLITEPROCESSOR_H
 #define NN_INFERENCE_TEMPLATE_TFLITEPROCESSOR_H
 
-#include <JuceHeader.h>
 #include "../InferenceConfig.h"
+#include "../utils/AudioBuffer.h"
 #include "tensorflow/lite/c_api.h"
 
 class TFLiteProcessor {
@@ -11,7 +11,7 @@ public:
     ~TFLiteProcessor();
 
     void prepareToPlay();
-    void processBlock(NNInferenceTemplate::InputArray& input, NNInferenceTemplate::OutputArray& output);
+    void processBlock(AudioBufferF& input, AudioBufferF& output);
 
 private:
     std::string filepath = MODELS_PATH_TENSORFLOW;
