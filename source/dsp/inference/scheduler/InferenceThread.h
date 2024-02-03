@@ -4,7 +4,6 @@
 #include <JuceHeader.h>
 #include <semaphore>
 
-#include "../utils/HostConfig.h"
 #include "InferenceConfig.h"
 #include "backends/OnnxRuntimeProcessor.h"
 #include "backends/LibtorchProcessor.h"
