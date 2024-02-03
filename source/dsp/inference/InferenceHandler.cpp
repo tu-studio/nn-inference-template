@@ -22,11 +22,11 @@ void InferenceHandler::process(float **inputBuffer, const size_t inputSamples) {
 }
 
 void InferenceHandler::setInferenceBackend(InferenceBackend inferenceBackend) {
-    currentBackend = inferenceBackend;
+    inferenceManager.setBackend(inferenceBackend);
 }
 
 InferenceBackend InferenceHandler::getInferenceBackend() {
-    return currentBackend;
+    return inferenceManager.getBackend();
 }
 
 int InferenceHandler::getLatency() {

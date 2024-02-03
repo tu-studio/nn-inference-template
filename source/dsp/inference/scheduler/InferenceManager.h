@@ -15,7 +15,8 @@ public:
     void prepare(HostAudioConfig config);
     void process(float ** inputBuffer, size_t inputSamples);
 
-    void parameterChanged(const juce::String &parameterID, float newValue);
+    void setBackend(InferenceBackend newInferenceBackend);
+    InferenceBackend getBackend();
 
     int getLatency() const;
 

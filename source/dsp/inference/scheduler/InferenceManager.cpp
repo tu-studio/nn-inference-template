@@ -8,12 +8,12 @@ InferenceManager::~InferenceManager() {
     inferenceThreadPool->releaseSession(session);
 }
 
-void InferenceManager::parameterChanged(const juce::String &parameterID, float newValue) {
-    if (parameterID == PluginParameters::BACKEND_TYPE_ID.getParamID()) {
-        InferenceBackend newInferenceBackend = ((int) newValue == 0) ? TFLITE :
-                                               ((int) newValue == 1) ? LIBTORCH : ONNX;
-        session.currentBackend = newInferenceBackend;
-    }
+void InferenceManager::setBackend(InferenceBackend newInferenceBackend) {
+    session.currentBackend = newInferenceBackend;
+}
+
+InferenceBackend InferenceManager::getBackend() {
+    return session.currentBackend;
 }
 
 void InferenceManager::prepare(HostAudioConfig newConfig) {

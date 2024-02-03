@@ -22,7 +22,6 @@ public:
     InferenceManager &getInferenceManager(); // TODO remove
 
 private:
-    InferenceBackend currentBackend;
     InferenceManager inferenceManager;
 };
 
