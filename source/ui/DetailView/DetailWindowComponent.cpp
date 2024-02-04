@@ -43,21 +43,21 @@ DetailWindowComponent::~DetailWindowComponent() {
 void DetailWindowComponent::timerCallback() {
     if (!isVisible()) return;
 
-    auto newMissingBlocks = processorRef.getInferenceManager().getMissingBlocks();
-    // TODO access through class InferenceThread itself
-    auto newNumOfSessions = processorRef.getInferenceManager().getInferenceThreadPool().getNumberOfSessions();
-
-    if (newMissingBlocks != missingBlocks) {
-        missingBlocks = newMissingBlocks;
-        juce::String missingBlockValueString {missingBlocks};
-        missingBlocksValue.setText(missingBlockValueString, juce::dontSendNotification);
-    }
-
-    if (newNumOfSessions != numOfSessions) {
-        numOfSessions = newNumOfSessions;
-        juce::String missingBlockValueString {numOfSessions};
-        numOfSessionsValue.setText(missingBlockValueString, juce::dontSendNotification);
-    }
+//    TODO
+//    auto newMissingBlocks = processorRef.getInferenceManager().getMissingBlocks();
+//    auto newNumOfSessions = processorRef.getInferenceManager().getInferenceThreadPool().getNumberOfSessions();
+//
+//    if (newMissingBlocks != missingBlocks) {
+//        missingBlocks = newMissingBlocks;
+//        juce::String missingBlockValueString {missingBlocks};
+//        missingBlocksValue.setText(missingBlockValueString, juce::dontSendNotification);
+//    }
+//
+//    if (newNumOfSessions != numOfSessions) {
+//        numOfSessions = newNumOfSessions;
+//        juce::String missingBlockValueString {numOfSessions};
+//        numOfSessionsValue.setText(missingBlockValueString, juce::dontSendNotification);
+//    }
 }
 
 void DetailWindowComponent::resized() {

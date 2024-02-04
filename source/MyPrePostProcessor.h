@@ -1,8 +1,9 @@
 #ifndef NN_INFERENCE_TEMPLATE_MYPREPOSTPROCESSOR_H
 #define NN_INFERENCE_TEMPLATE_MYPREPOSTPROCESSOR_H
 
-#include <PrePostProcessor.h>
+#include <aria/PrePostProcessor.h>
 #include "Configs.h"
+
 class MyPrePostProcessor : public PrePostProcessor
 {
 public:

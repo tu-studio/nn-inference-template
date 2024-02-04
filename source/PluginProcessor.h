@@ -5,9 +5,10 @@
 #include "PluginParameters.h"
 #include "dsp/utils/Mixer.h"
 #include "dsp/utils/MonoStereo.h"
-#include "dsp/inference/InferenceHandler.h"
 #include "MyPrePostProcessor.h"
 #include "Configs.h"
+
+#include <aria/InferenceHandler.h>
 
 //==============================================================================
 class AudioPluginAudioProcessor  : public juce::AudioProcessor, private juce::AudioProcessorValueTreeState::Listener

@@ -1,7 +1,7 @@
 #ifndef NN_INFERENCE_TEMPLATE_CONFIGS_H
 #define NN_INFERENCE_TEMPLATE_CONFIGS_H
 
-#include "dsp/inference/InferenceConfig.h"
+#include <aria/InferenceConfig.h>
 
 #if MODEL_TO_USE == 1
 

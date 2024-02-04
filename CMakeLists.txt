@@ -64,19 +64,6 @@ endif()
 # Juce is included via a submodule
 add_subdirectory(modules/JUCE)
 
-# Install inference engines
-if(BACKEND_LIBTORCH)
-    include(cmake/SetupLibTorch.cmake)
-endif()
-
-if(BACKEND_ONNXRUNTIME)
-    include(cmake/SetupOnnxRuntime.cmake)
-endif()
-
-if(BACKEND_TFLITE)
-    include(cmake/SetupTensorflowLite.cmake)
-endif()
-
 if(NOT BACKEND_LIBTORCH AND NOT BACKEND_ONNXRUNTIME AND NOT BACKEND_TFLITE)
     message(FATAL_ERROR "No backend selected. Please select at least one backend by setting one of the following options to ON: BACKEND_LIBTORCH, BACKEND_ONNXRUNTIME, or BACKEND_TFLITE. For example, add '-DBACKEND_LIBTORCH=ON' to your CMake command line")
 endif()
@@ -90,8 +77,8 @@ add_compile_definitions(STEERABLENAFX_MODELS_PATH_PYTORCH="${CMAKE_SOURCE_DIR}/m
 add_compile_definitions(STATEFULLSTM_MODELS_PATH_TENSORFLOW="${CMAKE_SOURCE_DIR}/modules/stateful-lstm/models/")
 add_compile_definitions(STATEFULLSTM_MODELS_PATH_PYTORCH="${CMAKE_SOURCE_DIR}/modules/stateful-lstm/models/")
 
-#add_compile_definitions(MODEL_TO_USE=1) # GuitarLSTM
-add_compile_definitions(MODEL_TO_USE=2) # steerable-nafx
+add_compile_definitions(MODEL_TO_USE=1) # GuitarLSTM
+#add_compile_definitions(MODEL_TO_USE=2) # steerable-nafx
 #add_compile_definitions(MODEL_TO_USE=3) # stateful-LSTM
 
 include(FetchContent)
@@ -103,6 +90,7 @@ add_subdirectory(minimal-inference)
 
 # Include the assets and common directories
 add_subdirectory(assets)
+add_subdirectory(modules/aria)
 
 set (TARGET_NAME NN_Inference_Template)
 
@@ -180,21 +168,9 @@ target_compile_definitions(${TARGET_NAME}
     $<$<BOOL:${BACKEND_TFLITE}>:USE_TFLITE>
 )
 
-# Link backend-specific libraries conditionally
-if(BACKEND_LIBTORCH)
-    target_link_libraries(${TARGET_NAME} PRIVATE torch)
-endif()
-
-if(BACKEND_ONNXRUNTIME)
-    target_link_libraries(${TARGET_NAME} PRIVATE onnxruntime)
-endif()
-
-if(BACKEND_TFLITE)
-    target_link_libraries(${TARGET_NAME} PRIVATE tensorflowlite_c)
-endif()
-
 target_link_libraries(${TARGET_NAME}
     PRIVATE
+        aria
 		BinaryData
         juce::juce_audio_utils
         juce::juce_dsp
@@ -204,17 +180,17 @@ target_link_libraries(${TARGET_NAME}
         juce::juce_recommended_lto_flags
         juce::juce_recommended_warning_flags)
 
-if (MSVC)
-    file(GLOB_RECURSE INFERENCE_ENGINE_DLLS "modules/*.dll")
-    foreach(FORMAT IN LISTS FORMATS_TO_BUILD)
-        string(CONCAT CONCATENATED_TARGET ${TARGET_NAME}_${FORMAT})
-        add_custom_command(TARGET ${CONCATENATED_TARGET}
-                POST_BUILD
-                COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                ${INFERENCE_ENGINE_DLLS}
-                $<TARGET_FILE_DIR:${TARGET_NAME}>/${FORMAT})
-    endforeach()
-endif (MSVC)
+#if (MSVC)
+#    file(GLOB_RECURSE INFERENCE_ENGINE_DLLS "modules/*.dll")
+#    foreach(FORMAT IN LISTS FORMATS_TO_BUILD)
+#        string(CONCAT CONCATENATED_TARGET ${TARGET_NAME}_${FORMAT})
+#        add_custom_command(TARGET ${CONCATENATED_TARGET}
+#                POST_BUILD
+#                COMMAND ${CMAKE_COMMAND} -E copy_if_different
+#                ${INFERENCE_ENGINE_DLLS}
+#                $<TARGET_FILE_DIR:${TARGET_NAME}>/${FORMAT})
+#    endforeach()
+#endif (MSVC)
 
 
 # ==============================================================================

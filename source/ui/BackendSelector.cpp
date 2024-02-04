@@ -21,17 +21,22 @@ InferenceBackend BackendSelector::getBackend() {
 
 void BackendSelector::paint(juce::Graphics &g) {
     auto currentBound = getBounds();
-
     switch (currentBackend) {
+#ifdef USE_TFLITE
         case InferenceBackend::TFLITE:
             backendTFLite->drawWithin(g, currentBound.toFloat(), juce::RectanglePlacement::stretchToFit, 1.0f);
             break;
+#endif
+#ifdef USE_LIBTORCH
         case InferenceBackend::LIBTORCH:
             backendLibTorch->drawWithin(g, currentBound.toFloat(), juce::RectanglePlacement::stretchToFit, 1.0f);
             break;
+#endif
+#ifdef USE_ONNXRUNTIME
         case InferenceBackend::ONNX:
             backendONNX->drawWithin(g, currentBound.toFloat(), juce::RectanglePlacement::stretchToFit, 1.0f);
             break;
+#endif
     }
 
     switch (currentHover) {
@@ -93,11 +98,17 @@ void BackendSelector::mouseMove(const juce::MouseEvent &event) {
 void BackendSelector::mouseDown(const juce::MouseEvent &event) {
     auto pos = event.getPosition();
     if ( libtorchBounds.contains(pos) ) {
+#ifdef USE_LIBTORCH
         currentBackend = InferenceBackend::LIBTORCH;
+#endif
     } else if ( tfliteBounds.contains(pos) ) {
+#ifdef USE_TFLITE
         currentBackend = InferenceBackend::TFLITE;
+#endif
     } else if ( onnxBounds.contains(pos) ) {
+#ifdef USE_ONNXRUNTIME
         currentBackend = InferenceBackend::ONNX;
+#endif
     } else {
         getNextBackend();
     }
@@ -118,34 +129,53 @@ int BackendSelector::getCurrentBackendID() {
 }
 
 void BackendSelector::getNextBackend() {
-    switch (currentBackend) {
-        case InferenceBackend::TFLITE:
-            currentBackend = InferenceBackend::LIBTORCH;
-            break;
-        case InferenceBackend::LIBTORCH:
-            currentBackend = InferenceBackend::ONNX;
-            break;
-        case InferenceBackend::ONNX:
-            currentBackend = InferenceBackend::TFLITE;
-            break;
-    }
+//TODO
+//    switch (currentBackend) {
+//#ifdef USE_TFLITE
+//        case InferenceBackend::TFLITE:
+//            currentBackend = InferenceBackend::LIBTORCH;
+//            break;
+//#endif
+//#ifdef USE_LIBTORCH
+//        case InferenceBackend::LIBTORCH:
+//            currentBackend = InferenceBackend::ONNX;
+//            break;
+//#endif
+//#ifdef USE_ONNXRUNTIME
+//        case InferenceBackend::ONNX:
+//            currentBackend = InferenceBackend::TFLITE;
+//            break;
+//#endif
+//    }
 }
 
 InferenceBackend BackendSelector::stringToBackend(juce::String &backendStr) {
+#ifdef USE_TFLITE
     if (backendStr == "TFLITE") return InferenceBackend::TFLITE;
+#endif
+#ifdef USE_LIBTORCH
     if (backendStr == "LIBTORCH") return InferenceBackend::LIBTORCH;
+#endif
+#ifdef USE_ONNXRUNTIME
     if (backendStr == "ONNXRUNTIME") return InferenceBackend::ONNX;
+#endif
     throw std::invalid_argument("Invalid backend string");
 }
 
 juce::String BackendSelector::backendToString(InferenceBackend backend) {
     switch (backend) {
+#ifdef USE_TFLITE
         case InferenceBackend::TFLITE:
             return "TFLITE";
+#endif
+#ifdef USE_LIBTORCH
         case InferenceBackend::LIBTORCH:
             return "LIBTORCH";
+#endif
+#ifdef USE_ONNXRUNTIME
         case InferenceBackend::ONNX:
             return "ONNXRUNTIME";
+#endif
         default:
             return "";
     }

@@ -199,7 +199,16 @@ void AudioPluginAudioProcessor::parameterChanged(const juce::String &parameterID
     } else if (parameterID == PluginParameters::BACKEND_TYPE_ID.getParamID()) {
         const auto paramInt = static_cast<int>(newValue);
         auto paramString = PluginParameters::backendTypes.getReference(paramInt);
-        InferenceBackend newBackend = (paramString == "TFLITE") ? TFLITE : (paramString == "LIBTORCH") ? LIBTORCH : ONNX;
+        InferenceBackend newBackend;
+#ifdef USE_TFLITE
+        if (paramString == "TFLITE") newBackend = TFLITE;
+#endif
+#ifdef USE_ONNXRUNTIME
+        if (paramString == "ONNX") newBackend = ONNX;
+#endif
+#ifdef USE_LIBTORCH
+        if (paramString == "LIBTORCH") newBackend = LIBTORCH;
+#endif
         inferenceHandler.setInferenceBackend(newBackend);
     }
 }
