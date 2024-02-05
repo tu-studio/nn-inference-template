@@ -10,3 +10,6 @@
 [submodule "modules/stateful-lstm"]
 	path = modules/stateful-lstm
 	url = https://github.com/vackva/stateful-lstm.git
+[submodule "modules/aria"]
+	path = modules/aria
+	url = https://github.com/TU-Studio/aria.git
