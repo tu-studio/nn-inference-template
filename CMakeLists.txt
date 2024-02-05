@@ -20,11 +20,10 @@ option(BUILD_ARCHITECTURE "Architecture to build for")
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-# Export only public symbols
-# We set this option for all our libraries since the google benchmark lib are setup with hidden visibility
-set(CMAKE_CXX_VISIBILITY_PRESET hidden)
-set(CMAKE_VISIBILITY_INLINES_HIDDEN ON)
-
+# # Export only public symbols
+# # We set this option for all our libraries since the google benchmark lib are setup with hidden visibility
+# set(CMAKE_CXX_VISIBILITY_PRESET hidden)
+# set(CMAKE_VISIBILITY_INLINES_HIDDEN ON)
 
 # Define options for backends
 option(WITH_LIBTORCH "Build with LibTorch backend" OFF)
@@ -62,6 +61,9 @@ else()
 endif()
 
 # Juce is included via a submodule
+add_subdirectory(modules/aria)
+# set(CMAKE_PREFIX_PATH ${CMAKE_SOURCE_DIR}/modules/aria/install)
+# find_package(aria REQUIRED)
 add_subdirectory(modules/JUCE)
 
 if(NOT BACKEND_LIBTORCH AND NOT BACKEND_ONNXRUNTIME AND NOT BACKEND_TFLITE)
@@ -81,8 +83,6 @@ add_compile_definitions(MODEL_TO_USE=1) # GuitarLSTM
 #add_compile_definitions(MODEL_TO_USE=2) # steerable-nafx
 #add_compile_definitions(MODEL_TO_USE=3) # stateful-LSTM
 
-include(FetchContent)
-
 # Add minimal examples
 add_subdirectory(minimal-inference)
 # Add validation of real time principles
@@ -90,7 +90,6 @@ add_subdirectory(minimal-inference)
 
 # Include the assets and common directories
 add_subdirectory(assets)
-add_subdirectory(modules/aria)
 
 set (TARGET_NAME NN_Inference_Template)
 
@@ -127,13 +126,6 @@ juce_generate_juce_header(${TARGET_NAME})
 # Add all source files to file list
 file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/source/*.cpp ${CMAKE_CURRENT_SOURCE_DIR}/source/*.h)
 
-## For now remove unused dsp files
-#file(GLOB_RECURSE SOURCES_DSP CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/source/dsp/*.cpp ${CMAKE_CURRENT_SOURCE_DIR}/source/dsp/*.h)
-#foreach(SOURCE ${SOURCES_DSP})
-#    list(REMOVE_ITEM SOURCES ${SOURCE})
-#endforeach()
-
-
 # Add all sources to target
 target_sources(${TARGET_NAME} PRIVATE ${SOURCES})
 
@@ -146,12 +138,6 @@ foreach (DIR ${SOURCE_DIRS})
         target_include_directories(${TARGET_NAME} PRIVATE ${DIR})
     endif ()
 endforeach ()
-
-target_include_directories(${TARGET_NAME} PRIVATE modules/thread-pool/include)
-
-
-# Make the folder structure visible in IDEs like Xcode
-#source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/source PREFIX "source" FILES ${SOURCES})
 
 target_compile_definitions(${TARGET_NAME}
     PRIVATE
@@ -170,15 +156,16 @@ target_compile_definitions(${TARGET_NAME}
 
 target_link_libraries(${TARGET_NAME}
     PRIVATE
-        aria
-		BinaryData
+        aria::aria
+        BinaryData
         juce::juce_audio_utils
         juce::juce_dsp
         juce::juce_core
     PUBLIC
         juce::juce_recommended_config_flags
         juce::juce_recommended_lto_flags
-        juce::juce_recommended_warning_flags)
+        juce::juce_recommended_warning_flags
+)
 
 #if (MSVC)
 #    file(GLOB_RECURSE INFERENCE_ENGINE_DLLS "modules/*.dll")
@@ -198,6 +185,8 @@ target_link_libraries(${TARGET_NAME}
 # Test setup
 
 # ==============================================================================
+
+include(FetchContent)
 
 # enable ctest
 include(CTest)
@@ -288,4 +277,3 @@ if (MSVC)
             ${INFERENCE_ENGINE_DLLS}
             $<TARGET_FILE_DIR:${TEST_TARGET}>)
 endif (MSVC)
-
