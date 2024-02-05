@@ -5,20 +5,23 @@
 # static library. These source files can be of any kind (wav data, images, fonts, icons etc.).
 # Conversion to binary-data will happen when your target is built.
 
- juce_add_binary_data(BinaryData SOURCES
-         graphics/background.png
-         graphics/texture_overlay.png
+juce_add_binary_data(BinaryData SOURCES
+    graphics/background.png
+    graphics/texture_overlay.png
 
-         graphics/tflite_backend.png
-         graphics/libtorch_backend.png
-         graphics/onnx_backend.png
+    graphics/tflite_backend.png
+    graphics/libtorch_backend.png
+    graphics/onnx_backend.png
 
-         graphics/tflite_font.svg
-         graphics/libtorch_font.svg
-         graphics/onnx_font.svg
+    graphics/tflite_font.svg
+    graphics/libtorch_font.svg
+    graphics/onnx_font.svg
 
-         graphics/highlight.png
+    graphics/highlight.png
 
-         graphics/detailButtonOff.svg
-         graphics/detailButtonOn.svg
- )
+    graphics/detailButtonOff.svg
+    graphics/detailButtonOn.svg
+)
+
+# This target shall be linked to shared libraries, and therefore needs to be a have position independent code
+set_target_properties(BinaryData PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
