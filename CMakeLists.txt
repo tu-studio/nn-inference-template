@@ -250,8 +250,8 @@ foreach (DIR ${TEST_DIRS}_${TARGET_NAME})
     endif ()
 endforeach ()
 
-# Link the test executable against gtest_main and google benchmark
-target_link_libraries(Test_${TARGET_NAME} PRIVATE gtest_main benchmark)
+# Link the test executable against gtest_main and google benchmark and our AARI library
+target_link_libraries(Test_${TARGET_NAME} PRIVATE gtest_main benchmark aari::aari)
 
 # We can't link again to the shared juce target without ODL violations (https://github.com/sudara/pamplejuce/issues/31, https://forum.juce.com/t/windows-linker-issue-on-develop/55524/2)
 # Therefore we steal the compile definitions and include directories from the main target and pass them to our test target
