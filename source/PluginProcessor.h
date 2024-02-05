@@ -8,7 +8,7 @@
 #include "MyPrePostProcessor.h"
 #include "Configs.h"
 
-#include <aria/InferenceHandler.h>
+#include <aari/InferenceHandler.h>
 
 //==============================================================================
 class AudioPluginAudioProcessor  : public juce::AudioProcessor, private juce::AudioProcessorValueTreeState::Listener

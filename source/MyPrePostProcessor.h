@@ -1,7 +1,7 @@
 #ifndef NN_INFERENCE_TEMPLATE_MYPREPOSTPROCESSOR_H
 #define NN_INFERENCE_TEMPLATE_MYPREPOSTPROCESSOR_H
 
-#include <aria/PrePostProcessor.h>
+#include <aari/PrePostProcessor.h>
 #include "Configs.h"
 
 class MyPrePostProcessor : public PrePostProcessor

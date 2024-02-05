@@ -3,7 +3,7 @@
 
 #include <JuceHeader.h>
 #include "../PluginParameters.h"
-#include <aria/utils/InferenceBackend.h>
+#include <aari/utils/InferenceBackend.h>
 
 class BackendSelector : public juce::Component {
 public:

@@ -9,3 +9,6 @@ add_debug_entitlement.sh
 */venv/
 !modules/GuitarLSTM/
 !modules/steerable-nafx/
+!modules/stateful-lstm/
+!modules/AARI/
+install/

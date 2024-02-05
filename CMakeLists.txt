@@ -61,9 +61,9 @@ else()
 endif()
 
 # Juce is included via a submodule
-add_subdirectory(modules/aria)
-# set(CMAKE_PREFIX_PATH ${CMAKE_SOURCE_DIR}/modules/aria/install)
-# find_package(aria REQUIRED)
+add_subdirectory(modules/AARI)
+# set(CMAKE_PREFIX_PATH ${CMAKE_SOURCE_DIR}/modules/AARI/install)
+# find_package(AARI REQUIRED)
 add_subdirectory(modules/JUCE)
 
 if(NOT BACKEND_LIBTORCH AND NOT BACKEND_ONNXRUNTIME AND NOT BACKEND_TFLITE)
@@ -156,7 +156,7 @@ target_compile_definitions(${TARGET_NAME}
 
 target_link_libraries(${TARGET_NAME}
     PRIVATE
-        aria::aria
+        aari::aari
         BinaryData
         juce::juce_audio_utils
         juce::juce_dsp
