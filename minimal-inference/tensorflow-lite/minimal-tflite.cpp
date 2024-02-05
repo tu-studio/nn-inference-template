@@ -8,7 +8,7 @@ Licence: Apache 2.0
 #include <cstdio>
 #include <iostream>
 #include <array>
-#include "tensorflow/lite/c_api.h"
+#include <tensorflow/lite/c_api.h>
 
 #define TFLITE_MINIMAL_CHECK(x)                              \
     if (!(x)) {                                                \

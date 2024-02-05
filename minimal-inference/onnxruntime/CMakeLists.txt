@@ -8,7 +8,7 @@ add_executable(minimal-onnxruntime
 )
 
 target_link_libraries(minimal-onnxruntime
-  onnxruntime
+  aari::aari
 )
 
 if (MSVC)

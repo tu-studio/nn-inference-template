@@ -8,7 +8,7 @@ add_executable(minimal-libtorch
 )
 
 target_link_libraries(minimal-libtorch
-  torch
+  aari::aari
 )
 
 if (MSVC)

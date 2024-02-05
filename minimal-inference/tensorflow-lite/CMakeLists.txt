@@ -8,7 +8,7 @@ add_executable(minimal-tflite
 )
 
 target_link_libraries(minimal-tflite
-  tensorflowlite_c
+  aari::aari
 )
 
 if (MSVC)
