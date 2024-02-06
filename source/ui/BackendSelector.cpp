@@ -15,7 +15,7 @@ void BackendSelector::setBackend(int backendID) {
     }
 }
 
-aari::InferenceBackend BackendSelector::getBackend() {
+anira::InferenceBackend BackendSelector::getBackend() {
     return currentBackend;
 }
 
@@ -23,17 +23,17 @@ void BackendSelector::paint(juce::Graphics &g) {
     auto currentBound = getBounds();
     switch (currentBackend) {
 #ifdef USE_TFLITE
-        case aari::InferenceBackend::TFLITE:
+        case anira::InferenceBackend::TFLITE:
             backendTFLite->drawWithin(g, currentBound.toFloat(), juce::RectanglePlacement::stretchToFit, 1.0f);
             break;
 #endif
 #ifdef USE_LIBTORCH
-        case aari::InferenceBackend::LIBTORCH:
+        case anira::InferenceBackend::LIBTORCH:
             backendLibTorch->drawWithin(g, currentBound.toFloat(), juce::RectanglePlacement::stretchToFit, 1.0f);
             break;
 #endif
 #ifdef USE_ONNXRUNTIME
-        case aari::InferenceBackend::ONNX:
+        case anira::InferenceBackend::ONNX:
             backendONNX->drawWithin(g, currentBound.toFloat(), juce::RectanglePlacement::stretchToFit, 1.0f);
             break;
 #endif
@@ -99,15 +99,15 @@ void BackendSelector::mouseDown(const juce::MouseEvent &event) {
     auto pos = event.getPosition();
     if ( libtorchBounds.contains(pos) ) {
 #ifdef USE_LIBTORCH
-        currentBackend = aari::InferenceBackend::LIBTORCH;
+        currentBackend = anira::InferenceBackend::LIBTORCH;
 #endif
     } else if ( tfliteBounds.contains(pos) ) {
 #ifdef USE_TFLITE
-        currentBackend = aari::InferenceBackend::TFLITE;
+        currentBackend = anira::InferenceBackend::TFLITE;
 #endif
     } else if ( onnxBounds.contains(pos) ) {
 #ifdef USE_ONNXRUNTIME
-        currentBackend = aari::InferenceBackend::ONNX;
+        currentBackend = anira::InferenceBackend::ONNX;
 #endif
     } else {
         getNextBackend();
@@ -132,48 +132,48 @@ void BackendSelector::getNextBackend() {
 //TODO
 //    switch (currentBackend) {
 //#ifdef USE_TFLITE
-//        case aari::InferenceBackend::TFLITE:
-//            currentBackend = aari::InferenceBackend::LIBTORCH;
+//        case anira::InferenceBackend::TFLITE:
+//            currentBackend = anira::InferenceBackend::LIBTORCH;
 //            break;
 //#endif
 //#ifdef USE_LIBTORCH
-//        case aari::InferenceBackend::LIBTORCH:
-//            currentBackend = aari::InferenceBackend::ONNX;
+//        case anira::InferenceBackend::LIBTORCH:
+//            currentBackend = anira::InferenceBackend::ONNX;
 //            break;
 //#endif
 //#ifdef USE_ONNXRUNTIME
-//        case aari::InferenceBackend::ONNX:
-//            currentBackend = aari::InferenceBackend::TFLITE;
+//        case anira::InferenceBackend::ONNX:
+//            currentBackend = anira::InferenceBackend::TFLITE;
 //            break;
 //#endif
 //    }
 }
 
-aari::InferenceBackend BackendSelector::stringToBackend(juce::String &backendStr) {
+anira::InferenceBackend BackendSelector::stringToBackend(juce::String &backendStr) {
 #ifdef USE_TFLITE
-    if (backendStr == "TFLITE") return aari::InferenceBackend::TFLITE;
+    if (backendStr == "TFLITE") return anira::InferenceBackend::TFLITE;
 #endif
 #ifdef USE_LIBTORCH
-    if (backendStr == "LIBTORCH") return aari::InferenceBackend::LIBTORCH;
+    if (backendStr == "LIBTORCH") return anira::InferenceBackend::LIBTORCH;
 #endif
 #ifdef USE_ONNXRUNTIME
-    if (backendStr == "ONNXRUNTIME") return aari::InferenceBackend::ONNX;
+    if (backendStr == "ONNXRUNTIME") return anira::InferenceBackend::ONNX;
 #endif
     throw std::invalid_argument("Invalid backend string");
 }
 
-juce::String BackendSelector::backendToString(aari::InferenceBackend backend) {
+juce::String BackendSelector::backendToString(anira::InferenceBackend backend) {
     switch (backend) {
 #ifdef USE_TFLITE
-        case aari::InferenceBackend::TFLITE:
+        case anira::InferenceBackend::TFLITE:
             return "TFLITE";
 #endif
 #ifdef USE_LIBTORCH
-        case aari::InferenceBackend::LIBTORCH:
+        case anira::InferenceBackend::LIBTORCH:
             return "LIBTORCH";
 #endif
 #ifdef USE_ONNXRUNTIME
-        case aari::InferenceBackend::ONNX:
+        case anira::InferenceBackend::ONNX:
             return "ONNXRUNTIME";
 #endif
         default:

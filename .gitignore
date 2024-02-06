@@ -10,5 +10,5 @@ add_debug_entitlement.sh
 !modules/GuitarLSTM/
 !modules/steerable-nafx/
 !modules/stateful-lstm/
-!modules/AARI/
+!modules/anira/
 install/

@@ -8,7 +8,7 @@ add_executable(minimal-onnxruntime
 )
 
 target_link_libraries(minimal-onnxruntime
-  aari::aari
+  anira::anira
 )
 
 if (MSVC)

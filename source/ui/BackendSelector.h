@@ -3,14 +3,14 @@
 
 #include <JuceHeader.h>
 #include "../PluginParameters.h"
-#include <aari/utils/InferenceBackend.h>
+#include <anira/utils/InferenceBackend.h>
 
 class BackendSelector : public juce::Component {
 public:
     BackendSelector(juce::AudioProcessorValueTreeState& state);
 
     void setBackend(int backendID);
-    aari::InferenceBackend getBackend();
+    anira::InferenceBackend getBackend();
 
     void paint(juce::Graphics& g) override;
     void resized() override;
@@ -25,8 +25,8 @@ private:
     int getCurrentBackendID();
     void getNextBackend();
 
-    aari::InferenceBackend stringToBackend(juce::String& backendStr);
-    juce::String backendToString(aari::InferenceBackend backend);
+    anira::InferenceBackend stringToBackend(juce::String& backendStr);
+    juce::String backendToString(anira::InferenceBackend backend);
 
 private:
     juce::AudioProcessorValueTreeState& apvts;
@@ -45,7 +45,7 @@ private:
     juce::Rectangle<int> onnxHighlightBounds;
 
     juce::StringArray backendList;
-    aari::InferenceBackend currentBackend;
+    anira::InferenceBackend currentBackend;
 
     enum BackendHover {
         NONE,

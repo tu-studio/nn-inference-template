@@ -61,9 +61,9 @@ else()
 endif()
 
 # Juce is included via a submodule
-add_subdirectory(modules/AARI)
-# set(CMAKE_PREFIX_PATH ${CMAKE_SOURCE_DIR}/modules/AARI/install)
-# find_package(AARI REQUIRED)
+add_subdirectory(modules/anira)
+# set(CMAKE_PREFIX_PATH ${CMAKE_SOURCE_DIR}/modules/anira/install)
+# find_package(anira REQUIRED)
 add_subdirectory(modules/JUCE)
 
 if(NOT BACKEND_LIBTORCH AND NOT BACKEND_ONNXRUNTIME AND NOT BACKEND_TFLITE)
@@ -156,7 +156,7 @@ target_compile_definitions(${TARGET_NAME}
 
 target_link_libraries(${TARGET_NAME}
     PRIVATE
-        aari::aari
+        anira::anira
         BinaryData
         juce::juce_audio_utils
         juce::juce_dsp
@@ -250,8 +250,8 @@ foreach (DIR ${TEST_DIRS}_${TARGET_NAME})
     endif ()
 endforeach ()
 
-# Link the test executable against gtest_main and google benchmark and our AARI library
-target_link_libraries(Test_${TARGET_NAME} PRIVATE gtest_main benchmark aari::aari)
+# Link the test executable against gtest_main and google benchmark and our anira library
+target_link_libraries(Test_${TARGET_NAME} PRIVATE gtest_main benchmark anira::anira)
 
 # We can't link again to the shared juce target without ODL violations (https://github.com/sudara/pamplejuce/issues/31, https://forum.juce.com/t/windows-linker-issue-on-develop/55524/2)
 # Therefore we steal the compile definitions and include directories from the main target and pass them to our test target

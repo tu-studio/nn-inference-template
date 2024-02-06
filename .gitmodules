@@ -10,6 +10,6 @@
 [submodule "modules/stateful-lstm"]
 	path = modules/stateful-lstm
 	url = https://github.com/vackva/stateful-lstm.git
-[submodule "modules/AARI"]
-	path = modules/AARI
-	url = https://github.com/TU-Studio/AARI.git
+[submodule "modules/anira"]
+	path = modules/anira
+	url = git@github.com:tu-studio/anira.git

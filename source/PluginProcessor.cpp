@@ -98,7 +98,7 @@ void AudioPluginAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
                                  static_cast<juce::uint32>(samplesPerBlock),
                                  static_cast<juce::uint32>(1)};
 
-    aari::HostAudioConfig monoConfig {
+    anira::HostAudioConfig monoConfig {
         1,
         (size_t) samplesPerBlock,
         sampleRate
@@ -199,15 +199,15 @@ void AudioPluginAudioProcessor::parameterChanged(const juce::String &parameterID
     } else if (parameterID == PluginParameters::BACKEND_TYPE_ID.getParamID()) {
         const auto paramInt = static_cast<int>(newValue);
         auto paramString = PluginParameters::backendTypes.getReference(paramInt);
-        aari::InferenceBackend newBackend;
+        anira::InferenceBackend newBackend;
 #ifdef USE_TFLITE
-        if (paramString == "TFLITE") newBackend = aari::TFLITE;
+        if (paramString == "TFLITE") newBackend = anira::TFLITE;
 #endif
 #ifdef USE_ONNXRUNTIME
-        if (paramString == "ONNX") newBackend = aari::ONNX;
+        if (paramString == "ONNX") newBackend = anira::ONNX;
 #endif
 #ifdef USE_LIBTORCH
-        if (paramString == "LIBTORCH") newBackend = aari::LIBTORCH;
+        if (paramString == "LIBTORCH") newBackend = anira::LIBTORCH;
 #endif
         inferenceHandler.setInferenceBackend(newBackend);
     }
@@ -219,6 +219,6 @@ juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
     return new AudioPluginAudioProcessor();
 }
 
-aari::InferenceManager &AudioPluginAudioProcessor::getInferenceManager() {
+anira::InferenceManager &AudioPluginAudioProcessor::getInferenceManager() {
     return inferenceHandler.getInferenceManager();
 }

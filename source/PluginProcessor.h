@@ -8,7 +8,7 @@
 #include "MyPrePostProcessor.h"
 #include "Configs.h"
 
-#include <aari/InferenceHandler.h>
+#include <anira/InferenceHandler.h>
 
 //==============================================================================
 class AudioPluginAudioProcessor  : public juce::AudioProcessor, private juce::AudioProcessorValueTreeState::Listener
@@ -50,7 +50,7 @@ public:
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
 
-    aari::InferenceManager &getInferenceManager();
+    anira::InferenceManager &getInferenceManager();
     juce::AudioProcessorValueTreeState& getValueTreeState() { return parameters; }
 
 private:
@@ -61,7 +61,7 @@ private:
     juce::AudioBuffer<float> monoBuffer;
 
     MyPrePostProcessor prePostProcessor;
-    aari::InferenceHandler inferenceHandler;
+    anira::InferenceHandler inferenceHandler;
 
     Mixer dryWetMixer;
     MonoStereo monoStereoProcessor;
