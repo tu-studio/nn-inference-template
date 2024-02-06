@@ -10,7 +10,7 @@ public:
     BackendSelector(juce::AudioProcessorValueTreeState& state);
 
     void setBackend(int backendID);
-    InferenceBackend getBackend();
+    aari::InferenceBackend getBackend();
 
     void paint(juce::Graphics& g) override;
     void resized() override;
@@ -25,8 +25,8 @@ private:
     int getCurrentBackendID();
     void getNextBackend();
 
-    InferenceBackend stringToBackend(juce::String& backendStr);
-    juce::String backendToString(InferenceBackend backend);
+    aari::InferenceBackend stringToBackend(juce::String& backendStr);
+    juce::String backendToString(aari::InferenceBackend backend);
 
 private:
     juce::AudioProcessorValueTreeState& apvts;
@@ -45,7 +45,7 @@ private:
     juce::Rectangle<int> onnxHighlightBounds;
 
     juce::StringArray backendList;
-    InferenceBackend currentBackend;
+    aari::InferenceBackend currentBackend;
 
     enum BackendHover {
         NONE,

@@ -1,7 +1,3 @@
-//
-// Created by valentin.ackva on 01.11.2023.
-//
-
 #ifndef NN_INFERENCE_TEMPLATE_MONOSTEREO_H
 #define NN_INFERENCE_TEMPLATE_MONOSTEREO_H
 
@@ -44,6 +40,5 @@ public:
         }
     }
 };
-
 
 #endif //NN_INFERENCE_TEMPLATE_MONOSTEREO_H

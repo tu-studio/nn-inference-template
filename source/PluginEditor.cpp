@@ -49,17 +49,17 @@ void AudioPluginAudioProcessorEditor::paint (juce::Graphics& g)
 
     switch (currentBackend) {
 #ifdef USE_TFLITE
-        case TFLITE:
+        case aari::TFLITE:
             tfliteFont->drawWithin(g, fontBounds.toFloat(), juce::RectanglePlacement::doNotResize, 1.0f);
             break;
 #endif
 #ifdef USE_LIBTORCH
-        case LIBTORCH:
+        case aari::LIBTORCH:
             libtorchFont->drawWithin(g, fontBounds.toFloat(), juce::RectanglePlacement::doNotResize, 1.0f);
             break;
 #endif
 #ifdef USE_ONNXRUNTIME
-        case ONNX:
+        case aari::ONNX:
             onnxFont->drawWithin(g, fontBounds.toFloat(), juce::RectanglePlacement::doNotResize, 1.0f);
             break;
 #endif

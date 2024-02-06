@@ -15,7 +15,7 @@
 #define MODEL_INPUT_SIZE_BACKEND 150
 #define MODEL_OUTPUT_SIZE_BACKEND 1
 
-static InferenceConfig config(
+static aari::InferenceConfig config(
 #ifdef USE_LIBTORCH
         GUITARLSTM_MODELS_PATH_PYTORCH + std::string("model_0/model_0-streaming.pt"),
         {BATCH_SIZE, 1, MODEL_INPUT_SIZE_BACKEND},

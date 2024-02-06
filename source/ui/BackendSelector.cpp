@@ -15,7 +15,7 @@ void BackendSelector::setBackend(int backendID) {
     }
 }
 
-InferenceBackend BackendSelector::getBackend() {
+aari::InferenceBackend BackendSelector::getBackend() {
     return currentBackend;
 }
 
@@ -23,17 +23,17 @@ void BackendSelector::paint(juce::Graphics &g) {
     auto currentBound = getBounds();
     switch (currentBackend) {
 #ifdef USE_TFLITE
-        case InferenceBackend::TFLITE:
+        case aari::InferenceBackend::TFLITE:
             backendTFLite->drawWithin(g, currentBound.toFloat(), juce::RectanglePlacement::stretchToFit, 1.0f);
             break;
 #endif
 #ifdef USE_LIBTORCH
-        case InferenceBackend::LIBTORCH:
+        case aari::InferenceBackend::LIBTORCH:
             backendLibTorch->drawWithin(g, currentBound.toFloat(), juce::RectanglePlacement::stretchToFit, 1.0f);
             break;
 #endif
 #ifdef USE_ONNXRUNTIME
-        case InferenceBackend::ONNX:
+        case aari::InferenceBackend::ONNX:
             backendONNX->drawWithin(g, currentBound.toFloat(), juce::RectanglePlacement::stretchToFit, 1.0f);
             break;
 #endif
@@ -99,15 +99,15 @@ void BackendSelector::mouseDown(const juce::MouseEvent &event) {
     auto pos = event.getPosition();
     if ( libtorchBounds.contains(pos) ) {
 #ifdef USE_LIBTORCH
-        currentBackend = InferenceBackend::LIBTORCH;
+        currentBackend = aari::InferenceBackend::LIBTORCH;
 #endif
     } else if ( tfliteBounds.contains(pos) ) {
 #ifdef USE_TFLITE
-        currentBackend = InferenceBackend::TFLITE;
+        currentBackend = aari::InferenceBackend::TFLITE;
 #endif
     } else if ( onnxBounds.contains(pos) ) {
 #ifdef USE_ONNXRUNTIME
-        currentBackend = InferenceBackend::ONNX;
+        currentBackend = aari::InferenceBackend::ONNX;
 #endif
     } else {
         getNextBackend();
@@ -132,48 +132,48 @@ void BackendSelector::getNextBackend() {
 //TODO
 //    switch (currentBackend) {
 //#ifdef USE_TFLITE
-//        case InferenceBackend::TFLITE:
-//            currentBackend = InferenceBackend::LIBTORCH;
+//        case aari::InferenceBackend::TFLITE:
+//            currentBackend = aari::InferenceBackend::LIBTORCH;
 //            break;
 //#endif
 //#ifdef USE_LIBTORCH
-//        case InferenceBackend::LIBTORCH:
-//            currentBackend = InferenceBackend::ONNX;
+//        case aari::InferenceBackend::LIBTORCH:
+//            currentBackend = aari::InferenceBackend::ONNX;
 //            break;
 //#endif
 //#ifdef USE_ONNXRUNTIME
-//        case InferenceBackend::ONNX:
-//            currentBackend = InferenceBackend::TFLITE;
+//        case aari::InferenceBackend::ONNX:
+//            currentBackend = aari::InferenceBackend::TFLITE;
 //            break;
 //#endif
 //    }
 }
 
-InferenceBackend BackendSelector::stringToBackend(juce::String &backendStr) {
+aari::InferenceBackend BackendSelector::stringToBackend(juce::String &backendStr) {
 #ifdef USE_TFLITE
-    if (backendStr == "TFLITE") return InferenceBackend::TFLITE;
+    if (backendStr == "TFLITE") return aari::InferenceBackend::TFLITE;
 #endif
 #ifdef USE_LIBTORCH
-    if (backendStr == "LIBTORCH") return InferenceBackend::LIBTORCH;
+    if (backendStr == "LIBTORCH") return aari::InferenceBackend::LIBTORCH;
 #endif
 #ifdef USE_ONNXRUNTIME
-    if (backendStr == "ONNXRUNTIME") return InferenceBackend::ONNX;
+    if (backendStr == "ONNXRUNTIME") return aari::InferenceBackend::ONNX;
 #endif
     throw std::invalid_argument("Invalid backend string");
 }
 
-juce::String BackendSelector::backendToString(InferenceBackend backend) {
+juce::String BackendSelector::backendToString(aari::InferenceBackend backend) {
     switch (backend) {
 #ifdef USE_TFLITE
-        case InferenceBackend::TFLITE:
+        case aari::InferenceBackend::TFLITE:
             return "TFLITE";
 #endif
 #ifdef USE_LIBTORCH
-        case InferenceBackend::LIBTORCH:
+        case aari::InferenceBackend::LIBTORCH:
             return "LIBTORCH";
 #endif
 #ifdef USE_ONNXRUNTIME
-        case InferenceBackend::ONNX:
+        case aari::InferenceBackend::ONNX:
             return "ONNXRUNTIME";
 #endif
         default:

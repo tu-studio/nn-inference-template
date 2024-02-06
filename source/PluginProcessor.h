@@ -50,7 +50,7 @@ public:
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
 
-    InferenceManager &getInferenceManager();
+    aari::InferenceManager &getInferenceManager();
     juce::AudioProcessorValueTreeState& getValueTreeState() { return parameters; }
 
 private:
@@ -61,7 +61,7 @@ private:
     juce::AudioBuffer<float> monoBuffer;
 
     MyPrePostProcessor prePostProcessor;
-    InferenceHandler inferenceHandler;
+    aari::InferenceHandler inferenceHandler;
 
     Mixer dryWetMixer;
     MonoStereo monoStereoProcessor;

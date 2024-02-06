@@ -4,11 +4,11 @@
 #include <aari/PrePostProcessor.h>
 #include "Configs.h"
 
-class MyPrePostProcessor : public PrePostProcessor
+class MyPrePostProcessor : public aari::PrePostProcessor
 {
 public:
 #if MODEL_TO_USE == 1
-    virtual void preProcess(RingBuffer& input, AudioBufferF& output, [[maybe_unused]] InferenceBackend currentInferenceBackend) override {
+    virtual void preProcess(aari::RingBuffer& input, aari::AudioBufferF& output, [[maybe_unused]] aari::InferenceBackend currentInferenceBackend) override {
         for (size_t batch = 0; batch < config.m_batch_size; batch++) {
             size_t baseIdx = batch * config.m_model_input_size_backend;
             popSamplesFromBuffer(input, output, config.m_model_input_size, config.m_model_input_size_backend-config.m_model_input_size, baseIdx);

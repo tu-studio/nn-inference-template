@@ -147,7 +147,7 @@ void ProcessBlockFixture::TearDown(const ::benchmark::State& state) {
 BENCHMARK_DEFINE_F(ProcessBlockFixture, BM_LIBTORCH_BACKEND)(benchmark::State& state) {
     auto sessions = plugin->getInferenceManager().getInferenceThreadPool().getSessions();
     for (size_t i = 0; i < sessions.size(); i++) {
-        sessions[i]->currentBackend = LIBTORCH;
+        sessions[i]->currentBackend = aari::LIBTORCH;
     }
 
     int iteration = 0;
@@ -191,7 +191,7 @@ BENCHMARK_DEFINE_F(ProcessBlockFixture, BM_LIBTORCH_BACKEND)(benchmark::State& s
 BENCHMARK_DEFINE_F(ProcessBlockFixture, BM_TFLITE_BACKEND)(benchmark::State& state) {
     auto sessions = plugin->getInferenceManager().getInferenceThreadPool().getSessions();
     for (size_t i = 0; i < sessions.size(); i++) {
-        sessions[i]->currentBackend = TFLITE;
+        sessions[i]->currentBackend = aari::TFLITE;
     }
 
     int iteration = 0;
@@ -235,7 +235,7 @@ BENCHMARK_DEFINE_F(ProcessBlockFixture, BM_TFLITE_BACKEND)(benchmark::State& sta
 BENCHMARK_DEFINE_F(ProcessBlockFixture, BM_ONNX_BACKEND)(benchmark::State& state) {
     auto& sessions = plugin->getInferenceManager().getInferenceThreadPool().getSessions();
     for (size_t i = 0; i < sessions.size(); i++) {
-        sessions[i]->currentBackend.store(ONNX);
+        sessions[i]->currentBackend = aari::ONNX;
     }
 
     int iteration = 0;
