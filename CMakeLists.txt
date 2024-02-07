@@ -68,6 +68,8 @@ if (MSVC)
 endif ()
 
 add_subdirectory(modules/anira)
+message(STATUS "Test: ${ANIRA_LIBTORCH_SHARED_LIB_PATH}")
+
 # set(CMAKE_PREFIX_PATH ${CMAKE_SOURCE_DIR}/modules/anira/install)
 # find_package(anira REQUIRED)
 
@@ -172,17 +174,21 @@ target_link_libraries(${TARGET_NAME}
         juce::juce_recommended_warning_flags
 )
 
-#if (MSVC)
-#    file(GLOB_RECURSE INFERENCE_ENGINE_DLLS "modules/*.dll")
-#    foreach(FORMAT IN LISTS FORMATS_TO_BUILD)
-#        string(CONCAT CONCATENATED_TARGET ${TARGET_NAME}_${FORMAT})
-#        add_custom_command(TARGET ${CONCATENATED_TARGET}
-#                POST_BUILD
-#                COMMAND ${CMAKE_COMMAND} -E copy_if_different
-#                ${INFERENCE_ENGINE_DLLS}
-#                $<TARGET_FILE_DIR:${TARGET_NAME}>/${FORMAT})
-#    endforeach()
-#endif (MSVC)
+if (MSVC)
+    file(GLOB_RECURSE INFERENCE_ENGINE_DLLS_ONNX "${ANIRA_ONNXRUNTIME_SHARED_LIB_PATH}/*.dll")
+    file(GLOB_RECURSE INFERENCE_ENGINE_DLLS_TFLITE "${TENSORFLOWLITE_ROOTDIR}/*.dll")
+    file(GLOB_RECURSE INFERENCE_ENGINE_DLLS_LIBTORCH "${ANIRA_LIBTORCH_SHARED_LIB_PATH}/*.dll")
+    set(INFERENCE_ENGINE_DLLS ${INFERENCE_ENGINE_DLLS_ONNX} ${INFERENCE_ENGINE_DLLS_TFLITE} ${INFERENCE_ENGINE_DLLS_LIBTORCH})
+
+    foreach(FORMAT IN LISTS FORMATS_TO_BUILD)
+        string(CONCAT CONCATENATED_TARGET ${TARGET_NAME}_${FORMAT})
+        add_custom_command(TARGET ${CONCATENATED_TARGET}
+                POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                ${INFERENCE_ENGINE_DLLS}
+                $<TARGET_FILE_DIR:${TARGET_NAME}>/${FORMAT})
+    endforeach()
+endif (MSVC)
 
 
 # ==============================================================================

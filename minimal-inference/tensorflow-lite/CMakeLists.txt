@@ -12,7 +12,7 @@ target_link_libraries(minimal-tflite
 )
 
 if (MSVC)
-    file(GLOB_RECURSE TFLITE_DLLS "${CMAKE_SOURCE_DIR}/modules/tensorflowlite*/*.dll")
+    file(GLOB_RECURSE TFLITE_DLLS "${ANIRA_TENSORFLOWLITE_SHARED_LIB_PATH}/*.dll")
     add_custom_command(TARGET minimal-tflite
             POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_if_different

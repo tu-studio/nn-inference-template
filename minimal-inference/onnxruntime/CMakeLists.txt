@@ -12,7 +12,7 @@ target_link_libraries(minimal-onnxruntime
 )
 
 if (MSVC)
-    file(GLOB_RECURSE ONNX_DLLS "${CMAKE_SOURCE_DIR}/modules/onnx*/*.dll")
+    file(GLOB_RECURSE ONNX_DLLS "${ANIRA_ONNXRUNTIME_SHARED_LIB_PATH}/*.dll")
     add_custom_command(TARGET minimal-onnxruntime
             POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_if_different

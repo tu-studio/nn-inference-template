@@ -12,11 +12,7 @@ target_link_libraries(minimal-libtorch
 )
 
 if (MSVC)
-    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-        file(GLOB_RECURSE LIBTORCH_DLLS "${CMAKE_SOURCE_DIR}/modules/libtorch*debug/*.dll")
-    else()
-        file(GLOB_RECURSE LIBTORCH_DLLS "${CMAKE_SOURCE_DIR}/modules/libtorch*release/*.dll")
-    endif()
+    file(GLOB_RECURSE LIBTORCH_DLLS "${ANIRA_LIBTORCH_SHARED_LIB_PATH}/*.dll")
     add_custom_command(TARGET minimal-libtorch
             POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_if_different
