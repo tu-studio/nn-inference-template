@@ -61,10 +61,15 @@ else()
 endif()
 
 # Juce is included via a submodule
+add_subdirectory(modules/JUCE)
+
+if (MSVC)
+    set(ANIRA_BUILD_DYNAMIC_LIBRARY OFF)
+endif ()
+
 add_subdirectory(modules/anira)
 # set(CMAKE_PREFIX_PATH ${CMAKE_SOURCE_DIR}/modules/anira/install)
 # find_package(anira REQUIRED)
-add_subdirectory(modules/JUCE)
 
 if(NOT BACKEND_LIBTORCH AND NOT BACKEND_ONNXRUNTIME AND NOT BACKEND_TFLITE)
     message(FATAL_ERROR "No backend selected. Please select at least one backend by setting one of the following options to ON: BACKEND_LIBTORCH, BACKEND_ONNXRUNTIME, or BACKEND_TFLITE. For example, add '-DBACKEND_LIBTORCH=ON' to your CMake command line")
